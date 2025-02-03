@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #	This file is part of the OrangeFox Recovery Project
-# 	Copyright (C) 2018-2024 The OrangeFox Recovery Project
+# 	Copyright (C) 2018-2025 The OrangeFox Recovery Project
 #
 #	OrangeFox is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 13 September 2024
+# 03 February 2025
 #
 # *** This script is for the OrangeFox Android 12.1 manifest ***
 #
@@ -849,6 +849,7 @@ local F=""
 	 rm -f $FOX_RAMDISK/sbin/zstd
 	 rm -f $FOX_RAMDISK/sbin/lz4
       	 rm -f $FOX_RAMDISK/sbin/gnused
+      	 rm -f $FOX_RAMDISK/sbin/gnudate
       	 rm -f $FOX_RAMDISK/sbin/bash
       	 rm -f $FOX_RAMDISK/sbin/busybox
       	 rm -f $FOX_RAMDISK/etc/bash.bashrc
@@ -994,6 +995,11 @@ local mksync="3"
      	[ "$FOX_CUSTOM_BINS_TO_SDCARD" = "$mksync" ] && ln -sf $sdcard_bin/gnutar $ramdisk_sbindir/gnutar
   }
 
+  [ -f $ramdisk_sbindir/gnudate ] && {
+     	mv -f $ramdisk_sbindir/gnudate $FOX_BIN_tmp/bin/
+     	[ "$FOX_CUSTOM_BINS_TO_SDCARD" = "$mksync" ] && ln -sf $sdcard_bin/gnudate $ramdisk_sbindir/gnudate
+  }
+
   [ -f $ramdisk_sbindir/gnused ] && {
      	mv -f $ramdisk_sbindir/gnused $FOX_BIN_tmp/bin/
      	[ "$FOX_CUSTOM_BINS_TO_SDCARD" = "$mksync" ] && ln -sf $sdcard_bin/gnused $ramdisk_sbindir/gnused
@@ -1051,7 +1057,7 @@ cat << EOF >> "$tmp1"
            [ -d $sdcard_bin/nano/ ] && { cp -af $sdcard_bin/nano/ /FFiles/nano/; rm -rf /sbin/nano/; mv -f /sbin/nano_script /sbin/nano; }
            [ -f $sdcard_bin/nano ] && cp -af $sdcard_bin/nano /system/bin/
    	else
-	   files="aapt bash gnused gnutar lzma zip zstd lz4"
+	   files="aapt bash gnused gnutar gnudate lzma zip zstd lz4"
 	   set -- \$files
 	   while [ -n "\$1" ]
   	   do
@@ -1367,6 +1373,15 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
       chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/lz4
   else
       rm -f $FOX_RAMDISK/$RAMDISK_SBIN/lz4
+  fi
+
+  # Include standalone "date" binary ?
+  if [ "$FOX_USE_DATE_BINARY" = "1" ]; then
+      echo -e "${GREEN}-- Copying the GNU \"date\" binary (gnudate) ...${NC}"
+      $CP -p $FOX_VENDOR_PATH/prebuilt/$TARGET_ARCH/gnudate $FOX_RAMDISK/$RAMDISK_SBIN/
+      chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/gnudate
+  else
+      rm -f $FOX_RAMDISK/$RAMDISK_SBIN/gnudate
   fi
 
   # Include our own "zip" binary ?
