@@ -3,10 +3,11 @@
 # nano: set up and run prebuilt nano from recovery/terminal
 # osm0sis @ xda-developers
 # DarthJabba9  @ xda-developers
-# Date: 7 September 2024
+# Date: 23 February 2025
 
 NANO_DIR=/FFiles/nano;
 nano_bin=$NANO_DIR/bin/nano.bin;
+ETC_TNFO_DIR=/system/etc/terminfo;
 
 if [ -e $nano_bin ] && [ ! -x $nano_bin ]; then
    chmod 0755 $nano_bin;
@@ -42,8 +43,8 @@ DEFAULT_ARGS="-A -l -u -y -w -c";
 clear;
 
 OLD_TERM=$TERM;
-export TERMINFO=$NANO_DIR/terminfo;
 export TERM=$term;
+[ -d $ETC_TNFO_DIR"/x/" ] && export TERMINFO="$ETC_TNFO_DIR" || export TERMINFO=$NANO_DIR/terminfo;
 
 $nano_bin $DEFAULT_ARGS "$@";
 
