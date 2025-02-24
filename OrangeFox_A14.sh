@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 03 February 2025
+# 24 February 2025
 #
 # *** This script is for the OrangeFox Android 12.1 manifest ***
 #
@@ -47,7 +47,7 @@ if [ -f "$FOXENV" ]; then
    source "$FOXENV"
 else
    echo "** WARNING: $FOXENV is not found. Your build vars will probably not be implemented. **"
-   echo "** You need an up-to-date OrangeFox patch for the AOSP 12.1 manifest. **"
+   echo "** You need an up-to-date OrangeFox patch for the AOSP 14.1 manifest. **"
 fi
 
 # whether to print extra debug messages
@@ -170,7 +170,7 @@ if [ -n "$4" ]; then
       echo "MKBOOTFS=\"$MKBOOTFS\"" >>  $TMP_SCRATCH
       echo "TARGET_OUT=\"$TARGET_OUT\"" >>  $TMP_SCRATCH
       echo "TARGET_RECOVERY_ROOT_OUT=\"$TARGET_RECOVERY_ROOT_OUT\"" >>  $TMP_SCRATCH
-      echo "RECOVERY_RAMDISK_COMPRESSOR=\"$RECOVERY_RAMDISK_COMPRESSOR\"" >>  $TMP_SCRATCH
+      echo "COMPRESSION_COMMAND=\"$COMPRESSION_COMMAND\"" >>  $TMP_SCRATCH
       echo "INTERNAL_KERNEL_CMDLINE=\"$INTERNAL_KERNEL_CMDLINE\"" >>  $TMP_SCRATCH
       echo "INTERNAL_RECOVERYIMAGE_ARGS='$INTERNAL_RECOVERYIMAGE_ARGS'" >>  $TMP_SCRATCH
       echo "INTERNAL_MKBOOTIMG_VERSION_ARGS=\"$INTERNAL_MKBOOTIMG_VERSION_ARGS\"" >>  $TMP_SCRATCH
