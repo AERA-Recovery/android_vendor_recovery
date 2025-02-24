@@ -21,7 +21,7 @@
 # ******************************************************************************
 # 24 February 2025
 #
-# *** This script is for the OrangeFox Android 12.1 manifest ***
+# *** This script is for the OrangeFox Android 14.1 manifest ***
 #
 # For optional environment variables - to be declared before building,
 # see "orangefox_build_vars.txt" for full details
