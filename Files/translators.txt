@@ -42,6 +42,7 @@ Romanian:
 Russian:
 * MrYacha
 * fordownloads
+* Ctapchuk
 Spanish:
 * Jimgsey
 * FacuM
