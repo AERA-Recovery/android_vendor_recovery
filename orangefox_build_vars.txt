@@ -5,7 +5,7 @@
 # These build vars should be declared - in a shell script (eg, in "vendorsetup.sh"), or at the command line - before building
 #
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 24 February 2025
+# Date: 03 March 2025
 #
 # -----------------------------------
 #
@@ -22,10 +22,6 @@
 #
 "OF_AB_DEVICE_WITH_RECOVERY_PARTITION" [NEW]
    - set to 1 if the device is an A/B device that has a dedicated recovery partition (** make sure that it really is **)
-   - if this is enabled, the following features will automatically be removed
-   	* Changing the OrangeFox splash image/logo
-   	* "Flash Current OrangeFox"
-   	* "Reflash OrangeFox after flashing a ROM"
    - default = 0
 #
 "OF_RECOVERY_AB_FULL_REFLASH_RAMDISK" [NEW]
@@ -82,7 +78,7 @@
      different from the default "/dev/block/by-name/vendor_boot"
    - default = "/dev/block/by-name/vendor_boot"
 #
-"FOX_RECOVERY_BOOT_PARTITION" [R11.1 only]
+"FOX_RECOVERY_BOOT_PARTITION" [R11.1 and higher only]
    - !!! this should normally BE LEFT WELL ALONE !!!
    - set this ONLY if your device's boot partition is in a location that is
      different from the default "/dev/block/by-name/boot"
@@ -785,4 +781,5 @@
 - Set this to 1 to force the selection of f2fs when formatting data; this is only needed when f2fs is never selected by default
 - Use with care! Do NOT use unless you are sure that all targeted ROMs on the device will support f2fs!
 - default = 0
+#
 # -----------------------------------
