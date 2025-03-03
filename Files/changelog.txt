@@ -1,5 +1,15 @@
-OrangeFox Recovery R11.1 Changelog
+OrangeFox Recovery R11.2 Changelog
 -----------------------------------
+
+== R11.2 ==
+- Update the default Magisk addon to v28.1
+- Dispense with legacy/redundant code
+- Support for AOSP Android 14/Android 15 ROMs
+- Update several UI elements
+- Support using a USB mouse to navigate the UI
+- Full support for vAB devices
+- Lots of fixes and enhancements
+
 
 == R11.1 ==
 - Update the magisk addon to 21.4
