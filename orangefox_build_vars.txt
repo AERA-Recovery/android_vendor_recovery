@@ -782,4 +782,10 @@
 - Use with care! Do NOT use unless you are sure that all targeted ROMs on the device will support f2fs!
 - default = 0
 #
+"FOX_MOVE_MAGISK_INSTALLER_TO_RAMDISK" [NEW]
+- Set to 1 to move the Magisk installer/uninstaller ZIP to the ramdisk.
+- This will make the Magisk addon independent of access to /sdcard, but it will take up more space in the ramdisk.
+- WARNING: monitor the free space in the ramdisk, as this feature may take up all available space in the ramdisk.
+- In such a case, recovery is likely to fail to boot, although the build will complete without errors
+- default = 0
 # -----------------------------------

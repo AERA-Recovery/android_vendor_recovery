@@ -4,7 +4,7 @@
 # 	Custom script for OrangeFox Recovery
 #
 #	This file is part of the OrangeFox Recovery Project
-# 	Copyright (C) 2018-2024 The OrangeFox Recovery Project
+# 	Copyright (C) 2018-2025 The OrangeFox Recovery Project
 #
 #	OrangeFox is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@
 # 	Please maintain this if you use this script or any part of it
 #
 #
-# * Author: DarthJabba9
-# * Date:   20240905
+# * Author: DarthJabba9, Ctapchuk
+# * Date:   20250303
 # * Identify some ROM features and hardware components
 # * Do some other sundry stuff
 #
 #
-SCRIPT_LASTMOD_DATE="20240904"
+SCRIPT_LASTMOD_DATE="20250303"
 C="/tmp_cust"
 LOG="/tmp/recovery.log"
 LOG2="/sdcard/foxstart.log"
@@ -561,6 +561,12 @@ post_init() {
   # write OrangeFox props to the log
   echo "DEBUG: OrangeFox: Fox properties:" >> $LOG
   getprop | grep 'orangefox' >> $LOG
+
+  # use new magisk uninstall zip for saving space
+  local MZ="/FFiles/OF_Magisk/Magisk.zip"
+  if [ -e $MZ ]; then
+     cp $MZ /FFiles/OF_Magisk/uninstall.zip
+  fi
 }
 
 ### main() ###
