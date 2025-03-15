@@ -44,10 +44,10 @@ OUR_TMP="/FFiles/temp" # our "safe" temp directory
 # whether this is a vAB or vanilla build
 VIRTUAL_AB_OR_VANILLA=0
 
-# whether to use /data/recovery/ for settings
-FOX_USE_DATA_RECOVERY_FOR_SETTINGS=0
+# whether we have been given a fixed OrangeFox stuff directory
+FOX_STUFF_ROOT_DIRECTORY=""
 
-# whether we have been given a fixed settings directory
+# whether we have been given a fixed settings/themes directory
 FOX_SETTINGS_ROOT_DIRECTORY=""
 
 # etc dir
@@ -506,12 +506,17 @@ local fox_cfg="$ETC_DIR/fox.cfg"
    $SETPROP ro.orangefox.kernel "$OPS"
 
    local fox_home="/sdcard/Fox"
-   if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" ]; then
-   	fox_home=$FOX_SETTINGS_ROOT_DIRECTORY"Fox"
-   elif [ "$FOX_USE_DATA_RECOVERY_FOR_SETTINGS" = "1" ]; then
-   	fox_home="/data/recovery/Fox"
+   local fox_settings=$fox_home
+   if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
+      fox_home=$FOX_STUFF_ROOT_DIRECTORY"/Fox"
    fi
+
+   if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" ]; then
+      fox_settings=$FOX_SETTINGS_ROOT_DIRECTORY"/Fox"
+   fi
+
    $SETPROP ro.orangefox.home "$fox_home"
+   $SETPROP ro.orangefox.settings "$fox_settings"
    
    # if someone is still using old recovery sources
    ln -s $CFG /tmp/orangefox.cfg

@@ -131,7 +131,7 @@ Main() {
 	   		[ -z "$internal_SD" ] && internal_SD="/data/media/0"
 	   		mount $internal_SD
 		}
-		fox_path=$($GETPROP "ro.orangefox.home")
+		fox_path=$($GETPROP "ro.orangefox.settings")
 	fi
 
 	[ -z "$fox_path" ] && fox_path=$internal_SD"/Fox"

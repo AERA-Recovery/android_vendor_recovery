@@ -702,22 +702,45 @@
 - default = 0
 #
 "FOX_SETTINGS_ROOT_DIRECTORY" [NEW] [EXPERIMENTAL!!]
-- This allows specifying a custom settings directory for the recovery (ie, instead of the default "/sdcard/Fox/")
-- If used, you should specify the directory on the device that OrangeFox should use for its settings/configuration stuff
-- The specified directory name should ALWAYS be terminated with a front-slash (ie, "/"); and it must ALWAYS be available on the device whenever the recovery is running
-- OrangeFox will automatically append "Fox" to the end of the directory that is specified
+- This allows specifying a custom directory for the recovery settings/themes (ie, instead of the default "/sdcard/Fox/")
+- If used, you should specify the directory on the device that OrangeFox should use for its settings/themes stuff
+- The specified directory must ALWAYS be available on the device whenever the recovery is running
+- OrangeFox will automatically append "/Fox" to the end of the directory that is specified
 -
 - Examples:
 -
--  "export FOX_SETTINGS_ROOT_DIRECTORY=/sdcard/PRIVATE/"
+-  "export FOX_SETTINGS_ROOT_DIRECTORY=/sdcard/PRIVATE"
 -
--  "export FOX_SETTINGS_ROOT_DIRECTORY=/sdcard1/MyDev/"
+-  "export FOX_SETTINGS_ROOT_DIRECTORY=/sdcard1/MyDev"
+-
+-  "export FOX_SETTINGS_ROOT_DIRECTORY=/persist/OFRP"
 -
 - This is a HIGHLY EXPERIMENTAL feature, which may have bugs; use with GREAT caution, and with lots of testing
 - It is essential for the programmer's convenience, at the development stages, to avoid the need for constant reconfigurations during testing
-- Do NOT use this in a release build; and you CANNOT use it in a Stable build (the build process will simply terminate with an error)
 -
 - default = none
+#
+"FOX_STUFF_ROOT_DIRECTORY" [NEW] [EXPERIMENTAL!!]
+- This allows specifying a custom directory for the recovery addons, backups, logs, screenshots and etc. expect settings/themes (ie, instead of the default "/sdcard/Fox/")
+- OrangeFox will automatically append "/Fox" to the end of the directory that is specified
+- The specified partition should be presented in the fstab
+-
+- Examples:
+-
+-  "export FOX_SETTINGS_ROOT_DIRECTORY=/sdcard/PRIVATE"
+-
+-  "export FOX_SETTINGS_ROOT_DIRECTORY=/sdcard1/MyDev"
+-
+-
+- This is a HIGHLY EXPERIMENTAL feature, which may have bugs; use with GREAT caution, and with lots of testing
+- It is essential for the programmer's convenience, at the development stages, to avoid the need for constant reconfigurations during testing
+-
+- default = none
+#
+"FOX_ALLOW_EARLY_SETTINGS_LOAD" [NEW]
+- This allows OrangeFox to load and apply its settings and themes when the gui has just started
+- Depending on availability, the recovery will load themes and settings during the early stage of gui initialization
+- default = 0
 #
 "FOX_BASH_TO_SYSTEM_BIN" [NEW]
 - Set this to 1 to install the prebuilt bash binary in /system/bin/, instead of the standard /sbin/ (at build time)

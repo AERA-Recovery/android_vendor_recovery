@@ -100,11 +100,8 @@ FOX_RESET_SETTINGS="1"
 # build a vanilla version that skips all OrangeFox patches?
 FOX_VANILLA_BUILD=0
 
-# whether to use /data/recovery/ for settings and other internal stuff
-FOX_USE_DATA_RECOVERY_FOR_SETTINGS=0
-
-# whether we have been given a fixed settings directory
-FOX_SETTINGS_ROOT_DIRECTORY=""
+# whether we have been given a fixed OrangeFox stuff directory
+FOX_STUFF_ROOT_DIRECTORY=""
 
 # whether to disable auto-reboot after installing OrangeFox
 FOX_INSTALLER_DISABLE_AUTOREBOOT=0
@@ -846,8 +843,8 @@ Install_OrangeFox_Extras_To_sdcard() {
 	local F=0
 	local internal_SD
 	ui_print "- Installing FoxFiles on the internal SD ..."
-	if [ "$FOX_USE_DATA_RECOVERY_FOR_SETTINGS" = "1" -o -n "$FOX_SETTINGS_ROOT_DIRECTORY" ]; then
-		[ -n "$FOX_SETTINGS_ROOT_DIRECTORY" ] && internal_SD="$FOX_SETTINGS_ROOT_DIRECTORY" || internal_SD="/data/recovery"
+	if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
+		internal_SD="$FOX_STUFF_ROOT_DIRECTORY"
 		[ ! -d $internal_SD ] && mkdir -p $internal_SD
 		F=1
 	elif [ "$BOOTMODE" = "true" ]; then

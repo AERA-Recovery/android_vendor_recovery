@@ -2,7 +2,8 @@
 # sample .bashrc file for OrangeFox
 #
 # HOME
-export HOME=/sdcard/Fox
+export HOME=$(getprop "ro.orangefox.home")
+[ ! -n $HOME ] && export HOME=/sdcard/Fox
 [ ! -d $HOME ] && mkdir -p $HOME
 [ ! -d $HOME ] && export HOME=/tmp
 

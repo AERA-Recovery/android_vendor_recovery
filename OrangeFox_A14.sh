@@ -381,6 +381,11 @@ if [ "$FOX_DRASTIC_SIZE_REDUCTION" = "1" -a "$(enabled $FOX_CUSTOM_BINS_TO_SDCAR
    export FOX_REMOVE_BUSYBOX_BINARY=1
 fi
 
+if [ -n "$FOX_USE_DATA_RECOVERY_FOR_SETTINGS" ]; then
+   export FOX_SETTINGS_ROOT_DIRECTORY="/data/recovery"
+   export FOX_STUFF_ROOT_DIRECTORY="/data/recovery"
+fi
+
 # exports
 export FOX_DEVICE TMP_VENDOR_PATH FOX_OUT_NAME FOX_RAMDISK FOX_WORK
 
@@ -697,13 +702,10 @@ local TDT=$(date "+%d %B %Y")
      sed -i -e "s/^FOX_VANILLA_BUILD=.*/FOX_VANILLA_BUILD=\"1\"/" $F
   fi
 
-  # use /data/recovery/Fox/ instead of /sdcard/Fox/ ?
-  if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" ]; then
-     echo -e "${RED}-- This build will use $FOX_SETTINGS_ROOT_DIRECTORY for its internal settings ... ${NC}"
-     sed -i -e "s|^FOX_SETTINGS_ROOT_DIRECTORY=.*|FOX_SETTINGS_ROOT_DIRECTORY=\"$FOX_SETTINGS_ROOT_DIRECTORY\"|" $F
-  elif [ "$FOX_USE_DATA_RECOVERY_FOR_SETTINGS" = "1" ]; then
-     echo -e "${RED}-- This build will use /data/recovery/ for its internal settings ... ${NC}"
-     sed -i -e "s/^FOX_USE_DATA_RECOVERY_FOR_SETTINGS=.*/FOX_USE_DATA_RECOVERY_FOR_SETTINGS=\"1\"/" $F
+  # use the modified path for storing addons, logs, backups instead of /sdcard/Fox/ ?
+  if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
+     echo -e "${RED}-- This build will use $FOX_STUFF_ROOT_DIRECTORY for its stuff ... ${NC}"
+     sed -i -e "s|^FOX_STUFF_ROOT_DIRECTORY=.*|FOX_STUFF_ROOT_DIRECTORY=\"$FOX_STUFF_ROOT_DIRECTORY\"|" $F
   fi
 
   # disable auto-reboot after installing OrangeFox?
@@ -1246,12 +1248,16 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
      $CP -p $FOX_VENDOR_PATH/Files/fox.bashrc $FOX_RAMDISK/FFiles/fox.mkshrc
      
      if [ "$FOX_BUILD_BASH" = "1" ]; then
+        local fox_home="/sdcard/Fox"
+        if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
+           fox_home=$FOX_STUFF_ROOT_DIRECTORY"/Fox"
+        fi
         if [ -z "$(cat $FOX_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc | grep OrangeFox)" ]; then
            echo " " >> "$FOX_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
            echo "# OrangeFox" >> "$FOX_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
-           echo '[ -f /sdcard/Fox/fox.bashrc ] && source /sdcard/Fox/fox.bashrc' >> "$FOX_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
+           echo "[ -f $fox_home/fox.bashrc ] && source $fox_home/fox.bashrc" >> "$FOX_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
         fi
-        echo '[ ! -f /sdcard/Fox/fox.bashrc -a -f /FFiles/fox.mkshrc ] && source /sdcard/Fox/fox.mkshrc' >> "$FOX_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
+        echo "[ ! -f $fox_home/fox.bashrc -a -f /FFiles/fox.mkshrc ] && source $fox_home/fox.mkshrc" >> "$FOX_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
      else
 	rm -f $FOX_RAMDISK/$RAMDISK_SBIN/bash
 	rm -f $FOX_RAMDISK/$RAMDISK_SYSTEM_BIN/bash
@@ -1455,9 +1461,11 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" ]; then
      echo -e "${RED}-- This build will use $FOX_SETTINGS_ROOT_DIRECTORY for its internal settings ... ${NC}"
      sed -i -e "s|^FOX_SETTINGS_ROOT_DIRECTORY=.*|FOX_SETTINGS_ROOT_DIRECTORY=\"$FOX_SETTINGS_ROOT_DIRECTORY\"|" $F
-  elif [ "$FOX_USE_DATA_RECOVERY_FOR_SETTINGS" = "1" ]; then
-     echo -e "${RED}-- This build will use /data/recovery/ for its internal settings ... ${NC}"
-     sed -i -e "s/^FOX_USE_DATA_RECOVERY_FOR_SETTINGS=.*/FOX_USE_DATA_RECOVERY_FOR_SETTINGS=\"1\"/" $F
+  fi
+
+  if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
+     echo -e "${RED}-- This build will use $FOX_STUFF_ROOT_DIRECTORY for its stuff ... ${NC}"
+     sed -i -e "s|^FOX_STUFF_ROOT_DIRECTORY=.*|FOX_STUFF_ROOT_DIRECTORY=\"$FOX_STUFF_ROOT_DIRECTORY\"|" $F
   fi
 
   # mark whether this is a vAB or vanilla build
