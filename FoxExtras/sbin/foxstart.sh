@@ -23,12 +23,12 @@
 #
 #
 # * Author: DarthJabba9, Ctapchuk
-# * Date:   20250303
+# * Date:   20250316
 # * Identify some ROM features and hardware components
 # * Do some other sundry stuff
 #
 #
-SCRIPT_LASTMOD_DATE="20250303"
+SCRIPT_LASTMOD_DATE="20250316"
 C="/tmp_cust"
 LOG="/tmp/recovery.log"
 LOG2="/sdcard/foxstart.log"
@@ -45,7 +45,7 @@ OUR_TMP="/FFiles/temp" # our "safe" temp directory
 VIRTUAL_AB_OR_VANILLA=0
 
 # whether we have been given a fixed OrangeFox stuff directory
-FOX_STUFF_ROOT_DIRECTORY=""
+FOX_MISCELLANEOUS_ROOT_DIRECTORY=""
 
 # whether we have been given a fixed settings/themes directory
 FOX_SETTINGS_ROOT_DIRECTORY=""
@@ -507,8 +507,8 @@ local fox_cfg="$ETC_DIR/fox.cfg"
 
    local fox_home="/sdcard/Fox"
    local fox_settings=$fox_home
-   if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
-      fox_home=$FOX_STUFF_ROOT_DIRECTORY"/Fox"
+   if [ -n "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+      fox_home=$FOX_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
    fi
 
    if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" ]; then

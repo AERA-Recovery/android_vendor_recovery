@@ -4,13 +4,13 @@
 # Set date + time, and fix epoch issues in OrangeFox recovery
 # Useful in OrangeFox recovery when the device's RTC is misbehaving
 #
-# By DarthJabba9
+# By DarthJabba9, Ctapchuk
 #
 # Usage: setdate "2025-01-18-16:31"
 #
 # date format: date +%Y%m%d%H%M -s 202501271715
 # Copyright (C) 2018-2025 The OrangeFox Recovery Project
-# 03 February 2025
+# 16 March 2025
 # -------------------------
 
 gnudate=0; # do we have a stand-alone gnu coreutils 'date' utility?

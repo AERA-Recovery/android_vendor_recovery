@@ -3,13 +3,13 @@
 # ******************************************************
 # Description: 	Installer script for OrangeFox Recovery
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2018-2024 The OrangeFox Recovery Project
-# Author: 	DarthJabba9
+# Copyright (C) 2018-2025 The OrangeFox Recovery Project
+# Author: 	DarthJabba9, Ctapchuk
 # Date: 	TODAY
 # ******************************************************
 
 # last_modified
-MOD_DATE="20241111"
+MOD_DATE="20250316"
 
 # whether to print extra debug messages
 FOX_INSTALLER_DEBUG_MODE=0
