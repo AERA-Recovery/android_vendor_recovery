@@ -381,7 +381,7 @@ if [ "$FOX_DRASTIC_SIZE_REDUCTION" = "1" -a "$(enabled $FOX_CUSTOM_BINS_TO_SDCAR
    export FOX_REMOVE_BUSYBOX_BINARY=1
 fi
 
-if [ -n "$FOX_USE_DATA_RECOVERY_FOR_SETTINGS" ]; then
+if [ "$FOX_USE_DATA_RECOVERY_FOR_SETTINGS" = "1" ]; then
    export FOX_SETTINGS_ROOT_DIRECTORY="/data/recovery"
    export FOX_STUFF_ROOT_DIRECTORY="/data/recovery"
 fi
