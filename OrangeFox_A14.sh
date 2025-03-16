@@ -381,13 +381,13 @@ if [ "$FOX_DRASTIC_SIZE_REDUCTION" = "1" -a "$(enabled $FOX_CUSTOM_BINS_TO_SDCAR
    export FOX_REMOVE_BUSYBOX_BINARY=1
 fi
 
-if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" -a -z "$FOX_STUFF_ROOT_DIRECTORY" ]; then
-   export FOX_STUFF_ROOT_DIRECTORY="$FOX_SETTINGS_ROOT_DIRECTORY";
+if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" -a -z "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+   export FOX_MISCELLANEOUS_ROOT_DIRECTORY="$FOX_SETTINGS_ROOT_DIRECTORY";
 fi
 
 if [ "$FOX_USE_DATA_RECOVERY_FOR_SETTINGS" = "1" ]; then
    export FOX_SETTINGS_ROOT_DIRECTORY="/data/recovery"
-   export FOX_STUFF_ROOT_DIRECTORY="/data/recovery"
+   export FOX_MISCELLANEOUS_ROOT_DIRECTORY="/data/recovery"
 fi
 
 # exports
@@ -707,9 +707,9 @@ local TDT=$(date "+%d %B %Y")
   fi
 
   # use the modified path for storing addons, logs, backups instead of /sdcard/Fox/ ?
-  if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
-     echo -e "${RED}-- This build will use $FOX_STUFF_ROOT_DIRECTORY for its stuff ... ${NC}"
-     sed -i -e "s|^FOX_STUFF_ROOT_DIRECTORY=.*|FOX_STUFF_ROOT_DIRECTORY=\"$FOX_STUFF_ROOT_DIRECTORY\"|" $F
+  if [ -n "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+     echo -e "${RED}-- This build will use $FOX_MISCELLANEOUS_ROOT_DIRECTORY for its stuff ... ${NC}"
+     sed -i -e "s|^FOX_MISCELLANEOUS_ROOT_DIRECTORY=.*|FOX_MISCELLANEOUS_ROOT_DIRECTORY=\"$FOX_MISCELLANEOUS_ROOT_DIRECTORY\"|" $F
   fi
 
   # disable auto-reboot after installing OrangeFox?
@@ -1253,8 +1253,8 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
      
      if [ "$FOX_BUILD_BASH" = "1" ]; then
         local fox_home="/sdcard/Fox"
-        if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
-           fox_home=$FOX_STUFF_ROOT_DIRECTORY"/Fox"
+        if [ -n "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+           fox_home=$FOX_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
         fi
         if [ -z "$(cat $FOX_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc | grep OrangeFox)" ]; then
            echo " " >> "$FOX_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
@@ -1467,9 +1467,9 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
      sed -i -e "s|^FOX_SETTINGS_ROOT_DIRECTORY=.*|FOX_SETTINGS_ROOT_DIRECTORY=\"$FOX_SETTINGS_ROOT_DIRECTORY\"|" $F
   fi
 
-  if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
-     echo -e "${RED}-- This build will use $FOX_STUFF_ROOT_DIRECTORY for its stuff ... ${NC}"
-     sed -i -e "s|^FOX_STUFF_ROOT_DIRECTORY=.*|FOX_STUFF_ROOT_DIRECTORY=\"$FOX_STUFF_ROOT_DIRECTORY\"|" $F
+  if [ -n "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+     echo -e "${RED}-- This build will use $FOX_MISCELLANEOUS_ROOT_DIRECTORY for its stuff ... ${NC}"
+     sed -i -e "s|^FOX_MISCELLANEOUS_ROOT_DIRECTORY=.*|FOX_MISCELLANEOUS_ROOT_DIRECTORY=\"$FOX_MISCELLANEOUS_ROOT_DIRECTORY\"|" $F
   fi
 
   # mark whether this is a vAB or vanilla build

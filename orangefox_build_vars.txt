@@ -720,7 +720,7 @@
 -
 - default = none
 #
-"FOX_STUFF_ROOT_DIRECTORY" [NEW] [EXPERIMENTAL!!]
+"FOX_MISCELLANEOUS_ROOT_DIRECTORY" [NEW] [EXPERIMENTAL!!]
 - This allows specifying a custom directory for the recovery addons, backups, logs, screenshots and etc. expect settings/themes (ie, instead of the default "/sdcard/Fox/")
 - OrangeFox will automatically append "/Fox" to the end of the directory that is specified
 - The specified partition should be presented in the fstab

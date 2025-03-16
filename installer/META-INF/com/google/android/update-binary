@@ -101,7 +101,7 @@ FOX_RESET_SETTINGS="1"
 FOX_VANILLA_BUILD=0
 
 # whether we have been given a fixed OrangeFox stuff directory
-FOX_STUFF_ROOT_DIRECTORY=""
+FOX_MISCELLANEOUS_ROOT_DIRECTORY=""
 
 # whether to disable auto-reboot after installing OrangeFox
 FOX_INSTALLER_DISABLE_AUTOREBOOT=0
@@ -843,8 +843,8 @@ Install_OrangeFox_Extras_To_sdcard() {
 	local F=0
 	local internal_SD
 	ui_print "- Installing FoxFiles on the internal SD ..."
-	if [ -n "$FOX_STUFF_ROOT_DIRECTORY" ]; then
-		internal_SD="$FOX_STUFF_ROOT_DIRECTORY"
+	if [ -n "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+		internal_SD="$FOX_MISCELLANEOUS_ROOT_DIRECTORY"
 		[ ! -d $internal_SD ] && mkdir -p $internal_SD
 		F=1
 	elif [ "$BOOTMODE" = "true" ]; then
