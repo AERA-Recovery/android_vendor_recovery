@@ -34,6 +34,7 @@
 # other methods for patching recovery/boot images are no longer supported
 export OF_USE_MAGISKBOOT_FOR_ALL_PATCHES=1
 export OF_USE_MAGISKBOOT=1
+export FOX_INTERNAL_RELEASE=R11.3
 
 # device name
 FOX_DEVICE=$(cut -d'_' -f2 <<<$TARGET_PRODUCT)
@@ -309,11 +310,10 @@ if [ -z "$FOX_BUILD_TYPE" ]; then
    export FOX_BUILD_TYPE=Unofficial
 fi
 
-# fox_version && fox_build
-if [ -z "$FOX_VERSION" ]; then
-   FOX_BUILD=Unofficial
-else
-   FOX_BUILD=$FOX_VERSION
+# build name
+FOX_BUILD="$FOX_INTERNAL_RELEASE"
+if [ -n "$FOX_MAINTAINER_PATCH_VERSION" ]; then
+  FOX_BUILD=$FOX_BUILD"_"$FOX_MAINTAINER_PATCH_VERSION
 fi
 
 # variant
@@ -676,9 +676,9 @@ local TDT=$(date "+%d %B %Y")
      sed -i -e "s/^FOX_VENDOR_BOOT_RECOVERY=.*/FOX_VENDOR_BOOT_RECOVERY=\"1\"/" $F
      sed -i -e "s/^FOX_VENDOR_BOOT_RECOVERY_V3_HDR=.*/FOX_VENDOR_BOOT_RECOVERY_V3_HDR=\"$isVB_V3\"/" $F
 
-     if [ "$FOX_VENDOR_BOOT_FLASH_RAMDISK_ONLY" = "1" ] ; then
+     if [ "$FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL" = "1" ] ; then
      	echo -e "${RED}-- Vendor_boot: - enabling vendor_boot ramdisk flash mode for the installer ... ${NC}"
-     	sed -i -e "s/^FOX_VENDOR_BOOT_FLASH_RAMDISK_ONLY=.*/FOX_VENDOR_BOOT_FLASH_RAMDISK_ONLY=\"1\"/" $F
+     	sed -i -e "s/^FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=.*/FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=\"1\"/" $F
      fi
   fi
 

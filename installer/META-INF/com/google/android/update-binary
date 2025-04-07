@@ -9,7 +9,7 @@
 # ******************************************************
 
 # last_modified
-MOD_DATE="20250316"
+MOD_DATE="20250402"
 
 # whether to print extra debug messages
 FOX_INSTALLER_DEBUG_MODE=0
@@ -86,7 +86,7 @@ FOX_VIRTUAL_AB_DEVICE=0
 FOX_VENDOR_BOOT_RECOVERY=0
 
 # vendor_boot - whether to flash only the ramdisk
-FOX_VENDOR_BOOT_FLASH_RAMDISK_ONLY=0
+FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=0
 
 # vendor_boot recovery with V3 header?
 FOX_VENDOR_BOOT_RECOVERY_V3_HDR=0
@@ -631,7 +631,7 @@ local F_RAM
 
 	   # replace the entire vendor_boot partition ?
 	   local no_ramdisk_only=0
-	   [ "$FOX_VENDOR_BOOT_FLASH_RAMDISK_ONLY" != "1" ] && no_ramdisk_only=1
+	   [ "$FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL" != "1" ] && no_ramdisk_only=1
 
 	   if [ "$no_ramdisk_only" != "1" ]; then
 	   	tmp=$($GETPROP "orangefox.vendor_boot.recovery")

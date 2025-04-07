@@ -5,7 +5,7 @@
 # These build vars should be declared - in a shell script (eg, in "vendorsetup.sh"), or at the command line - before building
 #
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 21 March 2025
+# Date: 05 April 2025
 #
 # -----------------------------------
 #
@@ -250,8 +250,15 @@
   - set custom flashlight path (if flashlight isn't working)
   - eg. OF_FL_PATH1="/sys/class/leds/led_torch_2"
 #
-"FOX_VERSION"
-  - the version number of the release
+"FOX_VERSION" [OBSOLETE!!]
+  - This is obsolete. The OrangeFox release version number (eg, "R11.2", "R11.4", etc) is now determined automatically
+  - if you wish to add your own version stamp to the release version number, use "FOX_MAINTAINER_PATCH_VERSION" (see below)
+#
+"FOX_MAINTAINER_PATCH_VERSION" [NEW]
+  - use this to add your maintainer version information (if desired) to the OrangeFox release version number
+  - the value supplied here should not be preceded by any separator (an underscore is added automatically)
+  - eg. export FOX_MAINTAINER_PATCH_VERSION="04" (produces something like "R11.3_04")
+  - default = nothing
 #
 "OF_MAINTAINER"
   - the maintainer's name
@@ -816,6 +823,19 @@
 - This will make the Magisk addon independent of access to /sdcard, but it will take up more space in the ramdisk.
 - WARNING: monitor the free space in the ramdisk, as this feature may take up all available space in the ramdisk.
 - In such a case, recovery is likely to fail to boot, although the build will complete without errors
+- default = 0
+#
+"OF_SKIP_PREBUILT_MODULES" [NEW]
+- Set to 1 to skip loading prebuilt kernel modules from the ramdisk if they are present.
+- default = 0
+#
+"OF_FORCE_CASEFOLDING" [NEW]
+- Set to 1 to force the casefolding props to true.
+- These props are responsible for formatting /data with the required arguments.
+- This disables the automatic detection of the values for the external_storage.projid.enabled, external_storage.casefold.enabled,
+- and external_storage.sdcardfs.enabled props from /vendor/build.prop and forcibly sets their values to 1, except for external_storage.sdcardfs.enabled, which is set to 0.
+- This is useful for devices that shipped with Android 11+/FBEv2, where casefolding is always used,
+- and it prevents incorrect determination of these values if /vendor is unavailable.
 - default = 0
 #
 # -----------------------------------

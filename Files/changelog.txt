@@ -1,5 +1,10 @@
-OrangeFox Recovery R11.2 Changelog
+OrangeFox Recovery R11.3 Changelog
 -----------------------------------
+
+== R11.3 ==
+- Introduce HW GUI controls
+- Enhance support for vendor_boot
+- Lots of fixes and enhancements
 
 == R11.2 ==
 - Update the default Magisk addon to v28.1
