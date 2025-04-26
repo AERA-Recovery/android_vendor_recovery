@@ -374,6 +374,8 @@ if [ "$FOX_DRASTIC_SIZE_REDUCTION" = "1" -a "$(enabled $FOX_CUSTOM_BINS_TO_SDCAR
    export FOX_USE_XZ_UTILS=0
    export FOX_USE_ZSTD_BINARY=0
    export FOX_USE_LZ4_BINARY=0
+   export FOX_USE_FSCK_EROFS_BINARY=0
+   export FOX_USE_PATCHELF_BINARY=0
    export FOX_REMOVE_BASH=1
    export FOX_REMOVE_AAPT=1
    export FOX_REMOVE_ZIP_BINARY=1
@@ -857,6 +859,8 @@ local F=""
       	 rm -f $FOX_RAMDISK/sbin/gnudate
       	 rm -f $FOX_RAMDISK/sbin/bash
       	 rm -f $FOX_RAMDISK/sbin/busybox
+	 rm -f $FOX_RAMDISK/sbin/patchelf
+	 rm -f $FOX_RAMDISK/sbin/fsck.erofs
       	 rm -f $FOX_RAMDISK/etc/bash.bashrc
       	 rm -rf $FOX_RAMDISK/$RAMDISK_ETC/terminfo
       	 rm -rf $FFil/Tools
