@@ -853,4 +853,15 @@
 - and it prevents incorrect determination of these values if /vendor is unavailable.
 - default = 0
 #
+"FOX_USE_FSCK_EROFS_BINARY" [NEW]
+   - set this to 1 if you want the prebuilt fsck.erofs binary to be added (/sbin/fsck.erofs)
+   - this must be set in a shell script, or at the command line, before building
+   - test this thoroughly to ensure it works correctly on your device before adding to your build
+   - default = 0
+#
+"FOX_USE_PATCHELF_BINARY" [NEW]
+   - set this to 1 if you want the prebuilt patchelf binary to be added (/sbin/patchelf)
+   - this must be set in a shell script, or at the command line, before building
+   - test this thoroughly to ensure it works correctly on your device before adding to your build
+   - default = 0
 # -----------------------------------

@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 16 March 2025
+# 13 May 2025
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -381,6 +381,7 @@ if [ "$FOX_DRASTIC_SIZE_REDUCTION" = "1" -a "$(enabled $FOX_CUSTOM_BINS_TO_SDCAR
    export FOX_REMOVE_ZIP_BINARY=1
    export FOX_EXCLUDE_NANO_EDITOR=1
    export FOX_REMOVE_BUSYBOX_BINARY=1
+   [ -z "$FOX_COMPRESS_EXECUTABLES" ] && export FOX_COMPRESS_EXECUTABLES=1
 fi
 
 if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" -a -z "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
@@ -943,6 +944,7 @@ compress_some_executables() {
 local upx_bin=$FOX_VENDOR_PATH/tools/upx;
     if [ -x "$upx_bin" ]; then
 	local min=131072; # only process binaries bigger than 128kb
+	[ "$FOX_DRASTIC_SIZE_REDUCTION" = "1" ] && min=65536; # except when drastic size reduction is enabled
 	local HERE=$PWD;
 	local size;
 	local bins;
@@ -1429,6 +1431,24 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
          $CP -pf $FOX_VENDOR_PATH/prebuilt/$TARGET_ARCH/zip $FOX_RAMDISK/$RAMDISK_SBIN/
          chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/zip
       fi
+  fi
+
+  # Include standalone "fsck.erofs" binary ?
+  if [ "$FOX_USE_FSCK_EROFS_BINARY" = "1" ]; then
+      echo -e "${GREEN}-- Copying the \"fsck.erofs\" binary ...${NC}"
+      $CP -p $FOX_VENDOR_PATH/prebuilt/$TARGET_ARCH/fsck.erofs $FOX_RAMDISK/$RAMDISK_SBIN/
+      chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/fsck.erofs
+  else
+      rm -f $FOX_RAMDISK/$RAMDISK_SBIN/fsck.erofs
+  fi
+
+  # Include standalone "patchelf" binary ?
+  if [ "$FOX_USE_PATCHELF_BINARY" = "1" ]; then
+      echo -e "${GREEN}-- Copying the \"patchelf\" binary ...${NC}"
+      $CP -p $FOX_VENDOR_PATH/prebuilt/$TARGET_ARCH/patchelf $FOX_RAMDISK/$RAMDISK_SBIN/
+      chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/patchelf
+  else
+      rm -f $FOX_RAMDISK/$RAMDISK_SBIN/patchelf
   fi
 
   # if zip is built from source (in /system/bin/) create a symlink to it if necessary
