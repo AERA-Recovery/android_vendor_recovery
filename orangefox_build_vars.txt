@@ -5,7 +5,7 @@
 # These build vars should be declared - in a shell script (eg, in "vendorsetup.sh"), or at the command line - before building
 #
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 05 April 2025
+# Date: 13 May 2025
 #
 # -----------------------------------
 #
@@ -811,6 +811,21 @@
 - This feature is experimental. Use with great care; subject every build to extensive testing to ensure that nothing is broken
 - If set to "1", qualifying binaries in /sbin/ and /system/bin/ will be compressed
 - If you want to choose manually the directories to be processed, then specify them, instead of using "1" (eg, export FOX_COMPRESS_EXECUTABLES="/sbin /system/bin /vendor/bin")
+- default = 0
+#
+"FOX_DRASTIC_SIZE_REDUCTION" [NEW] [!! EXPERIMENTAL !!]
+- Set this to 1 to trigger some *drastic* steps to reduce the size of the recovery ramdisk
+- If this is enabled, virtually all the OrangeFox extra binaries will be removed from the recovery, and "FOX_COMPRESS_EXECUTABLES" will automatically be enabled
+- You should only use this if all other attempts at reducing the size of the recovery have failed, and the recovery is still too big for the device
+- This feature is experimental. Use with great caution; test every feature in every build extensively to ensure that nothing is broken
+- default = 0
+#
+"FOX_EXTREME_SIZE_REDUCTION" [NEW] [!! EXPERIMENTAL !!]
+- Set this to 1 to trigger some rather *extreme* steps to reduce the size of the recovery ramdisk
+- You should only use this if all other attempts at reducing the size of the recovery have failed, and the recovery is still too big for the device
+- If this is enabled, "FOX_DRASTIC_SIZE_REDUCTION" will also be automatically enabled, and other features will be disabled or removed
+- This feature is experimental. Use with extreme caution; test every feature in every build extensively to ensure that nothing is broken
+- This feature may be summarily withdrawn if it proves problematic for too many people
 - default = 0
 #
 "OF_FORCE_DATA_FORMAT_F2FS" [NEW]
