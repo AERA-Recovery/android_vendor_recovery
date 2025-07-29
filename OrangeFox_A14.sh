@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 13 May 2025
+# 29 July 2025
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -518,6 +518,7 @@ local F=$1
    sed -i '/FOX_VENDOR/d' $F
    sed -i '/OF_MAINTAINER/d' $F
    sed -i '/OLDPWD/d' $F
+   sed -i '/ORANGEFOX_CALLING_CARD/d' $F
    sed -i "s/declare -x //g" $F
 }
 
@@ -1183,6 +1184,11 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
      rm -f "$FOX_RAMDISK/$RAMDISK_SYSTEM_BIN/magiskboot"
      ln -sf /sbin/magiskboot "$FOX_RAMDISK/$RAMDISK_SYSTEM_BIN/magiskboot"
   fi
+
+  # dmsetup - for killing userdata before formatting data
+  echo -e "${GREEN}-- Copying the \"dmsetup\" binary ...${NC}"
+  $CP -p $FOX_VENDOR_PATH/prebuilt/$TARGET_ARCH/dmsetup $FOX_RAMDISK/$RAMDISK_SBIN/
+  chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/dmsetup
 
   # try to fix toolbox egrep/fgrep symlink bug
   if [ "$(uses_toolbox)" = "1" ]; then
