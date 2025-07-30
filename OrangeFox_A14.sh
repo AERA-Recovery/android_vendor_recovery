@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 29 July 2025
+# 30 July 2025
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -1186,9 +1186,11 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   fi
 
   # dmsetup - for killing userdata before formatting data
-  echo -e "${GREEN}-- Copying the \"dmsetup\" binary ...${NC}"
-  $CP -p $FOX_VENDOR_PATH/prebuilt/$TARGET_ARCH/dmsetup $FOX_RAMDISK/$RAMDISK_SBIN/
-  chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/dmsetup
+  if [ "$FOX_USE_DMSETUP" = "1" ]; then
+	echo -e "${GREEN}-- Copying the \"dmsetup\" binary ...${NC}"
+	$CP -p $FOX_VENDOR_PATH/prebuilt/$TARGET_ARCH/dmsetup $FOX_RAMDISK/$RAMDISK_SBIN/
+	chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/dmsetup
+  fi
 
   # try to fix toolbox egrep/fgrep symlink bug
   if [ "$(uses_toolbox)" = "1" ]; then
