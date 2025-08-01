@@ -4,6 +4,7 @@ aapt		- https://github.com/rendiix/termux-aapt.git  [upstream prebuilt binaries 
 bash 		- https://ftp.gnu.org/gnu/bash/bash-5.0.tar.gz
 busybox 	- https://busybox.net/downloads/busybox-1.22.1.tar.bz2
 date		- https://ftp.gnu.org/gnu/coreutils/coreutils-9.6.tar.xz
+dmsetup		- https://github.com/michael42/dmcrypt-static-android.git
 fsck.erofs	- https://github.com/erofs/erofs-utils.git ["-b dev"]
 gnu grep 	- https://ftp.gnu.org/gnu/grep/grep-3.6.tar.gz
 gnu sed 	- https://ftp.gnu.org/gnu/sed/sed-4.5.tar.xz
