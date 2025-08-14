@@ -5,7 +5,7 @@
 # These build vars should be declared - in a shell script (eg, in "vendorsetup.sh"), or at the command line - before building
 #
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 04 August 2025
+# Date: 14 August 2025
 #
 # -----------------------------------
 #
@@ -877,5 +877,11 @@
    - if this is enabled, the dmsetup binary will be built into the recovery, and will be called just before formatting /data
    - this is only useful for devices/ROMs that have dynamic partitions
    - be sure to test extensively, and verify that it doesn't cause other issues after formatting data
+   - default = 0
+#
+"FOX_USE_MEIZU_TOUCH_MAPPING" [NEW]
+   - set this to 1 to enable Meizu touch-mapping
+   - this should only be used if the touchscreen isn't working, and you have a Meizu m23xx or m24xx phone
+   - enabling this may help to fix Meizu touchscreen issues - or it may not help
    - default = 0
 # -----------------------------------
