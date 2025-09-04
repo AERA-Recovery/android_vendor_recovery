@@ -5,7 +5,7 @@
 # These build vars should be declared - in a shell script (eg, in "vendorsetup.sh"), or at the command line - before building
 #
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 14 August 2025
+# Date: 04 September 2025
 #
 # -----------------------------------
 #
@@ -831,6 +831,11 @@
 "OF_FORCE_DATA_FORMAT_F2FS" [NEW]
 - Set this to 1 to force the selection of f2fs when formatting data; this is only needed when f2fs is never selected by default
 - Use with care! Do NOT use unless you are sure that all targeted ROMs on the device will support f2fs!
+- default = 0
+#
+"OF_FORCE_DATA_FORMAT_EXT4" [NEW]
+- Set this to 1 to force the selection of ext4 when formatting data; this is only needed when ext4 is never selected by default
+- Use with care! Do NOT use unless you are sure that all targeted ROMs on the device will support ext4!
 - default = 0
 #
 "FOX_MOVE_MAGISK_INSTALLER_TO_RAMDISK" [NEW]
