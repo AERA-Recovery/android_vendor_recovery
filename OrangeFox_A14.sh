@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 04 August 2025
+# 27 September 2025
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -1724,7 +1724,7 @@ if [ "$FOX_VENDOR_CMD" = "Fox_After_Recovery_Image" ]; then
      cd "$OUT" && md5sum "$RECOVERY_IMAGE" > "$RECOVERY_IMAGE.md5" && cd - > /dev/null 2>&1
 
      # more samsung stuff
-     if [ "$SAMSUNG_DEVICE" = "samsung" -a "$FOX_NO_SAMSUNG_SPECIAL" != "1" ]; then
+     if [ "$SAMSUNG_DEVICE" = "samsung" ]; then
      	echo -e "${RED}-- Creating Odin flashable recovery tar ($RECOVERY_IMAGE.tar) ... ${NC}"
 
      	# make sure that the image being tarred is the correct one
