@@ -5,7 +5,7 @@
 # These build vars should be declared - in a shell script (eg, in "vendorsetup.sh"), or at the command line - before building
 #
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 04 September 2025
+# Date: 29 September 2025
 #
 # -----------------------------------
 #
@@ -640,8 +640,15 @@
 - and extract the zip, and flash the recovery ramdisk image by running the command: "fastboot flash vendor_boot:recovery vendor_ramdisk_recovery.cpio"
 - (or by by running the "flash-ramdisk" script bundled with the zip)
 - Do not flash the zip installer itself, unless you have both of your ROM's original boot.img and vendor_boot.img, *and* know how to recover the device from bootloops or bricks
+- or unless you can use "FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL" (see below)
 - This is because the outcome of flashing the recovery.img is *unpredictable* - it might be fine, or brick the device, or make the ROM unbootable; any of these is equally possible
 - You really SHOULD stay away from using this variable unless you are a *highly technical risk-taker*, and you can fix any problem *on your own*. You have been warned!
+- default = 0
+#
+"FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL"  [NEW - Experimental]
+- This is only relevant to "vendor_boot" builds. If set to 1, then the OrangeFox zip installer will install only the vendor_boot ramdisk, instead of overwriting the whole vendor_boot partition
+- You can try this if flashing the vendor_boot zip causes a problem (eg, a bootloop)
+- It is best to not use this unless the boot header version of your ROM (and the stock recovery) is v4 or higher
 - default = 0
 #
 "OF_NO_ADDITIONAL_MIUI_PROPS_CHECK" [NEW]
