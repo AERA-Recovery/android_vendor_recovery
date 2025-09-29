@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 27 September 2025
+# 29 September 2025
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -670,6 +670,7 @@ local TDT=$(date "+%d %B %Y")
        abort 200
      }
      $CP -pf $tmp ./magiskboot
+     chmod 0755 ./magiskboot
      sed -i -e "s/^FOX_AB_DEVICE=.*/FOX_AB_DEVICE=\"1\"/" $F
   fi
   rm -rf /tmp/fox_build_tmp/

@@ -9,7 +9,7 @@
 # ******************************************************
 
 # last_modified
-MOD_DATE="20250402"
+MOD_DATE="20250929"
 
 # whether to print extra debug messages
 FOX_INSTALLER_DEBUG_MODE=0
@@ -576,6 +576,8 @@ local F_RAM
    	   fi
    	   [ -z "$tool" ] && abort "- I cannot find magiskboot. Quitting!"
    	fi
+
+	chmod 0755 "$tool"
 
    	# recovery.img must be in the zip installer
    	if [ ! -f "recovery.img" ]; then
