@@ -5,7 +5,7 @@
 # These build vars should be declared - in a shell script (eg, in "vendorsetup.sh"), or at the command line - before building
 #
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 29 September 2025
+# Date: 30 September 2025
 #
 # -----------------------------------
 #
@@ -627,7 +627,7 @@
    	* "Reflash OrangeFox after flashing a ROM"
 - default = 0
 #
-"FOX_VENDOR_BOOT_RECOVERY" (renamed from "OF_VENDOR_BOOT_RECOVERY") [NEW - Experimental]
+"FOX_VENDOR_BOOT_RECOVERY" (renamed from "OF_VENDOR_BOOT_RECOVERY") [Experimental]
 - Set to 1 to build a recovery for a vendor_boot-as-recovery (hdr4) device (normally, hdr4 devices are also Virtual A/B devices)
 - Do *NOT* make a vendor_boot-as-recovery build, unless you know what you are doing! Bootloops and bricks are *very* possible!
 - There are currently issues with vendor_boot-as-recovery, and custom recoveries are at an early stage of development
@@ -636,20 +636,19 @@
    	* "Flash Current OrangeFox"
    	* "Reflash OrangeFox after flashing a ROM"
 - The zip installer that is created will also include the recovery ramdisk image ("vendor_ramdisk_recovery.cpio")
-- If this is enabled, the proper way to flash the built recovery is to reboot an installed working recovery to "fastbootd" mode,
+- If this is enabled, the best way to flash the built recovery is to reboot an installed working recovery to "fastbootd" mode,
 - and extract the zip, and flash the recovery ramdisk image by running the command: "fastboot flash vendor_boot:recovery vendor_ramdisk_recovery.cpio"
 - (or by by running the "flash-ramdisk" script bundled with the zip)
-- Do not flash the zip installer itself, unless you have both of your ROM's original boot.img and vendor_boot.img, *and* know how to recover the device from bootloops or bricks
-- or unless you can use "FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL" (see below)
-- This is because the outcome of flashing the recovery.img is *unpredictable* - it might be fine, or brick the device, or make the ROM unbootable; any of these is equally possible
-- You really SHOULD stay away from using this variable unless you are a *highly technical risk-taker*, and you can fix any problem *on your own*. You have been warned!
+- You can flash the zip installer itself. This is still experimental, so be very careful (first learn how to recover the device from bootloops or bricks!)
+- Don't make a vendor_boot build unless you are a *highly technical risk-taker*, and you can fix any problem *on your own*.
 - default = 0
 #
 "FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL"  [NEW - Experimental]
-- This is only relevant to "vendor_boot" builds. If set to 1, then the OrangeFox zip installer will install only the vendor_boot ramdisk, instead of overwriting the whole vendor_boot partition
-- You can try this if flashing the vendor_boot zip causes a problem (eg, a bootloop)
-- It is best to not use this unless the boot header version of your ROM (and the stock recovery) is v4 or higher
-- default = 0
+- This is only relevant to "vendor_boot" builds.
+- If set to 1 (which is the default setting when the boot header version is v4 or higher), then the OrangeFox zip installer will install only the vendor_boot ramdisk,
+- instead of overwriting the whole vendor_boot partition
+- Set it to 0 if the boot header version of your ROM (and the stock recovery) is lower than v4, or if you want to disable it for any reason
+- default = 1 (for boot header v4), or 0 (for boot header v3)
 #
 "OF_NO_ADDITIONAL_MIUI_PROPS_CHECK" [NEW]
 - Set to 1 to disable additional checks for MIUI ROMs

@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 29 September 2025
+# 30 September 2025
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -567,7 +567,13 @@ local TDT=$(date "+%d %B %Y")
      $CP -p $FOX_VENDOR_PATH/Files/flash-* .
      cd $VBtmp/
 
-     [ "$BOARD_BOOT_HEADER_VERSION" = "3" ] && isVB_V3=1
+     if [ -n "$BOARD_BOOT_HEADER_VERSION" ]; then
+	if [ "$BOARD_BOOT_HEADER_VERSION" -lt 4 ]; then
+		isVB_V3=1
+	else
+		[ -z "$FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL" ] && export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
+	fi
+     fi
 
      $FOX_VENDOR_PATH/tools/magiskboot unpack -n tmp.img
      F="vendor_ramdisk_recovery.cpio"; #v4+ header
