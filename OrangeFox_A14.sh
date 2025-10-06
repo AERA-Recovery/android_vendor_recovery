@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 30 September 2025
+# 06 October 2025
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -373,6 +373,9 @@ if [ "$FOX_DRASTIC_SIZE_REDUCTION" = "1" -a "$(enabled $FOX_CUSTOM_BINS_TO_SDCAR
    export BUILD_2GB_VERSION=0
    export FOX_USE_XZ_UTILS=0
    export FOX_USE_ZSTD_BINARY=0
+   export FOX_ENABLE_KERNELSU_SUPPORT=0
+   export FOX_ENABLE_KERNELSU_NEXT_SUPPORT=0
+   export FOX_ENABLE_SUKISU_SUPPORT=0
    export FOX_USE_LZ4_BINARY=0
    export FOX_USE_FSCK_EROFS_BINARY=0
    export FOX_USE_PATCHELF_BINARY=0
@@ -422,6 +425,9 @@ if [ "$FOX_DYNAMIC_SAMSUNG_FIX" = "1" ]; then
    unset FOX_USE_TAR_BINARY
    unset FOX_USE_GREP_BINARY
    unset FOX_USE_ZSTD_BINARY
+   unset FOX_ENABLE_KERNELSU_SUPPORT
+   unset FOX_ENABLE_KERNELSU_NEXT_SUPPORT
+   unset FOX_ENABLE_SUKISU_SUPPORT
    unset FOX_USE_LZ4_BINARY
 fi
 
@@ -863,6 +869,7 @@ local F=""
       	 rm -f $FOX_RAMDISK/sbin/nano
       	 rm -f $FOX_RAMDISK/sbin/gnutar
 	 rm -f $FOX_RAMDISK/sbin/zstd
+	 rm -f $FOX_RAMDISK/sbin/ksud
 	 rm -f $FOX_RAMDISK/sbin/lz4
       	 rm -f $FOX_RAMDISK/sbin/gnused
       	 rm -f $FOX_RAMDISK/sbin/gnudate
@@ -1076,7 +1083,7 @@ cat << EOF >> "$tmp1"
            [ -d $sdcard_bin/nano/ ] && { cp -af $sdcard_bin/nano/ /FFiles/nano/; rm -rf /sbin/nano/; mv -f /sbin/nano_script /sbin/nano; }
            [ -f $sdcard_bin/nano ] && cp -af $sdcard_bin/nano /system/bin/
    	else
-	   files="aapt bash gnused gnutar gnudate lzma zip zstd lz4"
+	   files="aapt bash gnused gnutar gnudate lzma zip zstd lz4 ksud"
 	   set -- \$files
 	   while [ -n "\$1" ]
   	   do
@@ -1530,6 +1537,26 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
 	$CP -p $FOX_VENDOR_PATH/prebuilt/$TARGET_ARCH/aapt $FOX_RAMDISK/$RAMDISK_SBIN/aapt
 	#$CP -p $FOX_VENDOR_PATH/Files/aapt $FOX_RAMDISK/$RAMDISK_SBIN/aapt
 	chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/aapt
+  fi
+
+  # enable kernelSU support ?
+  if [ "$FOX_ENABLE_KERNELSU_SUPPORT" = "1" -o  "$FOX_ENABLE_KERNELSU_NEXT_SUPPORT" = "1" -o  "$FOX_ENABLE_SUKISU_SUPPORT" = "1" ]; then
+    if [ "$TARGET_ARCH" != "arm64" ]; then
+      echo -e "${RED}-- Error: only arm64 is supported for KernelSU/SukiSU  ...${NC}"
+    else
+      echo -e "${GREEN}-- Copying the \"ksud\" binary ...${NC}"
+      $CP -p $FOX_VENDOR_PATH/prebuilt/$TARGET_ARCH/ksud $FOX_RAMDISK/$RAMDISK_SBIN/
+      chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/ksud
+
+      echo -e "${GREEN}-- Copying other rooting installer(s)  ...${NC}"
+      mkdir -p $FOX_RAMDISK/FFiles/KernelSU/
+      [ "$FOX_ENABLE_KERNELSU_SUPPORT" = "1" ] && $CP -p $FOX_VENDOR_PATH/Files/KernelSU_Installer.zip $FOX_RAMDISK/FFiles/KernelSU/
+      [ "$FOX_ENABLE_KERNELSU_NEXT_SUPPORT" = "1" ] && $CP -p $FOX_VENDOR_PATH/Files/KernelSU_Next_Installer.zip $FOX_RAMDISK/FFiles/KernelSU/
+      [ "$FOX_ENABLE_SUKISU_SUPPORT" = "1" ] && $CP -p $FOX_VENDOR_PATH/Files/KernelSU_Suki_Installer.zip $FOX_RAMDISK/FFiles/KernelSU/
+   fi
+  else
+      rm -f $FOX_RAMDISK/$RAMDISK_SBIN/ksud
+      rm -rf $FOX_RAMDISK/FFiles/KernelSU/
   fi
 
   # enable the app manager?
