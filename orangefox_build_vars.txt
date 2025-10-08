@@ -4,8 +4,11 @@
 #
 # These build vars should be declared - in a shell script (eg, in "vendorsetup.sh"), or at the command line - before building
 #
+# All build vars beginning with "FOX_" *must* be exported as environment variables in vendorsetup.sh, or at the command line
+# The build vars beginning with "OF_" can be exported in vendorsetup.sh, or can be declared in a device tree make (ie, ".mk") file
+#
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 6 October 2025
+# Date: 8 October 2025
 #
 # -----------------------------------
 #
@@ -898,21 +901,21 @@
 #
 "FOX_ENABLE_KERNELSU_SUPPORT" [NEW] [ARM64 ONLY]
    - set this to 1 to add support for installing KernelSU to the OrangeFox addons; the 'ksud' binary (2.3mb in size) will also be installed if not already there
-   - this can only work on VirtualAB devices whose ROMs use supported 5.x and 6.6 kernels; don't try it on any other system - it simply will not work
+   - this can only work on VirtualAB devices whose ROMs use supported 5.x and 6.6 GKI kernels; don't try it on any other system - it simply will not work
    -   *Note*: this will use an extra 2.5mb of storage in the recovery ramdisk (inclusive of the 'ksud' binary); so, do NOT use this if recovery space is limited,
    -    otherwise the recovery might not boot at all (eg, blank screen), even if it builds successfully
    - default = 0
 #
 "FOX_ENABLE_KERNELSU_NEXT_SUPPORT" [NEW] [ARM64 ONLY]
    - set this to 1 to add support for installing KernelSU Next to the OrangeFox addons; the 'ksud' binary (2.3mb in size) will also be installed if not already there
-   - this can only work on VirtualAB devices whose ROMs use supported 5.x and 6.6 kernels; don't try it on any other system - it simply will not work
+   - this can only work on VirtualAB devices whose ROMs use supported 5.x and 6.6 GKI kernels; don't try it on any other system - it simply will not work
    -   *Note*: this will use an extra 2.5mb of storage in the recovery ramdisk (inclusive of the 'ksud' binary); so, do NOT use this if recovery space is limited,
    -    otherwise the recovery might not boot at all (eg, blank screen), even if it builds successfully
    - default = 0
 #
 "FOX_ENABLE_SUKISU_SUPPORT" [NEW] [ARM64 ONLY]
    - set this to 1 to add support for installing SukiSU to the OrangeFox addons;  the 'ksud' binary (2.3mb in size) will also be installed if not already there
-   - this can only work on VirtualAB devices whose ROMs use supported 5.x and 6.6 kernels; don't try it on any other system - it simply will not work
+   - this can only work on VirtualAB devices whose ROMs use supported 5.x and 6.6 GKI kernels; don't try it on any other system - it simply will not work
    -   *Note*: this will use an extra 2.5mb of storage in the recovery ramdisk (inclusive of the 'ksud' binary); so, do NOT use this if recovery space is limited,
    -    otherwise the recovery might not boot at all (eg, blank screen), even if it builds successfully
    - default = 0
