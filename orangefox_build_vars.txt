@@ -8,7 +8,7 @@
 # The build vars beginning with "OF_" can be exported in vendorsetup.sh, or can be declared in a device tree make (ie, ".mk") file
 #
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 8 October 2025
+# Date: 22 October 2025
 #
 # -----------------------------------
 #
@@ -918,5 +918,11 @@
    - this can only work on VirtualAB devices whose ROMs use supported 5.x and 6.6 GKI kernels; don't try it on any other system - it simply will not work
    -   *Note*: this will use an extra 2.5mb of storage in the recovery ramdisk (inclusive of the 'ksud' binary); so, do NOT use this if recovery space is limited,
    -    otherwise the recovery might not boot at all (eg, blank screen), even if it builds successfully
+   - default = 0
+#
+"OF_USE_AIDL_BOOT_CONTROL" [NEW]
+   - this is for A/B devices only
+   - set this to 1 if your device uses aidl (as opposed to hidl) to handle boot control, particularly changing slots
+   - this may help in situations where your build cannot successfully change slots from the OrangeFox UI
    - default = 0
 # -----------------------------------
