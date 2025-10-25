@@ -8,7 +8,7 @@
 # The build vars beginning with "OF_" can be exported in vendorsetup.sh, or can be declared in a device tree make (ie, ".mk") file
 #
 # Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 22 October 2025
+# Date: 25 October 2025
 #
 # -----------------------------------
 #
@@ -46,9 +46,13 @@
 #
 "FOX_LOCAL_CALLBACK_SCRIPT"
    - point to a custom "callback" script that will be executed just before creating the final recovery image
-   - eg, a script to delete some files, or add some files to the ramdisk
+   - eg, a script to delete some files, or add some files to the ramdisk, or to the OrangeFox zip, etc
    - ensure that you set the executable bit of the script (eg, "chmod 0755 my-callback-script.sh")
-   - there is no default
+   - this callback script will be executed twice:
+   -	1. just before building the recovery image; here, it will receive the path of the recovery ramdisk as the first argument, and "--first-call" as the second argument
+   -	2. just before creating the OrangeFox zip; here, it will receive the path of the temporary working directory as the first argument, and "--last-call" as the second argument
+   - ensure that you full test the callback script to be clear that it does exactly what you want it to do, and nothing else
+   - default = nothing
 #
 "FOX_REPLACE_TOOLBOX_GETPROP"
    - set to 1 to replace the (stripped down) toolbox version of the "getprop" command
@@ -743,7 +747,7 @@
 - default = none
 #
 "FOX_MISCELLANEOUS_ROOT_DIRECTORY" [NEW] [EXPERIMENTAL!!]
-- This allows specifying a custom directory for the recovery addons, backups, logs, screenshots and etc. expect settings/themes (ie, instead of the default "/sdcard/Fox/")
+- This allows specifying a custom directory for the recovery addons, backups, logs, screenshots and etc. except settings/themes (ie, instead of the default "/sdcard/Fox/")
 - OrangeFox will automatically append "/Fox" to the end of the directory that is specified
 - The specified partition should be presented in the fstab
 -
@@ -925,4 +929,10 @@
    - set this to 1 if your device uses aidl (as opposed to hidl) to handle boot control, particularly changing slots
    - this may help in situations where your build cannot successfully change slots from the OrangeFox UI
    - default = 0
+#
+"OF_MASK_GET_FOLDER_SIZE_READ_ERRORS" [NEW]
+   - set this to 1 to cause certain read errors - when running Get_File_Size() - to be logged in the log file, rather than the recovery console
+   - this is not recommended, because the presence of the errors indicates a problem; it is best to find and cause and to fix it
+   - default = 0
+#
 # -----------------------------------
