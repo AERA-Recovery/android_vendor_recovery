@@ -9,7 +9,7 @@
 # ******************************************************
 
 # last_modified
-MOD_DATE="20250929"
+MOD_DATE="20251026"
 
 # whether to print extra debug messages
 FOX_INSTALLER_DEBUG_MODE=0
@@ -637,7 +637,11 @@ local F_RAM
 
 	   if [ "$no_ramdisk_only" != "1" ]; then
 	   	tmp=$($GETPROP "orangefox.vendor_boot.recovery")
-	   	[ "$tmp" != "true" ] && no_ramdisk_only=1
+		if [ "$tmp" != "true" ]; then
+			ui_print "- Warning: you are not running a vendor_boot OrangeFox recovery!";
+			ui_print "- Caution: this may be a problem (or maybe not!)";
+			#no_ramdisk_only=1
+		fi
 	   fi
 
 	   # which magiskboot binary? (broken on latest magiskboot canary)
