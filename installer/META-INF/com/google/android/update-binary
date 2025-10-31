@@ -9,7 +9,7 @@
 # ******************************************************
 
 # last_modified
-MOD_DATE="20251026"
+MOD_DATE="20251031"
 
 # whether to print extra debug messages
 FOX_INSTALLER_DEBUG_MODE=0
@@ -644,12 +644,6 @@ local F_RAM
 		fi
 	   fi
 
-	   # which magiskboot binary? (broken on latest magiskboot canary)
-#	   if [ "$no_ramdisk_only" != "1" ]; then
-#	   	tmp=$(is_vendor_boot_magiskboot "$tool")
-#	   	[ "$tmp" != "1" ] && no_ramdisk_only=1
-#	   fi
-
 	   # so, are we able to flash the ramdisk only?
 	   if [ "$no_ramdisk_only" != "1" ]; then
 	   	ui_print "- Installing only the ramdisk..."
@@ -679,10 +673,15 @@ local F_RAM
 
 	   # unpack
 	   ui_print "- Unpacking the $target$slot image..."
-	   "$tool" unpack -n $name".img" || abort "- I cannot unpack the $name$slot image."
-	   # after unpacking, there should be - either: ./ramdisk.cpio (v3 header); or ./vendor_ramdisk_recovery.cpio (v4 header + old magiskboot); or vendor_ramdisk/recovery.cpio (v4 header + latest magiskboot canary)
+	   "$tool" unpack -n $name".img"
+	   # after unpacking, there should be - either: ./ramdisk.cpio (v3 header); or ./vendor_ramdisk_recovery.cpio (v4 header + old magiskboot); or vendor_ramdisk/recovery.cpio (v4 header + magiskboot 28.0 and higher)
+	   if [ -e "./ramdisk.cpio" -o -e "./vendor_ramdisk_recovery.cpio" -o -e "./vendor_ramdisk/recovery.cpio" ]; then
+		ui_print "- Finished unpacking the $target$slot image."
+	   else
+		abort "- I cannot unpack the $name$slot image."
+	   fi
 
-	   # check for latest magiskboot canary operations
+	   # check for magiskboot v28+ operations
 	   if [ ! -f $F_RAM -a -f "vendor_ramdisk/recovery.cpio" ]; then
 		F_RAM="vendor_ramdisk/recovery.cpio"
 	   fi
