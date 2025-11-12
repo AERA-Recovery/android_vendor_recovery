@@ -1353,7 +1353,7 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   # Include nano editor ?
   if [ "$FOX_USE_NANO_EDITOR" = "1" ]; then
       echo -e "${GREEN}-- Copying nano editor ...${NC}"
-      mkdir -p $FOX_RAMDISK/FFiles/nano/
+      mkdir -p $FOX_RAMDISK/FFiles/nano/bin/
       $CP -af $FOX_VENDOR_PATH/Files/nano/sbin/nano $FOX_RAMDISK/$RAMDISK_SBIN/
       if [ "$(enabled $FOX_CUSTOM_BINS_TO_SDCARD)" != "1" ]; then
 	$CP -af $FOX_VENDOR_PATH/Files/nano/ $FOX_RAMDISK/FFiles/
