@@ -1,6 +1,5 @@
 #!/system/bin/sh
 #
-# 	/sbin/foxstart.sh
 # 	Custom script for OrangeFox Recovery
 #
 #	This file is part of the OrangeFox Recovery Project
@@ -23,12 +22,12 @@
 #
 #
 # * Author: DarthJabba9, Ctapchuk
-# * Date:   20250316
+# * Date:   20251120
 # * Identify some ROM features and hardware components
 # * Do some other sundry stuff
 #
 #
-SCRIPT_LASTMOD_DATE="20250316"
+SCRIPT_LASTMOD_DATE="20251120"
 C="/tmp_cust"
 LOG="/tmp/recovery.log"
 LOG2="/sdcard/foxstart.log"
@@ -36,13 +35,14 @@ DEBUG="0"  	  # enable for more debug messages
 VERBOSE_DEBUG="0" # enable for really verbose debug messages
 SYS_ROOT="0"	  # do we have system_root?
 SAR="0"	  	  # SAR set up properly in recovery?
-ANDROID_SDK="30"  # assume at least Android 11 in sdk checks
+ANDROID_SDK="31"  # assume at least Android 12 in sdk checks
 MOUNT_CMD="mount -r" # only mount in readonly mode
 SUPER="0" # whether the device has a "super" partition
 OUR_TMP="/FFiles/temp" # our "safe" temp directory
 
 # whether this is a vAB or vanilla build
-VIRTUAL_AB_OR_VANILLA=0
+VIRTUAL_AB=$(getprop "ro.orangefox.virtual_ab")
+VANILLA=$(getprop "ro.orangefox.vanilla")
 
 # whether we have been given a fixed OrangeFox stuff directory
 FOX_MISCELLANEOUS_ROOT_DIRECTORY=""
@@ -328,6 +328,12 @@ local slot=$(getprop "ro.boot.slot_suffix")
 isMIUI() {
    local M="0"
 
+   # don't check vanilla builds
+   if [ "$VANILLA" = "1" ]; then
+	echo $M
+	return
+   fi
+
    # look for product prop
    local mv1=$(getprop "orangefox.product.partition")
    if [ "$mv1" = "1" ]; then
@@ -451,11 +457,11 @@ Treble_Action() {
 
 # report on MIUI and take action
 MIUI_Action() {
-   echo "DEBUG: OrangeFox: check for MIUI." >> $LOG
-   if [ -z "$ROM" ]; then
+   if [ -z "$ROM" -o "$VANILLA" = "1" ]; then
       echo "MIUI=0" >> $CFG
       return
    fi
+   echo "DEBUG: OrangeFox: check for MIUI." >> $LOG
    D="DEBUG: OrangeFox: detected a Custom ROM."
    if [ "$M" = "1" ]; then
       D="DEBUG: OrangeFox: detected a MIUI ROM"
