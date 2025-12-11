@@ -439,10 +439,12 @@
 - all decryption/recovery passwords are successfully entered)
 - default = 0
 #
-"FOX_NO_SAMSUNG_SPECIAL" (renamed from "OF_NO_SAMSUNG_SPECIAL")  [LEGACY]
-- set this to 1 to disable operations relating only to Samsung devices, i.e.
+"FOX_NO_SAMSUNG_SPECIAL" (renamed from "OF_NO_SAMSUNG_SPECIAL")  [OBSOLETE]
+#
+"FOX_USE_SAMSUNG_SPECIAL" [NEW]
+- set this to 1 to enable certain operations relating only to Samsung devices, i.e.
 -   appending "SEANDROIDENFORCE" to the recovery image of a Samsung device
-- you *MUST* use this if your device tree already has a makefile (e.g., mkbootimg.mk or bootimg.mk) that does the same thing
+- you should not use this if your device tree already has a makefile (e.g., mkbootimg.mk or bootimg.mk) that performs that operation
 - default = 0
 #
 "OF_DEVICE_WITHOUT_PERSIST"

@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 06 October 2025
+# 11 December 2025
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -257,11 +257,6 @@ fi
 echo -e "${BLUE}-- Setting up environment variables${NC}"
 
 # transitional after renaming of build vars
-if [ -n "$OF_NO_SAMSUNG_SPECIAL" -a -z "$FOX_NO_SAMSUNG_SPECIAL" ]; then
-   export FOX_NO_SAMSUNG_SPECIAL=$OF_NO_SAMSUNG_SPECIAL
-   echo -e "${RED}OF_NO_SAMSUNG_SPECIAL has been deprecated. Use FOX_NO_SAMSUNG_SPECIAL ${NC}"
-fi
-
 if [ -n "$OF_SAMSUNG_DEVICE" -a -z "$FOX_SAMSUNG_DEVICE" ]; then 
    export FOX_SAMSUNG_DEVICE=$OF_SAMSUNG_DEVICE
    echo -e "${RED}OF_SAMSUNG_DEVICE has been deprecated. Use FOX_SAMSUNG_DEVICE ${NC}"
@@ -1749,7 +1744,7 @@ if [ "$FOX_VENDOR_CMD" = "Fox_After_Recovery_Image" ]; then
      $CP -p "$INSTALLED_RECOVERYIMAGE_TARGET" "$RECOVERY_IMAGE"
 
      # samsung stuff?
-     if [ "$SAMSUNG_DEVICE" = "samsung" -a "$FOX_NO_SAMSUNG_SPECIAL" != "1" ]; then
+     if [ "$SAMSUNG_DEVICE" = "samsung" -a "$FOX_USE_SAMSUNG_SPECIAL" = "1" ]; then
      	echo -e "${RED}-- Appending SEANDROIDENFORCE to $RECOVERY_IMAGE ${NC}"
      	echo -n "SEANDROIDENFORCE" >> $RECOVERY_IMAGE
      fi
