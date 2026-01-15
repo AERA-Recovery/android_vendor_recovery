@@ -7,8 +7,8 @@
 # All build vars beginning with "FOX_" *must* be exported as environment variables in vendorsetup.sh, or at the command line
 # The build vars beginning with "OF_" can be exported in vendorsetup.sh, or can be declared in a device tree make (ie, ".mk") file
 #
-# Copyright (C) 2019-2025 OrangeFox Recovery Project
-# Date: 1 December 2025
+# Copyright (C) 2019-2026 OrangeFox Recovery Project
+# Date: 15 January 2026
 #
 # -----------------------------------
 #
@@ -893,7 +893,7 @@
 #
 "OF_USE_DMCTL" [NEW] (renamed from "FOX_USE_DMCTL")
    - set this to 1 if you want to use 'dmctl' (as an alternative to 'dmsetup') to try and work around problems with formatting the /data partition
-   - if this is enabled, the dmsetup binary will be built into the recovery, and will be called just before formatting /data
+   - if this is enabled, the dmctl binary will be built into the recovery, and will be called just before formatting /data
    - this is only useful for devices/ROMs that have dynamic partitions
    - be sure to test extensively, and verify that it doesn't cause other issues after formatting data
    - default = 0
