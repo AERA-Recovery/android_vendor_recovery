@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #	This file is part of the OrangeFox Recovery Project
-# 	Copyright (C) 2018-2025 The OrangeFox Recovery Project
+# 	Copyright (C) 2018-2026 The OrangeFox Recovery Project
 #
 #	OrangeFox is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 11 December 2025
+# 26 January 2026
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -239,6 +239,11 @@ fi
 IS_VANILLA_BUILD=0
 if [ "$FOX_VANILLA_BUILD" = "1" -o "$OF_VANILLA_BUILD" = "1" ]; then
    IS_VANILLA_BUILD=1
+fi
+
+# initd - disable by default
+if [ -z "$FOX_DELETE_INITD_ADDON" ]; then
+	export FOX_DELETE_INITD_ADDON=1
 fi
 
 RECOVERY_DIR="recovery"
