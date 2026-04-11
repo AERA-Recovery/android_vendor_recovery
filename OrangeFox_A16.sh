@@ -93,10 +93,9 @@ UUIDGEN=/usr/bin/uuidgen
 
 # exit function (cleanup first), and return status code
 abort() {
-  [ -d $WORKING_TMP ] && rm -rf $WORKING_TMP
-  [ -f $TMP_SCRATCH ] && rm -f $TMP_SCRATCH
-  [ -f $FOXENV ] && rm -f $FOXENV
-  exit $1
+  [ -d "$WORKING_TMP" ] && rm -rf "$WORKING_TMP"
+  [ -f "$TMP_SCRATCH" ] && rm -f "$TMP_SCRATCH"
+  exit "$1"
 }
 
 # whether a build var is enabled (accepts "1" or greater, and "true")
