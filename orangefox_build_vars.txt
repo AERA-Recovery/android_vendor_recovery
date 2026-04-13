@@ -945,5 +945,7 @@
 "OF_ENABLE_WLAN" [NEW] [! EXTREMELY EXPERIMENTAL !]
    - set this to 1 to include WLAN features
    - You need to provide (and load and manage) your WiFi drivers in your device tree)
+   - if you cannot start the wlan service automatically "Start WLAN" button is linked to /system/bin/wlan_start
+   - See for reference: https://github.com/koaaN/android_device_oneplus_infiniti-orangefox/blob/fox_16.0/recovery/root/system/bin/wlan_start
    - default = 0
 # -----------------------------------
