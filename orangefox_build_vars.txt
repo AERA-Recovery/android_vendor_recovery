@@ -1,6 +1,6 @@
 # ------------------------------------
 #
-# Custom build VARs for the OrangeFox Recovery, fox_14.1 branch
+# Custom build VARs for the OrangeFox Recovery, fox_16.0 branch
 #
 # These build vars should be declared - in a shell script (eg, in "vendorsetup.sh"), or at the command line - before building
 #
@@ -942,4 +942,8 @@
    - the addon is very highly experimental, and should be used with great care; it should NOT be used unless everything else has failed
    - default = 0
 #
+"OF_ENABLE_WLAN" [NEW] [! EXTREMELY EXPERIMENTAL !]
+   - set this to 1 to include WLAN features
+   - You need to provide (and load and manage) your WiFi drivers in your device tree)
+   - default = 0
 # -----------------------------------
