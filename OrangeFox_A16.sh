@@ -1187,8 +1187,10 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   mkdir -p /tmp/fox_build_tmp/
   $CP -pf $FOX_RAMDISK/$RAMDISK_SBIN/magiskboot /tmp/fox_build_tmp/magiskboot
 
-  # symlink for openrecovery binary
-  if [ -f "$FOX_RAMDISK/$RAMDISK_SYSTEM_BIN/twrp" ]; then
+  # "fox" CLI: prefer the real foxcli binary (module foxcli, stem "fox"). Only
+  # fall back to symlinking the legacy "twrp" tool when foxcli was not built, so
+  # we never clobber the real /system/bin/fox with the legacy CLI.
+  if [ ! -e "$FOX_RAMDISK/$RAMDISK_SYSTEM_BIN/fox" ] && [ -f "$FOX_RAMDISK/$RAMDISK_SYSTEM_BIN/twrp" ]; then
      ln -sf /system/bin/twrp "$FOX_RAMDISK/$RAMDISK_SYSTEM_BIN/fox"
   fi
 
