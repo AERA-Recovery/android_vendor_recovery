@@ -12,13 +12,14 @@
 # the device BoardConfig, so the OF_* values are already set by the time we read
 # them below).
 
-# Backward compatibility: these flags were historically FOX_*-prefixed because,
-# by the old convention, they could only be exported via vendorsetup.sh and not
-# declared in a device BoardConfig. They now work from BoardConfig too and have
-# moved to the OF_* namespace. Map any legacy FOX_* value onto the new OF_* name
-# (with a deprecation warning) before exporting, so old device trees keep
-# building.
-OF_RENAMED_FROM_FOX := \
+# Some settings flags are canonically FOX_*-prefixed: OrangeFox_A16.sh and the
+# installer (installer/META-INF/com/google/android/update-binary) read them as
+# FOX_* at build/flash time, so the FOX_* name must be left intact. Soong,
+# however, reads them under OF_*. Mirror the FOX_* value onto OF_* (only when
+# OF_* isn't already set) so a build that sets the documented FOX_* name still
+# reaches Soong. This is NOT a deprecation: FOX_* remains the primary name for
+# these vars.
+OF_MIRRORED_FROM_FOX := \
     USE_NANO_EDITOR \
     ALLOW_EARLY_SETTINGS_LOAD \
     SETTINGS_ROOT_DIRECTORY \
@@ -26,21 +27,21 @@ OF_RENAMED_FROM_FOX := \
     USE_DATA_RECOVERY_FOR_SETTINGS \
     USE_MEIZU_TOUCH_MAPPING
 
-define fox_renamed_var
+define fox_mirror_var
 ifneq ($$(FOX_$(1)),)
-  $$(warning OrangeFox: FOX_$(1) is deprecated; please rename it to OF_$(1))
   OF_$(1) ?= $$(FOX_$(1))
 endif
 endef
 
-$(foreach v,$(OF_RENAMED_FROM_FOX),$(eval $(call fox_renamed_var,$(v))))
+$(foreach v,$(OF_MIRRORED_FROM_FOX),$(eval $(call fox_mirror_var,$(v))))
 
 # Bridge the OF_* feature flags into the twrpVarsPlugin Soong namespace so they
 # take effect when declared in a device .mk, not only when exported to the
-# environment. getMakeVars() in the recovery *_defaults reads these.
+# environment. getMakeVars() in the recovery *_defaults reads exactly these.
 $(call add_soong_config_var,twrpVarsPlugin,\
     OF_ENABLE_WLAN \
     OF_ENABLE_LAB \
+    OF_LANDSCAPE_MODE \
     OF_SUPPORT_OZIP_DECRYPTION \
     OF_USE_NANO_EDITOR \
     OF_ALLOW_EARLY_SETTINGS_LOAD \
