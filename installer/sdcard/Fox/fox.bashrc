@@ -1,14 +1,34 @@
 #
-# sample .bashrc file for OrangeFox
+#	sample .bashrc file for OrangeFox
 #
+#	This file is part of the OrangeFox Recovery Project
+# 	Copyright (C) 2018-2026 The OrangeFox Recovery Project
+#
+#	OrangeFox is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	any later version.
+#
+#	OrangeFox is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+# 	This software is released under GPL version 3 or any later version.
+#	See <http://www.gnu.org/licenses/>.
+#
+# 	Please maintain this if you use this script or any part of it
+#
+
 # HOME
-export HOME=$(getprop "ro.orangefox.home")
-[ ! -n $HOME ] && export HOME=/sdcard/Fox
-[ ! -d $HOME ] && mkdir -p $HOME
-[ ! -d $HOME ] && export HOME=/tmp
+HOME=$(getprop "ro.orangefox.home")
+[ -z "$HOME" ] && HOME=/sdcard/Fox
+[ ! -d $HOME ] && mkdir -p -m 0777 $HOME
+[ ! -d $HOME ] && HOME=/tmp
+export HOME
 
 # shell
-export SHELL=/sbin/bash
+export SHELL=$(which bash)
 export HISTFILE=$HOME/.bash_history
 export PS1='\s-\v \w > '
 

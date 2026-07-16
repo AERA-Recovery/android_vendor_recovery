@@ -8,7 +8,7 @@
 # The build vars beginning with "OF_" can be exported in vendorsetup.sh, or can be declared in a device tree make (ie, ".mk") file
 #
 # Copyright (C) 2019-2026 OrangeFox Recovery Project
-# Date: 26 January 2026
+# Date: 17 April 2026
 #
 # -----------------------------------
 #
@@ -754,9 +754,9 @@
 -
 - Examples:
 -
--  "export FOX_SETTINGS_ROOT_DIRECTORY=/sdcard/PRIVATE"
+-  "export FOX_MISCELLANEOUS_ROOT_DIRECTORY=/sdcard/PRIVATE"
 -
--  "export FOX_SETTINGS_ROOT_DIRECTORY=/sdcard1/MyDev"
+-  "export FOX_MISCELLANEOUS_ROOT_DIRECTORY=/sdcard1/MyDev"
 -
 -
 - This is a HIGHLY EXPERIMENTAL feature, which may have bugs; use with GREAT caution, and with lots of testing
@@ -925,12 +925,6 @@
    -    otherwise the recovery might not boot at all (eg, blank screen), even if it builds successfully
    - default = 0
 #
-"OF_USE_AIDL_BOOT_CONTROL" [NEW]
-   - this is for A/B devices only
-   - set this to 1 if your device uses aidl (as opposed to hidl) to handle boot control, particularly changing slots
-   - this may help in situations where your build cannot successfully change slots from the OrangeFox UI
-   - default = 0
-#
 "OF_MASK_GET_FOLDER_SIZE_READ_ERRORS" [NEW]
    - set this to 1 to cause certain read errors - when running Get_File_Size() - to be logged in the log file, rather than the recovery console
    - this is not recommended, because the presence of the errors indicates a problem; it is best to find and cause and to fix it
@@ -948,4 +942,20 @@
    - if you cannot start the wlan service automatically "Start WLAN" button is linked to /system/bin/wlan_start
    - See for reference: https://github.com/koaaN/android_device_oneplus_infiniti-orangefox/blob/fox_16.0/recovery/root/system/bin/wlan_start
    - default = 0
+#
+"OF_DONT_SUBSTITUTE_PERMISSIONS" [NEW] [! EXPERIMENTAL !]
+   - Set this to 1 to opt out of substituting permissions/selinux contexts for OrangeFox-related files/folders, as required by Android 16 QPR2's access strictness
+   - If set to 1, OrangeFox leaves permissions/contexts alone, as normal. This is likely to cause restricted access (in Android 16 QPR2) to files/folders created
+   - by OrangeFox in the internal storage, because they will most likely be owned by root, and their selinux contexts would not be "media_rw".
+   - So, it is best to stay away from this setting, unless the subtituted permissions are causing problems.
+   - default = 0
+#
+"OF_VAB_ORS_WIPE_DATA_IS_FORMAT" [NEW] [! EXPERIMENTAL !]
+   - Set this to 1 to respond to ORS '--wipe-data' instructions in the expected manner, by formatting data.
+   - This is what AOSP recoveries do, and this (a 'factory reset') is what the system update_engine expects. Currently, we just wipe data, instead of formatting it.
+   - For virtual A/B devices, this often leaves the device a permanent 'merge' status after flashing a ROM (the 'unmerged snapshot' problem), causing a brick.
+   - This build var instructs the recovery to respond as expected, rather than as twrp has always done.
+   - This is only relevant to Virtual A/B devices. Do NOT try to use it for non-virtual A/B devices - you will only get a build error.
+   - default = 0
+#
 # -----------------------------------

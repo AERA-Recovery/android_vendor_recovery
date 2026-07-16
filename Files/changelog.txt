@@ -1,3 +1,13 @@
+OrangeFox Recovery R12.0 Changelog
+-----------------------------------
+
+== R12.0 ==
+- Interface design overhaul, inspired by Material Expressive
+- New icons, which are renderring as svg
+- Brand new OrangeFox themes: Fox white and Fox dark.
+- Gesture navigation is now enabled by default
+- New font: Inter, which is now the default font
+- Implement an svg engine
 
 
 OrangeFox Recovery R11.3 Changelog

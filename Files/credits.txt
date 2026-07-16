@@ -6,6 +6,11 @@ OrangeFox Recovery Credits
 * TWRP Team
 * The Posy - for cursor
 
+== R12 interface refresh ==
+* fordownloads
+* Ctapchuk
+* MrYacha
+
 == For donating ==
 * GitLab.com
 * JetBrains

@@ -3,13 +3,13 @@
 # ******************************************************
 # Description: 	Installer script for OrangeFox Recovery
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2018-2025 The OrangeFox Recovery Project
+# Copyright (C) 2018-2026 The OrangeFox Recovery Project
 # Author: 	DarthJabba9, Ctapchuk
 # Date: 	TODAY
 # ******************************************************
 
 # last_modified
-MOD_DATE="20251031"
+MOD_DATE="20260415"
 
 # whether to print extra debug messages
 FOX_INSTALLER_DEBUG_MODE=0
@@ -102,6 +102,9 @@ FOX_VANILLA_BUILD=0
 
 # whether we have been given a fixed OrangeFox stuff directory
 FOX_MISCELLANEOUS_ROOT_DIRECTORY=""
+
+# whether we've been given a new settings root
+FOX_SETTINGS_ROOT_DIRECTORY=""
 
 # whether to disable auto-reboot after installing OrangeFox
 FOX_INSTALLER_DISABLE_AUTOREBOOT=0
@@ -305,7 +308,7 @@ CheckRequirements() {
 
 # do we have a virtual A/B device?
 is_VAB() {
-	if [ "$FOX_VIRTUAL_AB_DEVICE" = "1" -o "$(getprop ro.orangefox.virtual_ab)" = "1" -o "$(getprop ro.virtual_ab.enabled)" = "true" ]; then
+	if [ "$FOX_VIRTUAL_AB_DEVICE" = "1" -o "$($GETPROP ro.orangefox.virtual_ab)" = "1" -o "$($GETPROP ro.virtual_ab.enabled)" = "true" ]; then
 		echo "1"
 	else
 		echo "0"
@@ -824,15 +827,32 @@ local PART=$(readlink $RECOVERY_PARTITION)
 }
 
 # reset settings to default
-Reset_Settings() {
+Legacy_Reset_Settings() {
 local F="$1"
 	[ -z "$F" ] && F=/sdcard
 	local FOX=$F/Fox
-	ui_print "- Removing old OrangeFox configuration files ..."
+	ui_print "- Removing any legacy OrangeFox configuration files ..."
 	rm -rf $FOX/.bin.
 	rm -rf $FOX/.theme
 	rm -rf $FOX/.navbar
 	rm -f $FOX/.fox*
+}
+
+Reset_Settings() {
+local FOX_HOME=$($GETPROP "ro.orangefox.home")
+local FOX_SETTINGS=$($GETPROP "ro.orangefox.settings")
+	[ -z "$FOX_HOME" ] && FOX_HOME=/sdcard/Fox
+	[ -z "$FOX_SETTINGS" ] && FOX_SETTINGS=/sdcard/Fox
+
+	ui_print "- Removing any old OrangeFox configuration files ..."
+	rm -rf $FOX_HOME/.bin.
+	rm -f $FOX_HOME/.bash*
+	rm -f $FOX_HOME/fox*
+	rm -f $FOX_HOME/aromafm.cfg
+	rm -rf $FOX_SETTINGS/.theme
+	rm -rf $FOX_SETTINGS/.navbar
+	rm -f $FOX_SETTINGS/.fox*
+
 	if [ "$PERSIST_PATH" != "ERROR" -a -d $PERSIST_PATH ]; then
 	   	[ "$BOOTMODE" != "true" ] && mount_part $PERSIST_PATH
 	   	rm -f $PERSIST_PATH/.fsec*
@@ -841,6 +861,33 @@ local F="$1"
 	else
 		[ "$PERSIST_PATH" = "ERROR" ] && ui_print "- Some old settings might remain."
 	fi
+
+	# remove any lingering legacy settings
+	Legacy_Reset_Settings;
+
+	# other contingencies (eg, installing with R11, or with another recovery)
+	local F=""
+	if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" ]; then
+		F=$FOX_SETTINGS_ROOT_DIRECTORY"/Fox"
+		if [ "$F" != "$FOX_SETTINGS" ]; then
+			FOX_SETTINGS=$F
+			rm -rf $FOX_SETTINGS/.theme
+			rm -rf $FOX_SETTINGS/.navbar
+			rm -f $FOX_SETTINGS/.fox*
+		fi
+	fi
+
+	if [ -n "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+		F=$FOX_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
+		if [ "$F" != "$FOX_HOME" ]; then
+			FOX_HOME=$F
+			rm -rf $FOX_HOME/.bin.
+			rm -f $FOX_HOME/.bash*
+			rm -f $FOX_HOME/fox*
+			rm -f $FOX_HOME/aromafm.cfg
+		fi
+	fi
+	#
 }
 
 # install the OrangeFox extras to internal SD
@@ -884,6 +931,8 @@ Install_OrangeFox_Extras_To_sdcard() {
 	   rm -rf "$internal_SD/Fox/FoxFiles"
    	   rm -f "$internal_SD/Fox/.wolfs"
    	   package_extract_dir "sdcard" "$internal_SD"
+	   chcon -R "u:object_r:media_rw_data_file:s0" "$internal_SD/Fox"
+	   chown -R "media_rw:media_rw" "$internal_SD/Fox"
    	}
 }
 

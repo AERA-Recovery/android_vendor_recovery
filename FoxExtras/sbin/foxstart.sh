@@ -3,7 +3,7 @@
 # 	Custom script for OrangeFox Recovery
 #
 #	This file is part of the OrangeFox Recovery Project
-# 	Copyright (C) 2018-2025 The OrangeFox Recovery Project
+# 	Copyright (C) 2018-2026 The OrangeFox Recovery Project
 #
 #	OrangeFox is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #
 #
 # * Author: DarthJabba9, Ctapchuk
-# * Date:   20251120
+# * Date:   20260324
 # * Identify some ROM features and hardware components
 # * Do some other sundry stuff
 #
@@ -523,12 +523,15 @@ local fox_cfg="$ETC_DIR/fox.cfg"
 
    $SETPROP ro.orangefox.home "$fox_home"
    $SETPROP ro.orangefox.settings "$fox_settings"
-   
+
    # if someone is still using old recovery sources
-   ln -s $CFG /tmp/orangefox.cfg
+   cp $CFG /tmp/orangefox.cfg
 
    # bashrc
-   ln -sf /system/etc/bash/bashrc /.bashrc
+   local rc=$ETC_DIR/bash/bashrc
+   [ ! -f $rc ] && rc=$ETC_DIR/bashrc
+   [ ! -f $rc ] && rc=$ETC_DIR/bash.bashrc
+   [ -f $rc ] && cp $rc /.bashrc
 }
 
 # try to get display panel information
