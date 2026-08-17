@@ -21,7 +21,7 @@
 # ******************************************************************************
 # 17 August 2026
 #
-# *** This script is for the OrangeFox Android 14.1 manifest ***
+# *** This script is for the OrangeFox Android 16.0 manifest ***
 #
 # For optional environment variables - to be declared before building,
 # see "orangefox_build_vars.txt" for full details
@@ -48,7 +48,7 @@ if [ -f "$FOXENV" ]; then
    source "$FOXENV"
 else
    echo "** WARNING: $FOXENV is not found. Your build vars will probably not be implemented. **"
-   echo "** You need an up-to-date OrangeFox patch for the AOSP 14.1 manifest. **"
+   echo "** You need an up-to-date OrangeFox patch for the AOSP 16.0 manifest. **"
 fi
 
 # whether to print extra debug messages
