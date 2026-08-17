@@ -19,7 +19,7 @@
 # 	Please maintain this if you use this script or any part of it
 #
 # ******************************************************************************
-# 15 April 2026
+# 17 August 2026
 #
 # *** This script is for the OrangeFox Android 14.1 manifest ***
 #
@@ -1581,6 +1581,13 @@ if [ "$FOX_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
      chmod 0755 $FOX_RAMDISK/$RAMDISK_SBIN/busybox
   else
      rm -f $FOX_RAMDISK/$RAMDISK_SBIN/busybox
+  fi
+
+  # MiSans font (for proper display of Chinese language)
+  if [ "$FOX_USE_MISANS_FONTS" = "1" ]; then
+     echo -e "${GREEN}-- Replacing the 'InterDisplay' fonts with 'MiSans' ...${NC}"
+     $CP -p $FOX_VENDOR_PATH/Files/MiSans-Regular.ttf $FOX_RAMDISK/twres/fonts/InterDisplay-Regular.ttf
+     $CP -p $FOX_VENDOR_PATH/Files/MiSans-Medium.ttf $FOX_RAMDISK/twres/fonts/InterDisplay-Medium.ttf
   fi
 
 #########################################################################################
