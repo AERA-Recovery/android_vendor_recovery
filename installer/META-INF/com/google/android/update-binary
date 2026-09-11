@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
 # ******************************************************
-# Description: 	Installer script for OrangeFox Recovery
+# Description: 	Installer script for AERA Recovery
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2018-2026 The OrangeFox Recovery Project
 # Author: 	DarthJabba9, Ctapchuk
@@ -12,10 +12,10 @@
 MOD_DATE="20260415"
 
 # whether to print extra debug messages
-FOX_INSTALLER_DEBUG_MODE=0
+AERA_INSTALLER_DEBUG_MODE=0
 
 # if set, then trace the commands before executing them (verbose!)
-if [ "$FOX_INSTALLER_DEBUG_MODE" = "1" ]; then
+if [ "$AERA_INSTALLER_DEBUG_MODE" = "1" ]; then
    set -o xtrace
 fi
 
@@ -77,40 +77,40 @@ EX_DIR=$TMP_DIR/ofox_installer
 ERROR_CODE=0
 
 # AB device?
-FOX_AB_DEVICE=0
+AERA_AB_DEVICE=0
 
 # vAB device?
-FOX_VIRTUAL_AB_DEVICE=0
+AERA_VIRTUAL_AB_DEVICE=0
 
 # vendor_boot recovery?
-FOX_VENDOR_BOOT_RECOVERY=0
+AERA_VENDOR_BOOT_RECOVERY=0
 
 # vendor_boot - whether to flash only the ramdisk
-FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=0
+AERA_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=0
 
 # vendor_boot recovery with V3 header?
-FOX_VENDOR_BOOT_RECOVERY_V3_HDR=0
+AERA_VENDOR_BOOT_RECOVERY_V3_HDR=0
 
 # enable vbmeta patching for magiskboot 24+ ?
-FOX_PATCH_VBMETA_FLAG=0
+AERA_PATCH_VBMETA_FLAG=0
 
-# Reset OrangeFox settings to default?
-FOX_RESET_SETTINGS="1"
+# Reset AERA settings to default?
+AERA_RESET_SETTINGS="1"
 
-# build a vanilla version that skips all OrangeFox patches?
-FOX_VANILLA_BUILD=0
+# build a vanilla version that skips all AERA patches?
+AERA_VANILLA_BUILD=0
 
-# whether we have been given a fixed OrangeFox stuff directory
-FOX_MISCELLANEOUS_ROOT_DIRECTORY=""
+# whether we have been given a fixed AERA stuff directory
+AERA_MISCELLANEOUS_ROOT_DIRECTORY=""
 
 # whether we've been given a new settings root
-FOX_SETTINGS_ROOT_DIRECTORY=""
+AERA_SETTINGS_ROOT_DIRECTORY=""
 
-# whether to disable auto-reboot after installing OrangeFox
-FOX_INSTALLER_DISABLE_AUTOREBOOT=0
+# whether to disable auto-reboot after installing AERA
+AERA_INSTALLER_DISABLE_AUTOREBOOT=0
 
 # whether we have an A/B device with dedicated recovery partitions
-FOX_AB_DEVICE_WITH_RECOVERY_PARTITION=0
+AERA_AB_DEVICE_WITH_RECOVERY_PARTITION=0
 
 # sundry glodal defaults
 # VEND_DIR="/vendor"
@@ -148,12 +148,12 @@ fi
 # ui_print "<message>" ["<message 2>" ...]
 ui_print() {
   if [ "$BOOTMODE" = "true" ]; then
-  	echo "$1"
+	echo "$1"
   else
-  	until [ ! "$1" ]; do
-    		echo -e "ui_print $1\nui_print" >> $SCREEN
-    		shift
-  	done
+	until [ ! "$1" ]; do
+		echo -e "ui_print $1\nui_print" >> $SCREEN
+		shift
+	done
   fi
 }
 
@@ -165,7 +165,7 @@ abort() {
    exit 1
 }
 
-# 
+#
 find_persist() {
 local P=/persist
   [ -d $P -o "$BOOTMODE" != "true" ] && { echo $P; return; }
@@ -219,9 +219,9 @@ umount_part() {
 }
 
 # package_extract_file <file> <destination_file>
-old_package_extract_file() { 
+old_package_extract_file() {
    mkdir -p "$(dirname "$2")"
-   unzip -o "$ZIPFILE" "$1" -p > "$2" 
+   unzip -o "$ZIPFILE" "$1" -p > "$2"
 }
 
 # package_extract_dir <dir> <destination_dir>
@@ -239,23 +239,23 @@ package_extract_dir() {
    else
       ui_print "Invalid directory: $1"
    fi
-} 
+}
 
 package_extract_file() {
    if [ -e $EX_DIR/$1 ]; then
       dd if=$EX_DIR/$1 of=$2
    else
-      ui_print "Invalid file: $1"   
-   fi 
+      ui_print "Invalid file: $1"
+   fi
 }
 
 # file_getprop <file> <property>
-file_getprop() { 
+file_getprop() {
   grep -m1 "^$2=" "$1" | cut -d= -f2
 }
 
 # xgetprop <property>
-xgetprop() { 
+xgetprop() {
    [ -e $GETPROP ] && $GETPROP $1 || grep -m1 "^$1=" /default.prop | head -n1 | cut -d= -f2
 }
 
@@ -275,7 +275,7 @@ local F=/prop.default
         GREP="$BUSYBOX grep"
 	$GREP -q build $F > /dev/null 2>&1 || GREP=""
      fi
-     
+
      if [ -z "$GREP" -a -x $TOYBOX ]; then
         GREP="$TOYBOX grep"
         $GREP -q build $F > /dev/null 2>&1 || GREP=""
@@ -292,14 +292,14 @@ CheckRequirements() {
    local GREP=$(find_grep)
    local F=$(echo "$PRODUCT_DEVICE" | $GREP -w "$TARGET_DEVICE")
    if [ -n "$F" ]; then
-       ui_print "- OrangeFox (RELEASE_VER) for $TARGET_DEVICE ..."
+       ui_print "- AERA (RELEASE_VER) for $TARGET_DEVICE ..."
    else
        if [ -z "$TARGET_DEVICE_ALT" ]; then
           abort "E3004: This package is for $TARGET_DEVICE. This device ($PRODUCT_DEVICE) is not supported."
        fi
        F=$(echo "$TARGET_DEVICE_ALT" | $GREP -w "$PRODUCT_DEVICE")
        if [ -n "$F" ]; then
-          ui_print "- OrangeFox (RELEASE_VER) for $PRODUCT_DEVICE ..."
+          ui_print "- AERA (RELEASE_VER) for $PRODUCT_DEVICE ..."
        else
           abort "E3004: This package is for $TARGET_DEVICE. This device ($PRODUCT_DEVICE) is not supported."
        fi
@@ -308,7 +308,7 @@ CheckRequirements() {
 
 # do we have a virtual A/B device?
 is_VAB() {
-	if [ "$FOX_VIRTUAL_AB_DEVICE" = "1" -o "$($GETPROP ro.orangefox.virtual_ab)" = "1" -o "$($GETPROP ro.virtual_ab.enabled)" = "true" ]; then
+	if [ "$AERA_VIRTUAL_AB_DEVICE" = "1" -o "$($GETPROP ro.orangefox.virtual_ab)" = "1" -o "$($GETPROP ro.virtual_ab.enabled)" = "true" ]; then
 		echo "1"
 	else
 		echo "0"
@@ -334,13 +334,13 @@ is_SAR() {
     echo "1"
     return
   }
-  
+
   F=$(grep -s "/system_root" "/etc/fstab")
   [ -n "$F" ] && {
      echo "1"
      return
   }
-  
+
   [ -L "/system" -a -d "/system_root" ] && {
     echo "1"
     return
@@ -362,7 +362,7 @@ Exists() {
   [ -d "$1" ] && { echo "1"; return; } # directory
   [ -f "$1" ] && { echo "2"; return; } # file
   [ -h "$1" ] && { echo "3"; return; } # link
-  [ -e "$1" ] && { echo "4"; return; } # other kind of file  
+  [ -e "$1" ] && { echo "4"; return; } # other kind of file
   stat "$1" > /dev/null 2>&1;
   [ "$?" = "0" ] && echo "5" || echo "0"; # 5 = what kind of file is this?
 }
@@ -373,31 +373,31 @@ local sys="/mnt/system"
 
 	mkdir -p $SYS_DIR
 	mkdir -p $VEND_DIR
-	
+
 	# /system
-    	SAR=$(is_SAR)
-    	[ "$SAR" = "1" ] && sys="/system_root"
-    	SYS_DIR="$sys"
-    	SYS_ROOT="$SYS_DIR"	
+	SAR=$(is_SAR)
+	[ "$SAR" = "1" ] && sys="/system_root"
+	SYS_DIR="$sys"
+	SYS_ROOT="$SYS_DIR"
 	local F=$(is_mounted "$sys")
-    	if [ "$F" = "0" ]; then
-    	   mount "$sys" > /dev/null 2>&1
-    	   F=$(is_mounted "$sys")
-    	   [ "$F" = "0" ] && mount -t ext4 $SYSTEM_PARTITION "$sys"
+	if [ "$F" = "0" ]; then
+	   mount "$sys" > /dev/null 2>&1
+	   F=$(is_mounted "$sys")
+	   [ "$F" = "0" ] && mount -t ext4 $SYSTEM_PARTITION "$sys"
 
 	   # system-as-root stuff
 	   [ -d "$sys/system" ] && SYS_DIR="$sys/system"
 	   [ -d "$sys/system/etc" ] && ETC_DIR="$sys/system/etc"
 	fi
 
-    	# /vendor
-    	F=$(is_mounted "$VEND_DIR")
-    	if [ "$F" = "0" ]; then
-    	   mount "$VEND_DIR" > /dev/null 2>&1    	   
-    	   F=$(is_mounted "$VEND_DIR")
-    	   [ "$F" = "0" ] && mount -t ext4 $VENDOR_PARTITION $VEND_DIR > /dev/null 2>&1	   
+	# /vendor
+	F=$(is_mounted "$VEND_DIR")
+	if [ "$F" = "0" ]; then
+	   mount "$VEND_DIR" > /dev/null 2>&1
+	   F=$(is_mounted "$VEND_DIR")
+	   [ "$F" = "0" ] && mount -t ext4 $VENDOR_PARTITION $VEND_DIR > /dev/null 2>&1
 	fi
-} 
+}
 
 # unmount everything that we mounted
 UnMountThemAll() {
@@ -453,25 +453,25 @@ local U=$($GETPROP "ro.build.ab_update")
 
 # get the cache dir
 GetCacheDir() {
-local C="/cache/" 
+local C="/cache/"
 local AB="/data/cache/"
 local D="/data/"
 
-  if [ "$FOX_AB_DEVICE" = "1" -o "$(Is_AB_Device)" = "1" ]; then
+  if [ "$AERA_AB_DEVICE" = "1" -o "$(Is_AB_Device)" = "1" ]; then
      [ -d $AB ] && { echo "$AB"; return; }
      mount_part "/data" > /dev/null 2>&1
      mkdir -p $AB > /dev/null 2>&1
      [ -d $AB ] && { echo "$AB"; return; }
   fi
-  
- [ -d $C ] && { 
+
+ [ -d $C ] && {
     [ "$BOOTMODE" = "true" ] && { echo "$C"; return; }
     local F=$(cat /etc/fstab | grep "/cache")
     [ -n "$F" ] && { echo "$C"; return; }
  }
 
  [ -d $AB ] && { echo "$AB"; return; }
- [ -d $D ] && { 
+ [ -d $D ] && {
     mount_part "/data" > /dev/null 2>&1
     mkdir -p $AB > /dev/null 2>&1
     [ -d $AB ] && { echo "$AB"; return; }
@@ -481,7 +481,7 @@ local D="/data/"
 }
 
 # log this install
-LogFreshInstall() { 
+LogFreshInstall() {
 local cache_dir=$(GetCacheDir)
 local F="0"
 
@@ -494,24 +494,24 @@ local F="0"
      }
  else
      if [ "$cache_dir" = "/persist/cache/" -o "$cache_dir" = "/persist/" ]; then
-     	mount_part "/persist"
-     	F=$(is_mounted "/persist")
-     	[ "$F" != "1" ] && {
-     	  ui_print "- Error mounting the cache directory ($cache_dir); the post-install patches will not be processed."
-     	  return
-     	}
-     fi 
+	mount_part "/persist"
+	F=$(is_mounted "/persist")
+	[ "$F" != "1" ] && {
+	  ui_print "- Error mounting the cache directory ($cache_dir); the post-install patches will not be processed."
+	  return
+	}
+     fi
  fi
- 
- if [ "$FOX_AB_DEVICE" = "1" -o "$(Is_AB_Device)" = "1" ]; then
+
+ if [ "$AERA_AB_DEVICE" = "1" -o "$(Is_AB_Device)" = "1" ]; then
     ui_print "- A/B device: the post-install patches will not be processed."
     return
  fi
- 
+
  F="$cache_dir"recovery/
  [ ! -d $F ] && mkdir -p $F
- ui_print "- OrangeFox fresh installation - "$F"Fox_Installed"
- echo "FOX_NEW=1" > "$F"Fox_Installed
+ ui_print "- AERA fresh installation - "$F"Fox_Installed"
+ echo "AERA_NEW=1" > "$F"Fox_Installed
 
  [ ! -f "$F"Fox_Installed ] && {
     ui_print "- Error writing to the cache directory ($cache_dir); the post-install patches will not be processed."
@@ -519,7 +519,7 @@ local F="0"
  }
 
  if [ "$BOOTMODE" = "true" ]; then
-    [ "$FOX_RESET_SETTINGS" != "disabled" ] && echo "BOOTMODE=1" >> "$F"Fox_Installed
+    [ "$AERA_RESET_SETTINGS" != "disabled" ] && echo "BOOTMODE=1" >> "$F"Fox_Installed
  fi
 }
 
@@ -567,34 +567,34 @@ local tmp
 local PART
 local F_RAM
 
-   	cd "$EX_DIR"
-   	
-   	# various searches for magiskboot in the live recovery session
-   	if [ ! -e "$tool" ]; then
-   	   tool=/system/bin/magiskboot
-   	   if [ ! -e "$tool" ]; then
-   	      tool=/sbin/magiskboot
-   	      [ ! -e "$tool" ] && tool=/FFiles/magiskboot_new
-   	      [ ! -e "$tool" ] && tool=$(which magiskboot)
-   	   fi
-   	   [ -z "$tool" ] && abort "- I cannot find magiskboot. Quitting!"
-   	fi
+	cd "$EX_DIR"
+
+	# various searches for magiskboot in the live recovery session
+	if [ ! -e "$tool" ]; then
+	   tool=/system/bin/magiskboot
+	   if [ ! -e "$tool" ]; then
+	      tool=/sbin/magiskboot
+	      [ ! -e "$tool" ] && tool=/FFiles/magiskboot_new
+	      [ ! -e "$tool" ] && tool=$(which magiskboot)
+	   fi
+	   [ -z "$tool" ] && abort "- I cannot find magiskboot. Quitting!"
+	fi
 
 	chmod 0755 "$tool"
 
-   	# recovery.img must be in the zip installer
-   	if [ ! -f "recovery.img" ]; then
-   	   abort "- I cannot find the OrangeFox recovery image. Quitting!"
-   	fi
+	# recovery.img must be in the zip installer
+	if [ ! -f "recovery.img" ]; then
+	   abort "- I cannot find the AERA recovery image. Quitting!"
+	fi
 
 	# target partition without the slot suffix
 	[ -z "$part_size" ] && part_size="0"
 	if [ "$part_size" != "0" -a -e $RECOVERY_PARTITION"_b" ]; then
 	    target="$RECOVERY_PARTITION"
 	    name="recovery"
-	    FOX_AB_DEVICE_WITH_RECOVERY_PARTITION=1
+	    AERA_AB_DEVICE_WITH_RECOVERY_PARTITION=1
 	else
-	    if [ "$FOX_VENDOR_BOOT_RECOVERY" = "1" ]; then # vendor_boot bringup
+	    if [ "$AERA_VENDOR_BOOT_RECOVERY" = "1" ]; then # vendor_boot bringup
 	    	ui_print "- Vendor_boot device ..."
 	    	target="$VENDOR_BOOT_PARTITION"
 	    	name="vendor_boot"
@@ -612,7 +612,7 @@ local F_RAM
 	# if we have a recovery  partition - install the recovery image to recovery _a /_b
 	if [ "$name" = "recovery" ]; then
 	   ui_print "- A/B device - a recovery partition exists"
-	   
+
 	   # check against partition size - again
 	   tmp=$($GETPROP "ro.boot.slot_suffix")
 	   part_size=$(blockdev --getsize64 $target"$tmp") > /dev/null 2>&1
@@ -622,7 +622,7 @@ local F_RAM
 	   # if we get here, it is safe to flash the image to the recovery _a /_b slots
 	   ui_print "- The active slot is $tmp ..."
 	   for slot in _a _b; do
-		ui_print "- Installing OrangeFox to slot $slot..."
+		ui_print "- Installing AERA to slot $slot..."
 		PART=$target"$slot"
 		blockdev --setrw $PART
 		package_extract_file "recovery.img" "$PART"
@@ -631,17 +631,17 @@ local F_RAM
 	fi
 
 # vendor_boot as recovery - flash both slots and return
-	if [ "$FOX_VENDOR_BOOT_RECOVERY" = "1" ]; then
+	if [ "$AERA_VENDOR_BOOT_RECOVERY" = "1" ]; then
 	   ui_print "- NOTE: vendor_boot-as-recovery is highly experimental! Do not use unless you are absolutely sure that it will not cause problems!"
 
 	   # replace the entire vendor_boot partition ?
 	   local no_ramdisk_only=0
-	   [ "$FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL" != "1" ] && no_ramdisk_only=1
+	   [ "$AERA_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL" != "1" ] && no_ramdisk_only=1
 
 	   if [ "$no_ramdisk_only" != "1" ]; then
 	   	tmp=$($GETPROP "orangefox.vendor_boot.recovery")
 		if [ "$tmp" != "true" ]; then
-			ui_print "- Warning: you are not running a vendor_boot OrangeFox recovery!";
+			ui_print "- Warning: you are not running a vendor_boot AERA recovery!";
 			ui_print "- Caution: this may be a problem (or maybe not!)";
 			#no_ramdisk_only=1
 		fi
@@ -652,7 +652,7 @@ local F_RAM
 	   	ui_print "- Installing only the ramdisk..."
 	   else
 	   	for slot in _a _b; do
-			ui_print "- Installing OrangeFox to $name$slot..."
+			ui_print "- Installing AERA to $name$slot..."
 			PART=$target"$slot"
 			blockdev --setrw $PART
 			package_extract_file "recovery.img" "$PART"
@@ -660,13 +660,13 @@ local F_RAM
 	   	return
 	   fi
 
-   	   #----- OrangeFox can replace just the vendor_boot recovery ramdisk -------
+	   #----- AERA can replace just the vendor_boot recovery ramdisk -------
 	   F_RAM=vendor_ramdisk_recovery.cpio
 	   [ ! -f $F_RAM ] && F_RAM=ramdisk.cpio
-	   #[ "$FOX_VENDOR_BOOT_RECOVERY_V3_HDR" = "1" -a ! -f $F_RAM ] && F_RAM=ramdisk.cpio
+	   #[ "$AERA_VENDOR_BOOT_RECOVERY_V3_HDR" = "1" -a ! -f $F_RAM ] && F_RAM=ramdisk.cpio
 
-	   # rename the OrangeFox installer's ramdisk image to "fox_vendor_ramdisk"
-	   ui_print "- Backing up the OrangeFox ramdisk image..."
+	   # rename the AERA installer's ramdisk image to "fox_vendor_ramdisk"
+	   ui_print "- Backing up the AERA ramdisk image..."
 	   mv -f $F_RAM fox_vendor_ramdisk || abort "- I cannot backup the ramdisk image."
 
 	   # dump the vendor_boot partition and unpack
@@ -698,7 +698,7 @@ local F_RAM
 
 	   # flash both slots
 	   for slot in _a _b; do
-		ui_print "- Installing OrangeFox to $name$slot..."
+		ui_print "- Installing AERA to $name$slot..."
 		PART=$target"$slot"
 		blockdev --setrw $PART
 		package_extract_file "new_recovery.img" "$PART"
@@ -709,29 +709,29 @@ local F_RAM
 	   rm -f "new_recovery.img"
 	   mv -f fox_vendor_ramdisk $F_RAM
 	   return
-   	   # -----------------------------------------------------
+	   # -----------------------------------------------------
 	fi
 # end: vendor_boot-as-recovery
 
 	# enable the magiskboot 24+ vbmeta patch?
-	if [ "$FOX_PATCH_VBMETA_FLAG" = "1" ]; then
+	if [ "$AERA_PATCH_VBMETA_FLAG" = "1" ]; then
 	   export PATCHVBMETAFLAG=true
 	else
 	   export PATCHVBMETAFLAG=false
 	fi
-	
-   	# extract the ramdisk from the OrangeFox image
-   	chmod 0755 "$tool"
-   	ui_print "- Extracting the OrangeFox ramdisk ..."
-   	"$tool" unpack recovery.img || abort "- I cannot extract the OrangeFox ramdisk. Quitting!"
+
+	# extract the ramdisk from the AERA image
+	chmod 0755 "$tool"
+	ui_print "- Extracting the AERA ramdisk ..."
+	"$tool" unpack recovery.img || abort "- I cannot extract the AERA ramdisk. Quitting!"
 
 	# deal with ramdisk cpio
-   	if [ ! -f "ramdisk.cpio" ]; then
-   	   abort "- Error extracting the OrangeFox ramdisk. Quitting!"
-   	fi
-   	cp -f ramdisk.cpio ramdisk-ofrp.cpio
-   	rm -f ramdisk.cpio
-   	rm -f kernel dtb kernel_dtb
+	if [ ! -f "ramdisk.cpio" ]; then
+	   abort "- Error extracting the AERA ramdisk. Quitting!"
+	fi
+	cp -f ramdisk.cpio ramdisk-ofrp.cpio
+	rm -f ramdisk.cpio
+	rm -f kernel dtb kernel_dtb
 
 	# deal with both slots
 	for slot in _a _b; do
@@ -781,10 +781,10 @@ local PART=$(readlink $RECOVERY_PARTITION)
     [ "$?" != "0" ] && PART=$RECOVERY_PARTITION
 
     # either we've been told that it is A/B, or, it really is A/B
-    [ "$FOX_AB_DEVICE" = "1" -o "$(Is_AB_Device)" = "1" ] && Is_ABD="1"
+    [ "$AERA_AB_DEVICE" = "1" -o "$(Is_AB_Device)" = "1" ] && Is_ABD="1"
     [ "$Is_ABD" = "1" ] && {
        ui_print "- The device is an A/B device."
-       
+
        # verify that there is no recovery partition, else get its size
        ttmp=$(blockdev --getsize64 $RECOVERY_PARTITION"_b") > /dev/null 2>&1
        [ $? == 0 ] && ui_print "- But it also has a recovery partition!" || ttmp=0
@@ -801,22 +801,22 @@ local PART=$(readlink $RECOVERY_PARTITION)
     [ $newF -gt $oldF ] && {
       abort "The recovery image ($newF bytes) is bigger than your recovery partition ($oldF bytes)! Quitting."
     }
-    
+
     if [ -x "$FLASH_IMAGE" ] && [ -x "$ERASE_IMAGE" ]; then
        ui_print "- Cleaning the recovery partition ($PART)"
        $ERASE_IMAGE "$PART"
        [ $? == 0 ] && ui_print "- Succeeded." || ui_print "- Failed."
 
-       ui_print "- Flashing OrangeFox recovery..."
-       $FLASH_IMAGE "$PART" "$EX_DIR/recovery.img"    
+       ui_print "- Flashing AERA recovery..."
+       $FLASH_IMAGE "$PART" "$EX_DIR/recovery.img"
        [ $? == 0 ] && ui_print "- Succeeded." || {
-       	   ui_print "- Problems encountered. Trying an alternative flashing method..."
-       	   package_extract_file "recovery.img" "$PART"
-       	   [ $? == 0 ] && ui_print "- Succeeded." || {
-       	      ui_print "- Flashing failed. Trying to restore original recovery..."
-       	      $FLASH_IMAGE "$PART" "$bak"
-       	      [ $? == 0 ] && ui_print "- Succeeded." || abort "- Failed! There is now no recovery! Flash a working recovery via fastboot."
-       	   }
+	   ui_print "- Problems encountered. Trying an alternative flashing method..."
+	   package_extract_file "recovery.img" "$PART"
+	   [ $? == 0 ] && ui_print "- Succeeded." || {
+	      ui_print "- Flashing failed. Trying to restore original recovery..."
+	      $FLASH_IMAGE "$PART" "$bak"
+	      [ $? == 0 ] && ui_print "- Succeeded." || abort "- Failed! There is now no recovery! Flash a working recovery via fastboot."
+	   }
        }
     else
          ui_print "- Flashing the new recovery."
@@ -831,7 +831,7 @@ Legacy_Reset_Settings() {
 local F="$1"
 	[ -z "$F" ] && F=/sdcard
 	local FOX=$F/Fox
-	ui_print "- Removing any legacy OrangeFox configuration files ..."
+	ui_print "- Removing any legacy AERA configuration files ..."
 	rm -rf $FOX/.bin.
 	rm -rf $FOX/.theme
 	rm -rf $FOX/.navbar
@@ -839,19 +839,19 @@ local F="$1"
 }
 
 Reset_Settings() {
-local FOX_HOME=$($GETPROP "ro.orangefox.home")
-local FOX_SETTINGS=$($GETPROP "ro.orangefox.settings")
-	[ -z "$FOX_HOME" ] && FOX_HOME=/sdcard/Fox
-	[ -z "$FOX_SETTINGS" ] && FOX_SETTINGS=/sdcard/Fox
+local AERA_HOME=$($GETPROP "ro.orangefox.home")
+local AERA_SETTINGS=$($GETPROP "ro.orangefox.settings")
+	[ -z "$AERA_HOME" ] && AERA_HOME=/sdcard/Fox
+	[ -z "$AERA_SETTINGS" ] && AERA_SETTINGS=/sdcard/Fox
 
-	ui_print "- Removing any old OrangeFox configuration files ..."
-	rm -rf $FOX_HOME/.bin.
-	rm -f $FOX_HOME/.bash*
-	rm -f $FOX_HOME/fox*
-	rm -f $FOX_HOME/aromafm.cfg
-	rm -rf $FOX_SETTINGS/.theme
-	rm -rf $FOX_SETTINGS/.navbar
-	rm -f $FOX_SETTINGS/.fox*
+	ui_print "- Removing any old AERA configuration files ..."
+	rm -rf $AERA_HOME/.bin.
+	rm -f $AERA_HOME/.bash*
+	rm -f $AERA_HOME/fox*
+	rm -f $AERA_HOME/aromafm.cfg
+	rm -rf $AERA_SETTINGS/.theme
+	rm -rf $AERA_SETTINGS/.navbar
+	rm -f $AERA_SETTINGS/.fox*
 
 	if [ "$PERSIST_PATH" != "ERROR" -a -d $PERSIST_PATH ]; then
 	   	[ "$BOOTMODE" != "true" ] && mount_part $PERSIST_PATH
@@ -867,36 +867,36 @@ local FOX_SETTINGS=$($GETPROP "ro.orangefox.settings")
 
 	# other contingencies (eg, installing with R11, or with another recovery)
 	local F=""
-	if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" ]; then
-		F=$FOX_SETTINGS_ROOT_DIRECTORY"/Fox"
-		if [ "$F" != "$FOX_SETTINGS" ]; then
-			FOX_SETTINGS=$F
-			rm -rf $FOX_SETTINGS/.theme
-			rm -rf $FOX_SETTINGS/.navbar
-			rm -f $FOX_SETTINGS/.fox*
+	if [ -n "$AERA_SETTINGS_ROOT_DIRECTORY" ]; then
+		F=$AERA_SETTINGS_ROOT_DIRECTORY"/Fox"
+		if [ "$F" != "$AERA_SETTINGS" ]; then
+			AERA_SETTINGS=$F
+			rm -rf $AERA_SETTINGS/.theme
+			rm -rf $AERA_SETTINGS/.navbar
+			rm -f $AERA_SETTINGS/.fox*
 		fi
 	fi
 
-	if [ -n "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
-		F=$FOX_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
-		if [ "$F" != "$FOX_HOME" ]; then
-			FOX_HOME=$F
-			rm -rf $FOX_HOME/.bin.
-			rm -f $FOX_HOME/.bash*
-			rm -f $FOX_HOME/fox*
-			rm -f $FOX_HOME/aromafm.cfg
+	if [ -n "$AERA_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+		F=$AERA_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
+		if [ "$F" != "$AERA_HOME" ]; then
+			AERA_HOME=$F
+			rm -rf $AERA_HOME/.bin.
+			rm -f $AERA_HOME/.bash*
+			rm -f $AERA_HOME/fox*
+			rm -f $AERA_HOME/aromafm.cfg
 		fi
 	fi
 	#
 }
 
-# install the OrangeFox extras to internal SD
-Install_OrangeFox_Extras_To_sdcard() {
+# install the AERA extras to internal SD
+Install_AERA_Extras_To_sdcard() {
 	local F=0
 	local internal_SD
 	ui_print "- Installing FoxFiles on the internal SD ..."
-	if [ -n "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
-		internal_SD="$FOX_MISCELLANEOUS_ROOT_DIRECTORY"
+	if [ -n "$AERA_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+		internal_SD="$AERA_MISCELLANEOUS_ROOT_DIRECTORY"
 		[ ! -d $internal_SD ] && mkdir -p $internal_SD
 		F=1
 	elif [ "$BOOTMODE" = "true" ]; then
@@ -926,14 +926,14 @@ Install_OrangeFox_Extras_To_sdcard() {
 
 	echo "$internal_SD"
 
-	[ "$F" = "1" ] && {	
+	[ "$F" = "1" ] && {
 	   ui_print "- internal_SD=$internal_SD"
 	   rm -rf "$internal_SD/Fox/FoxFiles"
-   	   rm -f "$internal_SD/Fox/.wolfs"
-   	   package_extract_dir "sdcard" "$internal_SD"
+	   rm -f "$internal_SD/Fox/.wolfs"
+	   package_extract_dir "sdcard" "$internal_SD"
 	   chcon -R "u:object_r:media_rw_data_file:s0" "$internal_SD/Fox"
 	   chown -R "media_rw:media_rw" "$internal_SD/Fox"
-   	}
+	}
 }
 
 # main function
@@ -942,8 +942,8 @@ Main() {
 	local F=0
 
 	ui_print "*************************************"
-	ui_print "*** |OrangeFox Recovery Project|  ***"
-	ui_print "***   |By The OrangeFox Team|     ***"
+	ui_print "*** |AERA Recovery Project|  ***"
+	ui_print "***   |By The AERA Team|     ***"
 	ui_print "***   |Installer V:$MOD_DATE|      ***"
 	ui_print "*************************************"
 	ui_print " "
@@ -959,16 +959,16 @@ Main() {
 # are we running on Android?
 	if [ "$BOOTMODE" = "true" ]; then
 		if [ "$F" = "1" ]; then
-			ui_print "- OrangeFox installation: running on Android."
-			abort "- You cannot install only the OrangeFox extra files from Android."
+			ui_print "- AERA installation: running on Android."
+			abort "- You cannot install only the AERA extra files from Android."
 		fi
 
-		ui_print "- OrangeFox installation: running on Android."
+		ui_print "- AERA installation: running on Android."
 		ui_print "- This installation mode is experimental."
 
 		[ "$PERSIST_PATH" = "ERROR" ] && {
 			ui_print "- Some features might be missing - so,"
-			ui_print "- flash this zip again, with OrangeFox."
+			ui_print "- flash this zip again, with AERA."
 		}
 		ui_print ""
 	fi
@@ -981,21 +981,21 @@ Main() {
 
 # Install the recovery
 	if [ "$F" != "1" ]; then
-		ui_print "- Installing OrangeFox recovery ..."
+		ui_print "- Installing AERA recovery ..."
 
 		Install_Recovery
 
 		[ "$ERROR_CODE" = "1" ] && {
-			abort "- The installation of OrangeFox recovery was not successful ..."
+			abort "- The installation of AERA recovery was not successful ..."
 		}
 	fi
 
 # Install /sdcard stuff
-	internal_SD=$(Install_OrangeFox_Extras_To_sdcard)
+	internal_SD=$(Install_AERA_Extras_To_sdcard)
 
 # If we only installed the extras
 	if [ "$F" = "1" ]; then
-		ui_print "- Finished installing the OrangeFox extras"
+		ui_print "- Finished installing the AERA extras"
 		ui_print "- The extra files are in $internal_SD/Fox/"
 		ui_print " "
 		rm -rf $EX_DIR
@@ -1004,17 +1004,17 @@ Main() {
 
 # Prevent the stock recovery from replacing this recovery
 	MountThemAll
-	
-	if [ "$FOX_VANILLA_BUILD" = "1" ]; then
-	   ui_print "- Not disabling stock recovery overwrites!"	
+
+	if [ "$AERA_VANILLA_BUILD" = "1" ]; then
+	   ui_print "- Not disabling stock recovery overwrites!"
 	else
 	   ui_print "- Disabling stock recovery overwrites..."
 	   Disable_stock_recovery_overwrites
 	fi
-	
+
 	LogFreshInstall
-	
-	[ "$FOX_RESET_SETTINGS" != "disabled" ] && Reset_Settings "$internal_SD"
+
+	[ "$AERA_RESET_SETTINGS" != "disabled" ] && Reset_Settings "$internal_SD"
 
 # backup recovery.log -> Fox/logs/install.log
     ui_print "- Finished."
@@ -1029,24 +1029,24 @@ Main() {
 	UnMountThemAll
 
 # Finish and reboot
-	ui_print "- Finished installing OrangeFox!" 
+	ui_print "- Finished installing AERA!"
 	ui_print "- Extra files are in $internal_SD/Fox/"
 	ui_print " "
 	rm -rf $EX_DIR
 	F=""
 
-	# don't reboot automatically if it is an A/B device, OrangeFox is running, and there is no dedicated recovery partition
-	if [ "$FOX_AB_DEVICE_WITH_RECOVERY_PARTITION" = "1" -o -e $RECOVERY_PARTITION"_b" ]; then
+	# don't reboot automatically if it is an A/B device, AERA is running, and there is no dedicated recovery partition
+	if [ "$AERA_AB_DEVICE_WITH_RECOVERY_PARTITION" = "1" -o -e $RECOVERY_PARTITION"_b" ]; then
 	   F=""; # dummy, to prevent a runtime error
-	elif [ "$FOX_AB_DEVICE" = "1" -o "$(Is_AB_Device)" = "1" ]; then
+	elif [ "$AERA_AB_DEVICE" = "1" -o "$(Is_AB_Device)" = "1" ]; then
 	   F=$($GETPROP "orangefox.postinit.status")
 	   [ -z "$F" ] && F=$($GETPROP "orangefox.crash_counter")
 	   if [ -n "$F" ]; then
 	   	ui_print " "
-	   	ui_print "- Now, you need to reboot OrangeFox."
+		ui_print "- Now, you need to reboot AERA."
 	   	ui_print " "
-	   	if [ "$FOX_VIRTUAL_AB_DEVICE" != "1" ]; then
-	   		ui_print "- If you have just flashed a ROM, first switch the slot before rebooting OrangeFox."
+		if [ "$AERA_VIRTUAL_AB_DEVICE" != "1" ]; then
+			ui_print "- If you have just flashed a ROM, first switch the slot before rebooting AERA."
 	   		ui_print " "
 	   		ui_print " "
 	   	fi
@@ -1054,16 +1054,16 @@ Main() {
 	   fi
 	fi
 
-	if [ "$FOX_INSTALLER_DISABLE_AUTOREBOOT" = "1" ]; then
+	if [ "$AERA_INSTALLER_DISABLE_AUTOREBOOT" = "1" ]; then
 	   ui_print " "
-	   ui_print "- Now, you need to reboot OrangeFox."
+		ui_print "- Now, you need to reboot AERA."
 	   ui_print " "
 	   ui_print "- Auto-reboot has been disabled. Please reboot to Recovery manually."
 	   ui_print " "
 	   exit 0
 	fi
 
-	ui_print " >> Rebooting to OrangeFox Recovery in 5 seconds ..."
+	ui_print " >> Rebooting to AERA Recovery in 5 seconds ..."
 	sleep 1
 	ui_print "-5s...."
 	sleep 1
@@ -1075,7 +1075,7 @@ Main() {
 	sleep 1
 	ui_print "-1s."
 	sleep 1
-	
+
 	ui_print " "
 	ui_print "- Rebooting to Recovery now ..."
 	sleep 1
@@ -1086,7 +1086,7 @@ Main() {
 	ui_print " "
 	ui_print "- Hmmm ... it seems that auto-reboot has failed. Please reboot to Recovery manually."
 	exit 0
-} # end Main(); 
+} # end Main();
 
 # --
 Main

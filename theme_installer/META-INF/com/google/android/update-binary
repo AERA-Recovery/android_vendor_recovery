@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
 # ******************************************************
-# Description: 	Theme Installer for OrangeFox Recovery
+# Description: 	Theme Installer for AERA Recovery
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2018-2025 The OrangeFox Recovery Project
 # Author: 	DarthJabba9, Ctapchuk
@@ -28,7 +28,7 @@ mkdir -p $TMP_DIR
 EX_DIR=$TMP_DIR/ofox_theme_installer
 
 # the description of the theme
-THEME_NAME="OrangeFox Classic Theme R4"
+THEME_NAME="AERA Classic Theme R4"
 
 # ui_print "<message>" ["<message 2>" ...]
 ui_print() {
@@ -96,8 +96,8 @@ fi
 # main function
 Main() {
 	ui_print "*************************************"
-	ui_print "*** |OrangeFox Theme Installer |  ***"
-	ui_print "***   |By The OrangeFox Team|     ***"
+	ui_print "*** |AERA Theme Installer |  ***"
+	ui_print "***   |By The AERA Team|     ***"
 	ui_print "*************************************"
 	ui_print " "
 

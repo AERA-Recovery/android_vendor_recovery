@@ -1,5 +1,5 @@
 #
-# 	sample system-wide bashrc file for OrangeFox
+# 	sample system-wide bashrc file for AERA
 #
 #	This file is part of the OrangeFox Recovery Project
 # 	Copyright (C) 2018-2026 The OrangeFox Recovery Project
@@ -41,7 +41,7 @@ alias ren="mv -i"
 alias copy="cp -i"
 alias diskfree="df -Ph"
 alias path="echo $PATH"
-alias ver="echo -n 'OrangeFox ' && echo -n '- ' && echo -n $(getprop ro.orangefox.type) && echo -n ' - ' && getprop ro.orangefox.release.version && cat /proc/version"
+alias ver="echo -n 'AERA ' && echo -n '- ' && echo -n $(getprop ro.orangefox.type) && echo -n ' - ' && getprop ro.orangefox.release.version && cat /proc/version"
 #
 
 # go to a neutral location

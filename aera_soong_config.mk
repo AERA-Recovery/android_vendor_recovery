@@ -1,23 +1,23 @@
-# OrangeFox Soong build-var bridge
+# AERA Soong build-variable bridge
 #
-# Soong (the .go *_defaults under bootable/recovery) reads OrangeFox feature
+# Soong (the .go *_defaults under bootable/recovery) reads legacy recovery feature
 # flags through getMakeVars(), i.e. the "twrpVarsPlugin" SOONG_CONFIG namespace.
 # Soong cannot see plain Make variables, so a flag set as "OF_FOO := 1" in a
 # device tree .mk only reaches Soong if it is exported into that namespace here.
 #
-# This list lives in vendor/recovery (OrangeFox-owned) rather than in
+# This list lives in vendor/recovery (AERA-owned) rather than in
 # vendor/twrp/config/BoardConfigSoong.mk so that the upstream TWRP config stays
 # untouched. It is included from build/make/core/config.mk, right after
 # BoardConfigTWRP.mk (which creates the twrpVarsPlugin namespace and runs after
 # the device BoardConfig, so the OF_* values are already set by the time we read
 # them below).
 
-# Some settings flags are canonically FOX_*-prefixed: OrangeFox_A16.sh and the
+# Some settings flags remain AERA_*-prefixed for compatibility: AERA_A16.sh and the
 # installer (installer/META-INF/com/google/android/update-binary) read them as
-# FOX_* at build/flash time, so the FOX_* name must be left intact. Soong,
-# however, reads them under OF_*. Mirror the FOX_* value onto OF_* (only when
-# OF_* isn't already set) so a build that sets the documented FOX_* name still
-# reaches Soong. This is NOT a deprecation: FOX_* remains the primary name for
+# AERA_* at build/flash time, so the AERA_* name must be left intact. Soong,
+# however, reads them under OF_*. Mirror the AERA_* value onto OF_* (only when
+# OF_* isn't already set) so a build that sets the documented AERA_* name still
+# reaches Soong. This is NOT a deprecation: AERA_* remains the primary name for
 # these vars.
 OF_MIRRORED_FROM_FOX := \
     USE_NANO_EDITOR \
@@ -28,8 +28,8 @@ OF_MIRRORED_FROM_FOX := \
     USE_MEIZU_TOUCH_MAPPING
 
 define fox_mirror_var
-ifneq ($$(FOX_$(1)),)
-  OF_$(1) ?= $$(FOX_$(1))
+ifneq ($$(AERA_$(1)),)
+  OF_$(1) ?= $$(AERA_$(1))
 endif
 endef
 

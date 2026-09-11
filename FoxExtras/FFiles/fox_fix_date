@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # ---------------------------
-# Fix epoch issues in OrangeFox recovery by storing the offset drifts in since_epoch
-# Useful in OrangeFox recovery when the device's RTC is misbehaving
+# Fix epoch issues in AERA recovery by storing the offset drifts in since_epoch
+# Useful in AERA recovery when the device's RTC is misbehaving
 #
 # By DarthJabba9
 #

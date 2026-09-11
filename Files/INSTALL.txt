@@ -1,12 +1,10 @@
-Installation of OrangeFox
--------------------------
+AERA Recovery Project installation
+==================================
 
-If you already have OrangeFox or a 
-compatible TWRP recovery, you can 
-just flash the OrangeFox zip as a 
-normal zip, without any wipes.
+This package contains AERA Recovery Project R1.0.
 
-For detailed information on how to
-install OrangeFox, go here: 
-https://wiki.orangefox.tech/en/guides
+Confirm that the package was built for your exact device before flashing.
+For OnePlus 13, the device codename is `dodge`. Flash the recovery image only
+to the partition selected by the device tree and boot configuration.
 
+Keep a known-good stock image available before testing development builds.

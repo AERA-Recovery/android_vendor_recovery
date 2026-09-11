@@ -1,5 +1,5 @@
 #
-#	sample .bashrc file for OrangeFox
+#	sample .bashrc file for AERA
 #
 #	This file is part of the OrangeFox Recovery Project
 # 	Copyright (C) 2018-2026 The OrangeFox Recovery Project
@@ -32,7 +32,7 @@ export SHELL=$(which bash)
 export HISTFILE=$HOME/.bash_history
 export PS1='\s-\v \w > '
 
-# if running inside the OrangeFox terminal
+# if running inside the AERA terminal
 [ -n "$ANDROID_SOCKET_recovery" ] && export TERM=pcansi
 
 # aliases

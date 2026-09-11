@@ -4,17 +4,17 @@ README for OF_bind_internal.zip
 DISCLAIMERS:
 *************
 
-1. The "OF_bind_internal.zip" is experimental, and is supplied WITHOUT ANY WARRANTIES 
-   WHATSOEVER. 
+1. The "OF_bind_internal.zip" is experimental, and is supplied WITHOUT ANY WARRANTIES
+   WHATSOEVER.
 
 2. If you flash the OF_bind_internal.zip file, you do so ENTIRELY AT YOUR OWN RISK.
 
-3. The OrangeFox Recovery Project and its members and developers disclaim all 
+3. The AERA Recovery Project and its members and developers disclaim all
    liability for any loss or damage, resulting directly or indirectly, from the use,
-   or the purported use, of the OF_bind_internal.zip or its derivatives, for any 
+   or the purported use, of the OF_bind_internal.zip or its derivatives, for any
    purpose whatsosever.
 
-4. If these terms (or any of them) are not acceptable to you, then you have no 
+4. If these terms (or any of them) are not acceptable to you, then you have no
    license to use the OF_bind_internal.zip file. Do NOT EVER flash it.
 
 
@@ -35,14 +35,14 @@ A. You should only flash this *immediately* after formatting the data partition.
 
 Q. *Is it guaranteed to produce the desired effect?*
 A. No. On some devices/ROMs, it will work as intended. On some other devices
-   its work will simply be undone when you reboot to system. On some other 
-   devices, encryption will be broken, meaning that general decryption will 
+   its work will simply be undone when you reboot to system. On some other
+   devices, encryption will be broken, meaning that general decryption will
    fail. You can only know for sure by trial and error.
 
 Q. *What are the consequences of flashing this zip?*
-A. If it works, then it should leave the internal storage *unencrypted*, and 
+A. If it works, then it should leave the internal storage *unencrypted*, and
    therefore accessible in recovery, even if decryption of /data fails.
-   
+
    Note: this may produce some side effects on encryption. Use with caution!
    So, do *NOT* flash this zip unless you are prepared to format your data
    partition to get rid of its effect.
@@ -54,8 +54,8 @@ A. The *only* way to reverse its effect is to format the data partition.
 ***********
 CONCLUSION:
 ***********
-If you flash this zip, and it works as intended, then the internal storage 
-will NOT be encrypted. 
+If you flash this zip, and it works as intended, then the internal storage
+will NOT be encrypted.
 
 --------------------------------------
 So, you should only flash this zip if:

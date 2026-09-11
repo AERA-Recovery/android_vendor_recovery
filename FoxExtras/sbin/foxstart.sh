@@ -1,6 +1,6 @@
 #!/system/bin/sh
 #
-# 	Custom script for OrangeFox Recovery
+# 	Custom script for AERA Recovery
 #
 #	This file is part of the OrangeFox Recovery Project
 # 	Copyright (C) 2018-2026 The OrangeFox Recovery Project
@@ -44,14 +44,14 @@ OUR_TMP="/FFiles/temp" # our "safe" temp directory
 VIRTUAL_AB=$(getprop "ro.orangefox.virtual_ab")
 VANILLA=$(getprop "ro.orangefox.vanilla")
 
-# whether we have been given a fixed OrangeFox stuff directory
-FOX_MISCELLANEOUS_ROOT_DIRECTORY=""
+# whether we have been given a fixed AERA stuff directory
+AERA_MISCELLANEOUS_ROOT_DIRECTORY=""
 
 # whether we have been given a fixed settings/themes directory
-FOX_SETTINGS_ROOT_DIRECTORY=""
+AERA_SETTINGS_ROOT_DIRECTORY=""
 
 # etc dir
-if [ -h /etc ]; then 
+if [ -h /etc ]; then
    ETC_DIR=$(readlink /etc)
 else
    ETC_DIR=/etc
@@ -64,7 +64,7 @@ CFG="$ETC_DIR/orangefox.cfg"
 FS="$ETC_DIR/twrp.fstab"
 [ ! -f $FS ] && FS="$ETC_DIR/recovery.fstab"
 
-FOX_DEVICE=$(getprop "ro.product.device")
+AERA_DEVICE=$(getprop "ro.product.device")
 SETPROP=/sbin/resetprop
 [ ! -x "$SETPROP" ] && SETPROP=/system/bin/resetprop
 [ ! -x "$SETPROP" ] && SETPROP=/system/bin/setprop
@@ -108,8 +108,8 @@ if [ "$(getprop ro.boot.dynamic_partitions)" = "true" -o "$(getprop orangefox.su
 fi
 
 # file_getprop <file> <property>
-file_getprop() 
-{ 
+file_getprop()
+{
   local F=$(grep -m1 "^$2=" "$1" | cut -d= -f2)
   echo $F | sed 's/ *$//g'
 }
@@ -117,14 +117,14 @@ file_getprop()
 #  some optional debug message stuff
 DebugDirList() {
    [ ! "$DEBUG" = "1" ] && return
-   echo "DEBUG: OrangeFox: directory list of $1" >> $LOG
+   echo "DEBUG: AERA: directory list of $1" >> $LOG
    ls -all $1 >> $LOG
 }
 
 # optional debug message
 DebugMsg() {
    [ ! "$DEBUG" = "1" ] && return
-   echo "DEBUG: OrangeFox: $@" >> $LOG
+   echo "DEBUG: AERA: $@" >> $LOG
    extralog "$@"
 }
 
@@ -147,7 +147,7 @@ is_SAR() {
   local F=$(getprop "ro.build.system_root_image")
   [ "$F" = "true" ] && {
     echo "1"
-    return  
+    return
   }
 
   F=$(grep -s "/system_root" "$ETC_DIR/fstab")
@@ -155,7 +155,7 @@ is_SAR() {
      echo "1"
      return
   }
-  
+
   [ -L "/system" -a -d "/system_root" ] && {
     echo "1"
     return
@@ -166,7 +166,7 @@ is_SAR() {
      echo "1"
      return
   }
-  
+
   F=$(getprop ro.twrp.sar)
   [ "$F" = "true" ] && echo "1" || echo "0"
 }
@@ -204,22 +204,22 @@ local slot=$(getprop "ro.boot.slot_suffix")
 
    # look for build.prop
    [ ! -e "$PROP" ] && PROP="$S/system/build.prop" # test for SAR
-   
+
    # have we found a proper build.prop ?
    [ ! -e $PROP ] && {
       umount $S > /dev/null 2>&1
       rmdir $S > /dev/null 2>&1
-      echo "DEBUG: OrangeFox: error - I cannot find the system build.prop" >> $LOG
+      echo "DEBUG: AERA: error - I cannot find the system build.prop" >> $LOG
       echo ""
       return
    }
-   
+
    # - make a copy of the system build.prop
    cp $PROP "$OUR_TMP/system_build_prop" > /dev/null 2>&1
    PROP="$OUR_TMP/system_build_prop"
    umount $S > /dev/null 2>&1
    rmdir $S > /dev/null 2>&1
-  
+
    # now look for vendor prop
    local mv1="0"
    [ ! -d "$V" ] && mkdir -p $V > /dev/null 2>&1
@@ -238,7 +238,7 @@ local slot=$(getprop "ro.boot.slot_suffix")
          }
       }
    fi
-   
+
    # use the vendor prop if found
    [ "$found_vendor_prop" != "1" ] && V_PROP=""
 
@@ -248,24 +248,24 @@ local slot=$(getprop "ro.boot.slot_suffix")
    [ -n "$V_PROP" -a  -z "$tmp2" ] && tmp2=$(file_getprop "$V_PROP" "ro.vendor.build.id")
    [ -z "$tmp2" ] && tmp2=$(file_getprop "$PROP" "ro.build.id")
    [ -z "$tmp2" ] && tmp2=$(file_getprop "$PROP" "ro.system.build.id")
-   
+
    # ROM not found?
    if [ -z "$tmp2" ]; then
-      echo "DEBUG: OrangeFox: I cannot find the ROM information!" >> $LOG
+      echo "DEBUG: AERA: I cannot find the ROM information!" >> $LOG
       echo ""
       return
    fi
-   
+
    # we have a ROM - get SDK, etc
    local tmp3=""
    if [ -n "$tmp2" ]; then
-      [ -n "$V_PROP" ] && tmp3=$(file_getprop "$V_PROP" "ro.vendor.build.version.sdk") 
+      [ -n "$V_PROP" ] && tmp3=$(file_getprop "$V_PROP" "ro.vendor.build.version.sdk")
       [ -z "$tmp3" ] && ttmp3=$(file_getprop "$PROP" "ro.build.version.sdk")
       [ -z "$tmp3" ] && tmp3=$(file_getprop "$PROP" "ro.system.build.version.sdk")
       [ -n "$tmp3" ] && {
          ANDROID_SDK="$tmp3"
          $SETPROP orangefox.rom.sdk "$tmp3" > /dev/null 2>&1
-         echo "DEBUG: OrangeFox: ANDROID_SDK=$ANDROID_SDK" >> $LOG
+         echo "DEBUG: AERA: ANDROID_SDK=$ANDROID_SDK" >> $LOG
          echo "ANDROID_SDK=$ANDROID_SDK" >> $CFG
       }
 
@@ -274,7 +274,7 @@ local slot=$(getprop "ro.boot.slot_suffix")
       [ -z "$tmp3" ] && tmp3=$(file_getprop "$PROP" "ro.build.version.incremental")
       [ -z "$tmp3" ] && tmp3=$(file_getprop "$PROP" "ro.system.build.version.incremental")
       [ -n "$tmp3" ] && {
-        echo "DEBUG: OrangeFox: INCREMENTAL_VERSION=$tmp3" >> $LOG
+        echo "DEBUG: AERA: INCREMENTAL_VERSION=$tmp3" >> $LOG
         echo "INCREMENTAL_VERSION=$tmp3" >> $CFG
         [ -x "$SETPROP" ] && {
               $SETPROP "ro.build.version.incremental" "$tmp3" > /dev/null 2>&1
@@ -287,18 +287,18 @@ local slot=$(getprop "ro.boot.slot_suffix")
       [ -z "$tmp3" ] && tmp3=$(file_getprop "$PROP" "ro.build.version.release")
       [ -z "$tmp3" ] && tmp3=$(file_getprop "$PROP" "ro.system.build.version.release")
       [ -n "$tmp3" ] && {
-        echo "DEBUG: OrangeFox: RELEASE_VERSION=$tmp3" >> $LOG
+        echo "DEBUG: AERA: RELEASE_VERSION=$tmp3" >> $LOG
         echo "RELEASE_VERSION=$tmp3" >> $CFG
         [ -x "$SETPROP" ] && {
               $SETPROP "ro.build.version.release" "$tmp3" > /dev/null 2>&1
               $SETPROP "orangefox.system.release" "$tmp3" > /dev/null 2>&1
         }
       }
-      
+
       # and other stuff
       tmp3=$(file_getprop "$PROP" "ro.build.flavor")
       [ -n "$tmp3" ] && {
-           echo "DEBUG: OrangeFox: BUILD_FLAVOR=$tmp3" >> $LOG
+           echo "DEBUG: AERA: BUILD_FLAVOR=$tmp3" >> $LOG
            echo "BUILD_FLAVOR=$tmp3" >> $CFG
       }
    fi
@@ -312,14 +312,14 @@ local slot=$(getprop "ro.boot.slot_suffix")
       [ -z "$FP" ] && FP=$(file_getprop "$PROP" "ro.system.build.fingerprint")
       [ -n "$FP" ] && {
            echo "ROM_FINGERPRINT=$FP" >> $CFG
-           echo "DEBUG: OrangeFox: ROM_FINGERPRINT=$FP" >> $LOG
+           echo "DEBUG: AERA: ROM_FINGERPRINT=$FP" >> $LOG
            [ -x "$SETPROP" ] && {
               $SETPROP "ro.build.fingerprint" "$FP" > /dev/null 2>&1
               $SETPROP "orangefox.system.fingerprint" "$FP" > /dev/null 2>&1
             }
       }
    fi # check for ROM fingerprints
-   
+
    # return
    echo "$tmp2"
 }
@@ -342,15 +342,15 @@ isMIUI() {
             cp "/product/etc/build.prop" "$OUR_TMP/product_build_prop" > /dev/null 2>&1
             local appdir=/product/app
             if [ -d $appdir/MIDrop -a -d $appdir/MiuiScanner -a -d $appdir/MIUIMiPicks ]; then
-            	M=1
-            	DebugMsg "Early miui checks succeeded."
-     	    else
-         	DebugMsg "Early miui checks returned negative."
+	M=1
+	DebugMsg "Early miui checks succeeded."
+	    else
+	DebugMsg "Early miui checks returned negative."
             fi
             umount "/product"  > /dev/null 2>&1
             if [ "$M" = "1" ]; then
-            	echo $M
-            	return
+	echo $M
+	return
             fi
         }
    fi
@@ -362,7 +362,7 @@ isMIUI() {
    # don't use slots when using a dm-* block device name
    local tmp01=$(echo "$SYSTEM_BLOCK" | grep "/dm-")
    [ -n "$tmp01" ] && slot=""
-   
+
    # mount /system and check
    if [ -d "$S" ]; then
       DebugMsg "$S already exists"
@@ -380,13 +380,13 @@ isMIUI() {
    local A="$S_SAR/app"
    local E="$S_SAR/etc"
    M=0
-   
+
    DebugDirList "$S_SAR/"
    DebugDirList "$S/vendor"
 
    DebugDirList "$A/"
    DebugDirList "$E/"
-   
+
    [ "$M" != "1" ] && {
       if [ -d $A/MIDrop -a -d $A/MiuiScanner -a -d $A/MIUIMiPicks ]; then
          DebugMsg "First round of miui checks succeeded."
@@ -396,9 +396,9 @@ isMIUI() {
      fi
    }
 
-   [ "$M" != "1" ] && {   
+   [ "$M" != "1" ] && {
       if [ -d $E/cust -a -d $E/precust_theme -a -e $E/preloaded-miui-classes ]; then
-      	DebugMsg "Second round of miui checks succeeded."
+	DebugMsg "Second round of miui checks succeeded."
         M="1"
       else
         DebugMsg "Second round of miui checks returned negative."
@@ -407,17 +407,17 @@ isMIUI() {
 
    [ "$M" != "1" ] && {
       if [ -e $S/init.miui.cust.rc -a -e $S/init.miui.rc ]; then
-      	 DebugMsg "Third round of miui checks succeeded."
-      	 M="1"
+	 DebugMsg "Third round of miui checks succeeded."
+	 M="1"
       else
-      	 DebugMsg "Third round of miui checks returned negative."
+	 DebugMsg "Third round of miui checks returned negative."
       fi
    }
-   
+
    # unmount
    umount $S > /dev/null 2>&1
    rmdir $S
-   
+
    echo "$M"
 }
 
@@ -431,9 +431,9 @@ Get_Details() {
    local p1=/dev/block/by-name/product
    local p2=/dev/block/bootdevice/by-name/product
    if [ -e "$p1" -o -e "$p2" -o -h "$p1" -o -h "$p2" ]; then
-   	$SETPROP orangefox.product.partition "1" > /dev/null 2>&1
+	$SETPROP orangefox.product.partition "1" > /dev/null 2>&1
    else
-   	$SETPROP orangefox.product.partition "0" > /dev/null 2>&1
+	$SETPROP orangefox.product.partition "0" > /dev/null 2>&1
    fi
 
    # Treble
@@ -449,9 +449,9 @@ Get_Details() {
 # report on Treble
 Treble_Action() {
    if [ -z "$ROM" ]; then
-      	echo "DEBUG: OrangeFox: can't identify the ROM" >> $LOG
+	echo "DEBUG: AERA: can't identify the ROM" >> $LOG
    else
-   	echo "ROM=$ROM" >> $CFG
+	echo "ROM=$ROM" >> $CFG
    fi
 }
 
@@ -461,10 +461,10 @@ MIUI_Action() {
       echo "MIUI=0" >> $CFG
       return
    fi
-   echo "DEBUG: OrangeFox: check for MIUI." >> $LOG
-   D="DEBUG: OrangeFox: detected a Custom ROM."
+   echo "DEBUG: AERA: check for MIUI." >> $LOG
+   D="DEBUG: AERA: detected a Custom ROM."
    if [ "$M" = "1" ]; then
-      D="DEBUG: OrangeFox: detected a MIUI ROM"
+      D="DEBUG: AERA: detected a MIUI ROM"
    fi
   echo $D >> $LOG
   echo "MIUI=$M" >> $CFG
@@ -475,7 +475,7 @@ MIUI_Action() {
 backup_restore_FS() {
    if [ ! -f "$FS.org" ]; then
       cp -a "$FS" "$FS.org"
-   else   
+   else
       cp -a "$FS.org" "$FS"
    fi
 }
@@ -486,12 +486,12 @@ start_script()
 local OPS=$(getprop "orangefox.postinit.status")
 local fox_cfg="$ETC_DIR/fox.cfg"
    [ -f "$CFG" ] || [ "$OPS" = "1" ] && exit 0
-   echo "# OrangeFox live cfg" > $CFG
+   echo "# AERA live cfg" > $CFG
    [ ! -e $fox_cfg ] && {
       fox_cfg="/system/etc/fox.cfg"
       [ ! -e $fox_cfg ] && fox_cfg="/etc/fox.cfg"
    }
-   local D=$(file_getprop "$fox_cfg" "FOX_BUILD_DATE")
+   local D=$(file_getprop "$fox_cfg" "AERA_BUILD_DATE")
    [ -z "$D" ] && D=$(getprop "ro.bootimage.build.date")
    [ -z "$D" ] && D=$(getprop "ro.build.date")
    OPS=$(uname -r)
@@ -500,25 +500,25 @@ local fox_cfg="$ETC_DIR/fox.cfg"
    echo "KERNEL=$OPS" >> $CFG
    echo "SYSTEM_ROOT=$SYS_ROOT" >> $CFG
    echo "PROPER_SAR=$SAR" >> $CFG
-   echo "FOX_BUILD_DATE=$D" >> $CFG
-   echo "FOX_BUILD_DATE=$D" >> $LOG
-   echo "DEBUG: OrangeFox: FOX_DEVICE=$FOX_DEVICE" >> $LOG
-   echo "DEBUG: OrangeFox: FOX_KERNEL=$OPS" >> $LOG
-   echo "DEBUG: OrangeFox: SYSTEM_ROOT=$SYS_ROOT" >> $LOG
-   echo "DEBUG: OrangeFox: PROPER_SAR=$SAR" >> $LOG
-   echo "DEBUG: OrangeFox: FOX_SCRIPT_DATE=$SCRIPT_LASTMOD_DATE" >> $LOG
+   echo "AERA_BUILD_DATE=$D" >> $CFG
+   echo "AERA_BUILD_DATE=$D" >> $LOG
+   echo "DEBUG: AERA: AERA_DEVICE=$AERA_DEVICE" >> $LOG
+   echo "DEBUG: AERA: AERA_KERNEL=$OPS" >> $LOG
+   echo "DEBUG: AERA: SYSTEM_ROOT=$SYS_ROOT" >> $LOG
+   echo "DEBUG: AERA: PROPER_SAR=$SAR" >> $LOG
+   echo "DEBUG: AERA: AERA_SCRIPT_DATE=$SCRIPT_LASTMOD_DATE" >> $LOG
    $SETPROP orangefox.postinit.status 1
    $SETPROP ro.orangefox.sar "$SAR"
    $SETPROP ro.orangefox.kernel "$OPS"
 
    local fox_home="/sdcard/Fox"
    local fox_settings=$fox_home
-   if [ -n "$FOX_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
-      fox_home=$FOX_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
+   if [ -n "$AERA_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
+      fox_home=$AERA_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
    fi
 
-   if [ -n "$FOX_SETTINGS_ROOT_DIRECTORY" ]; then
-      fox_settings=$FOX_SETTINGS_ROOT_DIRECTORY"/Fox"
+   if [ -n "$AERA_SETTINGS_ROOT_DIRECTORY" ]; then
+      fox_settings=$AERA_SETTINGS_ROOT_DIRECTORY"/Fox"
    fi
 
    $SETPROP ro.orangefox.home "$fox_home"
@@ -546,7 +546,7 @@ local KLOG="/tmp/dmesg.log"
    if [ -e "/sys/class/graphics/fb0/msm_fb_panel_info" ]; then
       pname=$(cat "/sys/class/graphics/fb0/msm_fb_panel_info" | grep "panel_name") > /dev/null 2>&1
    fi
-   
+
    if [ -n "$pname" ]; then
       echo $pname >> $CFG
       return
@@ -558,9 +558,9 @@ local KLOG="/tmp/dmesg.log"
    else
       pname=$(cat $KLOG | $GREP "$F2") > /dev/null 2>&1
       if [ -n "$pname" ]; then
-      	 F3=$(echo "$pname" | sed "s|^.*$F2||")
-      	 echo -n "panel_name=" >> $CFG
-      	 echo $F3 | sed "s/_/ /g" | sed "s/'//g" >> $CFG
+	 F3=$(echo "$pname" | sed "s|^.*$F2||")
+	 echo -n "panel_name=" >> $CFG
+	 echo $F3 | sed "s/_/ /g" | sed "s/'//g" >> $CFG
       fi
    fi
 }
@@ -572,8 +572,8 @@ post_init() {
   M="/FFiles/fox_fix_date"
   [ -f $M ] && chmod 0755 $M
 
-  # write OrangeFox props to the log
-  echo "DEBUG: OrangeFox: Fox properties:" >> $LOG
+  # write AERA props to the log
+  echo "DEBUG: AERA: Fox properties:" >> $LOG
   getprop | grep 'orangefox' >> $LOG
 
   # use new magisk uninstall zip for saving space

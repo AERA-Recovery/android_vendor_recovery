@@ -28,17 +28,17 @@ LOGMSG() {
 
 # prune historic logs
 prune_historic_logs() {
-local FOX_HOME=$(getprop "ro.orangefox.home");
-local FOX_SETTINGS=$(getprop "ro.orangefox.settings");
+local AERA_HOME=$(getprop "ro.orangefox.home");
+local AERA_SETTINGS=$(getprop "ro.orangefox.settings");
 local days="$1"; # number of days before we start pruning historic logs
 
-	[ -z "$FOX_HOME" ] && FOX_HOME=/sdcard/Fox; # default
-	[ -z "$FOX_SETTINGS" ] && FOX_SETTINGS=/sdcard/Fox; # default
+	[ -z "$AERA_HOME" ] && AERA_HOME=/sdcard/Fox; # default
+	[ -z "$AERA_SETTINGS" ] && AERA_SETTINGS=/sdcard/Fox; # default
 	[ -z "$days" ] && days=14; # default
 	local D="/sdcard/Fox/logs"; # default
 
-	local D1=$FOX_HOME/logs;
-	local D2=$FOX_SETTINGS/logs;
+	local D1=$AERA_HOME/logs;
+	local D2=$AERA_SETTINGS/logs;
 	if [ -d $D1 ]; then # home dir
 		D=$D1;
 	elif [ -d $D2 ]; then # settings dir

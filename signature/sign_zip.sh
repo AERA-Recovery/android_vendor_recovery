@@ -4,7 +4,7 @@
 # Note: this script requires bash, and java-8
 # --------------------------------------------------------------------
 
-if [ "$FOX_BUILD_DEBUG_MESSAGES" = "1" ]; then
+if [ "$AERA_BUILD_DEBUG_MESSAGES" = "1" ]; then
    set -o xtrace
 fi
 

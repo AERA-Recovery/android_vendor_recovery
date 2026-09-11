@@ -26,7 +26,7 @@ disable_emulated_storage_props() {
 }
 
 main() {
-	MSG "Shell script for OrangeFox Recovery Project [$0]";
+	MSG "Shell script for AERA Recovery Project [$0]";
 	MSG "Run this just before formatting the data partition, if you need to enable or disable emulated storage.";
 	if [ "$1" = "on" ]; then
 		enable_emulated_storage_props;

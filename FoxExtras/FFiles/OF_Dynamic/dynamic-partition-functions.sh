@@ -1,5 +1,5 @@
 # ***********************************************************************
-# 	Description: 	Helper routines for dynamic partition stuff on OrangeFox Recovery
+# 	Description: 	Helper routines for dynamic partition stuff on AERA Recovery
 # 	Author: 	DarthJabba9
 # 	Date: 		02 October 2022
 #

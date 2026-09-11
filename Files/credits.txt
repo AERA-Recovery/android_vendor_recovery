@@ -1,21 +1,11 @@
+AERA Recovery Project credits
+-----------------------------
 
+* Android Open Source Project
+* TeamWin Recovery Project
+* OrangeFox Recovery Project and its contributors
+* LineageOS
+* libretro, NetSurf, LVGL, and other upstream projects used by AERA
+* AERA maintainers, contributors, testers, and users
 
-OrangeFox Recovery Credits
---------------------------
-
-* TWRP Team
-* The Posy - for cursor
-
-== R12 interface refresh ==
-* fordownloads
-* Ctapchuk
-* MrYacha
-
-== For donating ==
-* GitLab.com
-* JetBrains
-* ua-hosting.company
-
-* Our maintainers
-* Our testers who test many builds per day
-* Our users and community
+Original copyright and license notices are retained in inherited source files.
