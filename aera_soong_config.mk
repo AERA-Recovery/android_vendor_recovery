@@ -35,10 +35,22 @@ endef
 
 $(foreach v,$(OF_MIRRORED_FROM_FOX),$(eval $(call fox_mirror_var,$(v))))
 
+# AERA owns the screen metrics. Keep the legacy XML engine working while its
+# remaining OF_* consumers are retired; UI2 reads the AERA names directly.
+ifneq ($(AERA_SCREEN_H),)
+  OF_SCREEN_H ?= $(AERA_SCREEN_H)
+endif
+ifneq ($(AERA_STATUS_H),)
+  OF_STATUS_H ?= $(AERA_STATUS_H)
+endif
+
 # Bridge the OF_* feature flags into the twrpVarsPlugin Soong namespace so they
 # take effect when declared in a device .mk, not only when exported to the
 # environment. getMakeVars() in the recovery *_defaults reads exactly these.
 $(call add_soong_config_var,twrpVarsPlugin,\
+    AERA_UI2_ADAPTIVE_RESOLUTION \
+    AERA_SCREEN_H \
+    AERA_STATUS_H \
     OF_ENABLE_WLAN \
     OF_ENABLE_LAB \
     OF_LANDSCAPE_MODE \
