@@ -321,13 +321,14 @@ if [ -z "$FOX_VARIANT" ]; then
 fi
 
 # sort out the out_name
+FOX_PRODUCT_PREFIX="${FOX_PRODUCT_PREFIX:-OrangeFox}"
 if [ "$FOX_BUILD_TYPE" = "Unofficial" ] && [ "$FOX_BUILD" = "Unofficial" ]; then
-   FOX_OUT_NAME=OrangeFox-$FOX_BUILD-$FOX_DEVICE
+   FOX_OUT_NAME="$FOX_PRODUCT_PREFIX-$FOX_BUILD-$FOX_DEVICE"
 else
    if [ "$FOX_VARIANT" = "default" ]; then
-      FOX_OUT_NAME=OrangeFox-"$FOX_BUILD"-"$FOX_BUILD_TYPE"-"$FOX_DEVICE"
+      FOX_OUT_NAME="$FOX_PRODUCT_PREFIX-$FOX_BUILD-$FOX_BUILD_TYPE-$FOX_DEVICE"
    else
-      FOX_OUT_NAME=OrangeFox-"$FOX_BUILD"_"$FOX_VARIANT"-"$FOX_BUILD_TYPE"-"$FOX_DEVICE"
+      FOX_OUT_NAME="$FOX_PRODUCT_PREFIX-${FOX_BUILD}_${FOX_VARIANT}-$FOX_BUILD_TYPE-$FOX_DEVICE"
    fi
 fi
 
