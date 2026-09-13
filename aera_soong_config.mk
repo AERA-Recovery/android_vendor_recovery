@@ -51,6 +51,8 @@ $(call add_soong_config_var,twrpVarsPlugin,\
     AERA_UI2_ADAPTIVE_RESOLUTION \
     AERA_SCREEN_H \
     AERA_STATUS_H \
+    AERA_STATUS_INDENT_LEFT \
+    AERA_STATUS_INDENT_RIGHT \
     OF_ENABLE_WLAN \
     OF_ENABLE_LAB \
     OF_LANDSCAPE_MODE \
