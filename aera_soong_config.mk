@@ -53,6 +53,8 @@ $(call add_soong_config_var,twrpVarsPlugin,\
     AERA_STATUS_H \
     AERA_STATUS_INDENT_LEFT \
     AERA_STATUS_INDENT_RIGHT \
+    AERA_DEFAULT_LANGUAGE \
+    AERA_EXTRA_LANGUAGES \
     OF_ENABLE_WLAN \
     OF_ENABLE_LAB \
     OF_LANDSCAPE_MODE \
