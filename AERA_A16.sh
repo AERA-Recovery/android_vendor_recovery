@@ -23,10 +23,9 @@
 #
 # *** This script is for the AERA Recovery Project Android 16.0 manifest ***
 #
-# For optional environment variables - to be declared before building,
-# see "orangefox_build_vars.txt" for full details
-#
-# It is best to declare them in a script that you will use for building
+# Optional device and build settings use the public AERA_* namespace. The
+# compatibility bridge in bootable/recovery/aera_config.mk translates values
+# still consumed by inherited recovery code.
 #
 #
 
@@ -1721,7 +1720,7 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
    echo "ro.build.fox_id=$tmp1" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
 
    # stamp our identity in the prop
-   sed -i -e "s/$TARGET_PRODUCT/fox_$AERA_DEVICE/g" $DEFAULT_PROP
+   sed -i -e "s/$TARGET_PRODUCT/aera_$AERA_DEVICE/g" $DEFAULT_PROP
 
    # save some original file sizes
    echo -e "${GREEN}-- Saving some original file sizes ${NC}"

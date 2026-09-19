@@ -1,52 +1,19 @@
 # AERA Soong build-variable bridge
 #
-# Soong (the .go *_defaults under bootable/recovery) reads legacy recovery feature
-# flags through getMakeVars(), i.e. the "twrpVarsPlugin" SOONG_CONFIG namespace.
-# Soong cannot see plain Make variables, so a flag set as "OF_FOO := 1" in a
-# device tree .mk only reaches Soong if it is exported into that namespace here.
+# Soong (the .go *_defaults under bootable/recovery) reads established backend
+# feature names through the "twrpVarsPlugin" SOONG_CONFIG namespace. Public
+# AERA_* device configuration is translated by bootable/recovery/aera_config.mk
+# before this bridge runs.
 #
 # This list lives in vendor/recovery (AERA-owned) rather than in
 # vendor/twrp/config/BoardConfigSoong.mk so that the upstream TWRP config stays
 # untouched. It is included from build/make/core/config.mk, right after
 # BoardConfigTWRP.mk (which creates the twrpVarsPlugin namespace and runs after
-# the device BoardConfig, so the OF_* values are already set by the time we read
+# the device BoardConfig, so the backend values are already set by the time we read
 # them below).
 
-# Some settings flags remain AERA_*-prefixed for compatibility: AERA_A16.sh and the
-# installer (installer/META-INF/com/google/android/update-binary) read them as
-# AERA_* at build/flash time, so the AERA_* name must be left intact. Soong,
-# however, reads them under OF_*. Mirror the AERA_* value onto OF_* (only when
-# OF_* isn't already set) so a build that sets the documented AERA_* name still
-# reaches Soong. This is NOT a deprecation: AERA_* remains the primary name for
-# these vars.
-OF_MIRRORED_FROM_FOX := \
-    USE_NANO_EDITOR \
-    ALLOW_EARLY_SETTINGS_LOAD \
-    SETTINGS_ROOT_DIRECTORY \
-    MISCELLANEOUS_ROOT_DIRECTORY \
-    USE_DATA_RECOVERY_FOR_SETTINGS \
-    USE_MEIZU_TOUCH_MAPPING
-
-define fox_mirror_var
-ifneq ($$(AERA_$(1)),)
-  OF_$(1) ?= $$(AERA_$(1))
-endif
-endef
-
-$(foreach v,$(OF_MIRRORED_FROM_FOX),$(eval $(call fox_mirror_var,$(v))))
-
-# AERA owns the screen metrics. Keep the legacy XML engine working while its
-# remaining OF_* consumers are retired; UI2 reads the AERA names directly.
-ifneq ($(AERA_SCREEN_H),)
-  OF_SCREEN_H ?= $(AERA_SCREEN_H)
-endif
-ifneq ($(AERA_STATUS_H),)
-  OF_STATUS_H ?= $(AERA_STATUS_H)
-endif
-
-# Bridge the OF_* feature flags into the twrpVarsPlugin Soong namespace so they
-# take effect when declared in a device .mk, not only when exported to the
-# environment. getMakeVars() in the recovery *_defaults reads exactly these.
+# Export the translated backend flags and native AERA values needed by Soong.
+# getMakeVars() in the recovery *_defaults reads exactly these names.
 $(call add_soong_config_var,twrpVarsPlugin,\
     AERA_UI2_ADAPTIVE_RESOLUTION \
     AERA_SCREEN_H \

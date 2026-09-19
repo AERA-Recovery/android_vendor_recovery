@@ -6,9 +6,10 @@ utilities, installer assets, and prebuilts used by AERA Recovery Project.
 ## Release
 
 The first AERA release line is **R1.0**. The canonical release identity is set
-in `AERA_A16.sh`; legacy `AERA_*` and `OF_*` variables remain available only
-as compatibility interfaces for inherited recovery code and existing device
-trees.
+in `AERA_A16.sh`. Device trees use the public `AERA_*` configuration namespace;
+legacy backend names remain internal compatibility interfaces for inherited
+recovery code. The build imports the translation bridge automatically, so
+device trees do not need to include an additional compatibility makefile.
 
 ## Build
 
