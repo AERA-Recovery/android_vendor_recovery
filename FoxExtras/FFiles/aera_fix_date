@@ -14,7 +14,7 @@ if [ ! -d /persist/ ]; then
    exit
 fi
 
-local epoch_cfg=/persist/.fox_epoch_drift.cfg
+local epoch_cfg=/persist/.aera_epoch_drift.cfg
 local now=$(date +%s)
 local epoch=$(cat /sys/class/rtc/rtc0/since_epoch)
 local drift=$(expr $now - $epoch)

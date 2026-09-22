@@ -30,7 +30,7 @@
 SCRIPT_LASTMOD_DATE="20251120"
 C="/tmp_cust"
 LOG="/tmp/recovery.log"
-LOG2="/sdcard/foxstart.log"
+LOG2="/sdcard/AERA/logs/aera-startup.log"
 DEBUG="0"  	  # enable for more debug messages
 VERBOSE_DEBUG="0" # enable for really verbose debug messages
 SYS_ROOT="0"	  # do we have system_root?
@@ -58,7 +58,7 @@ else
    [ ! -e $ETC_DIR ] && ETC_DIR=/system/etc
    [ ! -e $ETC_DIR ] && ETC_DIR=/etc
 fi
-CFG="$ETC_DIR/orangefox.cfg"
+CFG="$ETC_DIR/aera-runtime.cfg"
 
 # fstab
 FS="$ETC_DIR/twrp.fstab"
@@ -79,18 +79,19 @@ if [ "$VERBOSE_DEBUG" = "1" ]; then
    set -o xtrace
 fi
 
-# extra logs to /sdcard/foxstart.log
+# Extra startup diagnostics under AERA's log directory.
 extralog() {
  [ "$VERBOSE_DEBUG" != "1" ] && return
  local D=$(date)
+ mkdir -p /sdcard/AERA/logs
  [ ! -f $LOG2 ] && {
-    echo "---- extra logs for foxstart.sh ----" > $LOG2
+    echo "---- extra AERA startup logs ----" > $LOG2
  }
  echo "[$D]:= $@" >> $LOG2
 
  # copy also the main logs
- cp $LOG /sdcard/
- [ ! -f /sdcard/dmesg.log ] && cp -a /tmp/dmesg.log /sdcard/
+ cp $LOG /sdcard/AERA/logs/recovery.log
+ [ ! -f /sdcard/AERA/logs/dmesg.log ] && cp -a /tmp/dmesg.log /sdcard/AERA/logs/
 }
 
 # partition mountpoints
@@ -484,14 +485,14 @@ backup_restore_FS() {
 start_script()
 {
 local OPS=$(getprop "orangefox.postinit.status")
-local fox_cfg="$ETC_DIR/fox.cfg"
+local aera_cfg="$ETC_DIR/aera.cfg"
    [ -f "$CFG" ] || [ "$OPS" = "1" ] && exit 0
    echo "# AERA live cfg" > $CFG
-   [ ! -e $fox_cfg ] && {
-      fox_cfg="/system/etc/fox.cfg"
-      [ ! -e $fox_cfg ] && fox_cfg="/etc/fox.cfg"
+   [ ! -e $aera_cfg ] && {
+      aera_cfg="/system/etc/aera.cfg"
+      [ ! -e $aera_cfg ] && aera_cfg="/etc/aera.cfg"
    }
-   local D=$(file_getprop "$fox_cfg" "AERA_BUILD_DATE")
+   local D=$(file_getprop "$aera_cfg" "AERA_BUILD_DATE")
    [ -z "$D" ] && D=$(getprop "ro.bootimage.build.date")
    [ -z "$D" ] && D=$(getprop "ro.build.date")
    OPS=$(uname -r)
@@ -511,21 +512,18 @@ local fox_cfg="$ETC_DIR/fox.cfg"
    $SETPROP ro.orangefox.sar "$SAR"
    $SETPROP ro.orangefox.kernel "$OPS"
 
-   local fox_home="/sdcard/Fox"
-   local fox_settings=$fox_home
+   local aera_home="/sdcard/AERA"
+   local aera_settings=$aera_home
    if [ -n "$AERA_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
-      fox_home=$AERA_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
+      aera_home=$AERA_MISCELLANEOUS_ROOT_DIRECTORY"/AERA"
    fi
 
    if [ -n "$AERA_SETTINGS_ROOT_DIRECTORY" ]; then
-      fox_settings=$AERA_SETTINGS_ROOT_DIRECTORY"/Fox"
+      aera_settings=$AERA_SETTINGS_ROOT_DIRECTORY"/AERA"
    fi
 
-   $SETPROP ro.orangefox.home "$fox_home"
-   $SETPROP ro.orangefox.settings "$fox_settings"
-
-   # if someone is still using old recovery sources
-   cp $CFG /tmp/orangefox.cfg
+   $SETPROP ro.orangefox.home "$aera_home"
+   $SETPROP ro.orangefox.settings "$aera_settings"
 
    # bashrc
    local rc=$ETC_DIR/bash/bashrc
@@ -569,7 +567,7 @@ local KLOG="/tmp/dmesg.log"
 post_init() {
   local M="/FFiles/magiskboot_new"
   [ -f $M ] && chmod 0755 $M
-  M="/FFiles/fox_fix_date"
+  M="/FFiles/aera_fix_date"
   [ -f $M ] && chmod 0755 $M
 
   # write AERA props to the log

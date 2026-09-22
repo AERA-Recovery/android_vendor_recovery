@@ -107,7 +107,7 @@ Main() {
 	# install the theme	
 	ui_print "- Installing $THEME_NAME ..."
 	local internal_SD="/sdcard"
-	local fox_path=""
+	local aera_path=""
 	local F=0
 	if [ "$BOOTMODE" = "true" ]; then
 	    	F=1
@@ -131,13 +131,13 @@ Main() {
 	   		[ -z "$internal_SD" ] && internal_SD="/data/media/0"
 	   		mount $internal_SD
 		}
-		fox_path=$($GETPROP "ro.orangefox.settings")
+		aera_path=$($GETPROP "ro.orangefox.settings")
 	fi
 
-	[ -z "$fox_path" ] && fox_path=$internal_SD"/Fox"
+	[ -z "$aera_path" ] && aera_path=$internal_SD"/AERA"
 
 	THEME_FILE=$EX_DIR/ui.zip
-	THEME_DEST="$fox_path/theme/"
+	THEME_DEST="$aera_path/theme/"
 	[ ! -d $THEME_DEST ] && mkdir -p $THEME_DEST
 	[ ! -d $THEME_DEST ] && {
 	   cleanup

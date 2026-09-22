@@ -83,8 +83,8 @@ WHITEONORANGE='\033[0;43m'
 WHITEONBLUE='\033[0;44m'
 WHITEONPURPLE='\033[0;46m'
 NC='\033[0m'
-TMP_SCRATCH=/tmp/fox_build_000tmp.txt
-WORKING_TMP=/tmp/Fox_000_tmp
+TMP_SCRATCH=/tmp/aera_build_000tmp.txt
+WORKING_TMP=/tmp/AERA_000_tmp
 
 # make sure we know exactly which commands we are running
 CP=/bin/cp
@@ -347,7 +347,7 @@ if [ -z "$TARGET_ARCH" ]; then
 fi
 
 # tmp for "AERA_CUSTOM_BINS_TO_SDCARD"
-AERA_BIN_tmp=$OUT/tmp_bin/FoxFiles
+AERA_BIN_tmp=$OUT/tmp_bin/Files
 
 # alternative devices
 if [ -z "$TARGET_DEVICE_ALT" ]; then
@@ -540,7 +540,7 @@ local F=""
 local isVB_V3=0
 local TDT=$(date "+%d %B %Y")
   echo -e "${BLUE}-- Creating the AERA zip installer ...${NC}"
-  FILES_DIR=$AERA_VENDOR_PATH/FoxFiles
+  FILES_DIR=$AERA_VENDOR_PATH/RecoveryFiles
   INST_DIR=$AERA_VENDOR_PATH/installer
 
   # names of output zip file(s)
@@ -557,7 +557,7 @@ local TDT=$(date "+%d %B %Y")
   cd $AERA_TMP_WORKING_DIR
 
   # create some others
-  mkdir -p $AERA_TMP_WORKING_DIR/sdcard/Fox
+  mkdir -p $AERA_TMP_WORKING_DIR/sdcard/AERA/Files
   mkdir -p $AERA_TMP_WORKING_DIR/META-INF/debug
 
   # copy busybox
@@ -614,13 +614,13 @@ local TDT=$(date "+%d %B %Y")
   # copy installer bins and script
   $CP -pr $INST_DIR/* .
 
-  # copy FoxFiles/ to sdcard/Fox/
-  $CP -a $FILES_DIR/ sdcard/Fox/
+  # Copy bundled recovery files to /sdcard/AERA/Files/.
+  $CP -a $FILES_DIR/. sdcard/AERA/Files/
 
-  # copy any custom bin files to /sdcard/Fox/bin/ ?
+  # Copy any custom binaries to /sdcard/AERA/Files/bin/.
   if [ "$(enabled $AERA_CUSTOM_BINS_TO_SDCARD)" = "1" -a -d "$AERA_BIN_tmp/bin" ]; then
      chmod +x $AERA_BIN_tmp/bin/*
-     $CP -a $AERA_BIN_tmp/ sdcard/Fox/
+     $CP -a $AERA_BIN_tmp/ sdcard/AERA/
      rm -rf $AERA_BIN_tmp
   fi
 
@@ -680,7 +680,7 @@ local TDT=$(date "+%d %B %Y")
      echo -e "${RED}-- A/B device - copying magiskboot to zip installer ... ${NC}"
      tmp=$AERA_RAMDISK/$RAMDISK_SBIN/magiskboot
      [ ! -e "$tmp" ] && tmp=$AERA_VENDOR_PATH/prebuilt/$TARGET_ARCH/magiskboot"$UPDATED"
-     [ ! -e "$tmp" ] && tmp=/tmp/fox_build_tmp/magiskboot
+     [ ! -e "$tmp" ] && tmp=/tmp/aera_build_tmp/magiskboot
      [ ! -e "$tmp" ] && {
        echo -e "${WHITEONRED}-- I cannot find magiskboot. Quitting! ${NC}"
        abort 200
@@ -689,7 +689,7 @@ local TDT=$(date "+%d %B %Y")
      chmod 0755 ./magiskboot
      sed -i -e "s/^AERA_AB_DEVICE=.*/AERA_AB_DEVICE=\"1\"/" $F
   fi
-  rm -rf /tmp/fox_build_tmp/
+  rm -rf /tmp/aera_build_tmp/
 
   # vendor_boot
   if [ "$IS_VENDOR_BOOT_RECOVERY" = "1" ]; then
@@ -727,7 +727,7 @@ local TDT=$(date "+%d %B %Y")
      sed -i -e "s/^AERA_VANILLA_BUILD=.*/AERA_VANILLA_BUILD=\"1\"/" $F
   fi
 
-  # use the modified path for storing addons, logs, backups instead of /sdcard/Fox/ ?
+  # Use a configured root instead of /sdcard/AERA for add-ons, logs, and backups.
   if [ -n "$AERA_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
      echo -e "${RED}-- This build will use $AERA_MISCELLANEOUS_ROOT_DIRECTORY for its stuff ... ${NC}"
      sed -i -e "s|^AERA_MISCELLANEOUS_ROOT_DIRECTORY=.*|AERA_MISCELLANEOUS_ROOT_DIRECTORY=\"$AERA_MISCELLANEOUS_ROOT_DIRECTORY\"|" $F
@@ -748,7 +748,7 @@ local TDT=$(date "+%d %B %Y")
   # omit AromaFM ?
   if [ "$AERA_DELETE_AROMAFM" = "1" ]; then
      echo -e "${GREEN}-- Deleting AromaFM ...${NC}"
-     rm -rf $AERA_TMP_WORKING_DIR/sdcard/Fox/FoxFiles/AromaFM
+     rm -rf $AERA_TMP_WORKING_DIR/sdcard/AERA/Files/AromaFM
   fi
 
   # copy the magisk addon zip ?
@@ -765,14 +765,14 @@ local TDT=$(date "+%d %B %Y")
         fi
      fi
 
-     $CP -pf $tmp $AERA_TMP_WORKING_DIR/sdcard/Fox/FoxFiles/Magisk.zip
-     $CP -pf $tmp $AERA_TMP_WORKING_DIR/sdcard/Fox/FoxFiles/uninstall.zip
+     $CP -pf $tmp $AERA_TMP_WORKING_DIR/sdcard/AERA/Files/Magisk.zip
+     $CP -pf $tmp $AERA_TMP_WORKING_DIR/sdcard/AERA/Files/uninstall.zip
   fi
 
   # OF_initd
   if [ "$AERA_DELETE_INITD_ADDON" = "1" ]; then
      echo -e "${GREEN}-- Deleting the initd addon ...${NC}"
-     rm -f $AERA_TMP_WORKING_DIR/sdcard/Fox/FoxFiles/OF_initd*.zip
+     rm -f $AERA_TMP_WORKING_DIR/sdcard/AERA/Files/OF_initd*.zip
   else
      echo -e "${GREEN}-- Copying the initd addon ...${NC}"
   fi
@@ -790,7 +790,7 @@ local TDT=$(date "+%d %B %Y")
   fi
 
   # save the build vars
-  save_build_vars "$AERA_TMP_WORKING_DIR/META-INF/debug/fox_build_vars.txt"
+  save_build_vars "$AERA_TMP_WORKING_DIR/META-INF/debug/aera_build_vars.txt"
   tmp="$AERA_RAMDISK/prop.default"
   [ ! -e "$tmp" ] && tmp="$DEFAULT_PROP"
   [ ! -e "$tmp" ] && tmp="$AERA_RAMDISK/default.prop"
@@ -839,9 +839,9 @@ local TDT=$(date "+%d %B %Y")
   echo "---------------------------------"
 
   # export the filenames
-  echo "ZIP_FILE=$ZIP_FILE">/tmp/oFox00.tmp
-  echo "RECOVERY_IMAGE=$RECOVERY_IMAGE">>/tmp/oFox00.tmp
-  [ -f $RECOVERY_IMAGE".tar" ] && echo "RECOVERY_ODIN=$RECOVERY_IMAGE.tar" >>/tmp/oFox00.tmp
+  echo "ZIP_FILE=$ZIP_FILE">/tmp/aera-build-output.tmp
+  echo "RECOVERY_IMAGE=$RECOVERY_IMAGE">>/tmp/aera-build-output.tmp
+  [ -f $RECOVERY_IMAGE".tar" ] && echo "RECOVERY_ODIN=$RECOVERY_IMAGE.tar" >>/tmp/aera-build-output.tmp
 
   # delete OF Working dir
   rm -rf $AERA_TMP_WORKING_DIR
@@ -995,13 +995,13 @@ local upx_bin=$AERA_VENDOR_PATH/tools/upx;
     fi
 }
 
-# have some big binaries in /sdcard/Fox/FoxFiles/bin/ ?
+# Are large optional binaries stored in /sdcard/AERA/Files/bin/?
 process_custom_bins_to_sdcard() {
 local tmp1
 local tmp2
 local ramdisk_sbindir=$AERA_RAMDISK/sbin
 local ramdisk_sbindir_10=$AERA_RAMDISK/$RAMDISK_SYSTEM_BIN
-local sdcard_bin=/sdcard/Fox/FoxFiles/bin
+local sdcard_bin=/sdcard/AERA/Files/bin
 local mksync="3"
 
   if [ "$(enabled $AERA_CUSTOM_BINS_TO_SDCARD)" != "1" ]; then
@@ -1108,9 +1108,9 @@ cat << EOF >> "$tmp1"
 EOF
 chmod 0755 $tmp1
  
-# run the script to copy /sdcard/Fox/FoxFiles/bin/* to the ramdisk at runtime
-# source this script in postecoveryboot.sh ("source /sbin/from_fox_sd.sh")
-tmp1=$ramdisk_sbindir/from_fox_sd.sh
+# Run the script to copy /sdcard/AERA/Files/bin/* to the ramdisk at runtime.
+# Source this script in postrecoveryboot.sh ("source /sbin/from_aera_sd.sh").
+tmp1=$ramdisk_sbindir/from_aera_sd.sh
 rm -f $tmp1
 cat << EOF >> "$tmp1"
 fxDIR=$sdcard_bin;
@@ -1120,7 +1120,7 @@ if [ -f \$fxF ]; then
    echo "I: Running \$fxF !" >> /tmp/recovery.log;
    \$fxF;
 fi
-rm -f "/sbin/from_fox_sd.sh"
+rm -f "/sbin/from_aera_sd.sh"
 rm -f "/sbin/sdcard_to_bin.sh"
 EOF
 chmod 0755 $tmp1
@@ -1134,7 +1134,7 @@ chmod 0755 $tmp1
 expand_vendor_path
 
 # did we export the temporary directory for AERA ports?
-[ -n "$AERA_PORTS_TMP" ] && AERA_TMP_WORKING_DIR="$AERA_PORTS_TMP" || AERA_TMP_WORKING_DIR="/tmp/fox_zip_tmp"
+[ -n "$AERA_PORTS_TMP" ] && AERA_TMP_WORKING_DIR="$AERA_PORTS_TMP" || AERA_TMP_WORKING_DIR="/tmp/aera_zip_tmp"
 
 # is the working directory still there from a previous build? If so, remove it
 if [ "$AERA_VENDOR_CMD" != "Fox_Before_Recovery_Image" ]; then
@@ -1194,9 +1194,9 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
 
   # deal with magiskboot
   echo -e "${GREEN}-- This build will use magiskboot for patching boot images ...${NC}"
-  echo -e "${GREEN}-- Backing up $AERA_RAMDISK/$RAMDISK_SBIN/magiskboot to: /tmp/fox_build_tmp/ ...${NC}"
-  mkdir -p /tmp/fox_build_tmp/
-  $CP -pf $AERA_RAMDISK/$RAMDISK_SBIN/magiskboot /tmp/fox_build_tmp/magiskboot
+  echo -e "${GREEN}-- Backing up $AERA_RAMDISK/$RAMDISK_SBIN/magiskboot to: /tmp/aera_build_tmp/ ...${NC}"
+  mkdir -p /tmp/aera_build_tmp/
+  $CP -pf $AERA_RAMDISK/$RAMDISK_SBIN/magiskboot /tmp/aera_build_tmp/magiskboot
 
   # "fox" CLI: prefer the real foxcli binary (module foxcli, stem "fox"). Only
   # fall back to symlinking the legacy "twrp" tool when foxcli was not built, so
@@ -1288,20 +1288,20 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
      rm -f $AERA_RAMDISK/$RAMDISK_ETC/bash.bashrc
   else
      echo -e "${GREEN}-- Copying bash ...${NC}"
-     $CP -p $AERA_VENDOR_PATH/Files/fox.bashrc $AERA_RAMDISK/$RAMDISK_ETC/bash.bashrc
-     $CP -p $AERA_VENDOR_PATH/Files/fox.bashrc $AERA_RAMDISK/FFiles/fox.mkshrc
+     $CP -p $AERA_VENDOR_PATH/Files/aera.bashrc $AERA_RAMDISK/$RAMDISK_ETC/bash.bashrc
+     $CP -p $AERA_VENDOR_PATH/Files/aera.bashrc $AERA_RAMDISK/FFiles/aera.mkshrc
      
      if [ "$AERA_BUILD_BASH" = "1" ]; then
-        local fox_home="/sdcard/Fox"
+        local aera_home="/sdcard/AERA"
         if [ -n "$AERA_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
-           fox_home=$AERA_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
+           aera_home=$AERA_MISCELLANEOUS_ROOT_DIRECTORY"/AERA"
         fi
         if [ -z "$(cat $AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc | grep AERA)" ]; then
            echo " " >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
            echo "# AERA Recovery Project" >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
-           echo "[ -f $fox_home/fox.bashrc ] && source $fox_home/fox.bashrc" >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
+           echo "[ -f $aera_home/aera.bashrc ] && source $aera_home/aera.bashrc" >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
         fi
-        echo "[ ! -f $fox_home/fox.bashrc -a -f /FFiles/fox.mkshrc ] && source $fox_home/fox.mkshrc" >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
+        echo "[ ! -f $aera_home/aera.bashrc -a -f /FFiles/aera.mkshrc ] && source /FFiles/aera.mkshrc" >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
      else
 	rm -f $AERA_RAMDISK/$RAMDISK_SBIN/bash
 	rm -f $AERA_RAMDISK/$RAMDISK_SYSTEM_BIN/bash
@@ -1647,6 +1647,16 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   [ ! -e "$DEFAULT_PROP" ] && DEFAULT_PROP="$AERA_RAMDISK/default.prop"
   [ ! -e "$DEFAULT_PROP_ROOT" ] && DEFAULT_PROP_ROOT="$DEFAULT_PROP"
 
+  # Removed files can survive in the prepared ramdisk during incremental builds.
+  rm -f "$AERA_RAMDISK/$RAMDISK_ETC/fox.cfg" \
+        "$AERA_RAMDISK/$RAMDISK_ETC/orangefox.cfg" \
+        "$AERA_RAMDISK/orangefox.info"
+  for prop_file in "$DEFAULT_PROP" "$DEFAULT_PROP_ROOT"; do
+    [ -f "$prop_file" ] || continue
+    sed -i -e '/^ro\.build\.date\.utc_fox=/d' \
+           -e '/^ro\.bootimage\.build\.date\.utc_fox=/d' "$prop_file"
+  done
+
   # if we need to work around the bugged aosp alleged anti-rollback protection
   if [ -n "$AERA_BUGGED_AOSP_ARB_WORKAROUND" ]; then
      echo -e "${WHITEONGREEN}-- Dealing with bugged AOSP alleged anti-ARB: setting build date to \"$AERA_BUGGED_AOSP_ARB_WORKAROUND\" (instead of the true date: \"$BUILD_DATE_UTC\") ...${NC}"
@@ -1656,44 +1666,44 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   fi
 
   # ensure that we have a proper record of the actual build date/time
-  grep -q "ro.build.date.utc_fox=" $DEFAULT_PROP_ROOT && \
-  	sed -i -e "s/ro.build.date.utc_fox=.*/ro.build.date.utc_fox=$BUILD_DATE_UTC/g" $DEFAULT_PROP_ROOT || \
-  	echo "ro.build.date.utc_fox=$BUILD_DATE_UTC" >> $DEFAULT_PROP_ROOT
+  grep -q "ro.build.date.utc_aera=" $DEFAULT_PROP_ROOT && \
+	sed -i -e "s/ro.build.date.utc_aera=.*/ro.build.date.utc_aera=$BUILD_DATE_UTC/g" $DEFAULT_PROP_ROOT || \
+	echo "ro.build.date.utc_aera=$BUILD_DATE_UTC" >> $DEFAULT_PROP_ROOT
 
-  grep -q "ro.bootimage.build.date.utc_fox=" $DEFAULT_PROP_ROOT && \
-  	sed -i -e "s/ro.bootimage.build.date.utc_fox=.*/ro.bootimage.build.date.utc_fox=$BUILD_DATE_UTC/g" $DEFAULT_PROP_ROOT || \
-  	echo "ro.bootimage.build.date.utc_fox=$BUILD_DATE_UTC" >> $DEFAULT_PROP_ROOT
+  grep -q "ro.bootimage.build.date.utc_aera=" $DEFAULT_PROP_ROOT && \
+	sed -i -e "s/ro.bootimage.build.date.utc_aera=.*/ro.bootimage.build.date.utc_aera=$BUILD_DATE_UTC/g" $DEFAULT_PROP_ROOT || \
+	echo "ro.bootimage.build.date.utc_aera=$BUILD_DATE_UTC" >> $DEFAULT_PROP_ROOT
 
   # also update prop.default
-  grep -q "ro.build.date.utc_fox=" $DEFAULT_PROP && \
-  	sed -i -e "s/ro.build.date.utc_fox=.*/ro.build.date.utc_fox=$BUILD_DATE_UTC/g" $DEFAULT_PROP || \
-  	echo "ro.build.date.utc_fox=$BUILD_DATE_UTC" >> $DEFAULT_PROP
+  grep -q "ro.build.date.utc_aera=" $DEFAULT_PROP && \
+	sed -i -e "s/ro.build.date.utc_aera=.*/ro.build.date.utc_aera=$BUILD_DATE_UTC/g" $DEFAULT_PROP || \
+	echo "ro.build.date.utc_aera=$BUILD_DATE_UTC" >> $DEFAULT_PROP
 
-  grep -q "ro.bootimage.build.date.utc_fox=" $DEFAULT_PROP && \
-  	sed -i -e "s/ro.bootimage.build.date.utc_fox=.*/ro.bootimage.build.date.utc_fox=$BUILD_DATE_UTC/g" $DEFAULT_PROP || \
-  	echo "ro.bootimage.build.date.utc_fox=$BUILD_DATE_UTC" >> $DEFAULT_PROP
+  grep -q "ro.bootimage.build.date.utc_aera=" $DEFAULT_PROP && \
+	sed -i -e "s/ro.bootimage.build.date.utc_aera=.*/ro.bootimage.build.date.utc_aera=$BUILD_DATE_UTC/g" $DEFAULT_PROP || \
+	echo "ro.bootimage.build.date.utc_aera=$BUILD_DATE_UTC" >> $DEFAULT_PROP
 
-  #  save also to /etc/fox.cfg
-  echo "AERA_BUILD_DATE=$BUILD_DATE" > $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
+  #  save also to /etc/aera.cfg
+  echo "AERA_BUILD_DATE=$BUILD_DATE" > $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
   [ -z "$AERA_CURRENT_DEV_STR" ] && AERA_CURRENT_DEV_STR=$(git -C $AERA_VENDOR_PATH/../../bootable/recovery log -1 --format='%ad (%h)' --date=short) > /dev/null 2>&1
   if [ -n "$AERA_CURRENT_DEV_STR" ]; then
     export AERA_CURRENT_DEV_STR
-    echo "AERA_CODE_BASE=$AERA_CURRENT_DEV_STR" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
+    echo "AERA_CODE_BASE=$AERA_CURRENT_DEV_STR" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
   fi
 
-  echo "ro.build.date.utc_fox=$BUILD_DATE_UTC" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
-  echo "ro.bootimage.build.date.utc_fox=$BUILD_DATE_UTC" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
+  echo "ro.build.date.utc_aera=$BUILD_DATE_UTC" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
+  echo "ro.bootimage.build.date.utc_aera=$BUILD_DATE_UTC" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
   if [ -n "$AERA_RECOVERY_SYSTEM_PARTITION" ]; then
-     echo "SYSTEM_PARTITION=$AERA_RECOVERY_SYSTEM_PARTITION" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
+     echo "SYSTEM_PARTITION=$AERA_RECOVERY_SYSTEM_PARTITION" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
   fi
   if [ -n "$AERA_RECOVERY_INSTALL_PARTITION" ]; then
-     echo "RECOVERY_PARTITION=$AERA_RECOVERY_INSTALL_PARTITION" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
+     echo "RECOVERY_PARTITION=$AERA_RECOVERY_INSTALL_PARTITION" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
   fi
   if [ -n "$AERA_RECOVERY_VENDOR_PARTITION" ]; then
-     echo "VENDOR_PARTITION=$AERA_RECOVERY_VENDOR_PARTITION" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
+     echo "VENDOR_PARTITION=$AERA_RECOVERY_VENDOR_PARTITION" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
   fi
   if [ -n "$AERA_RECOVERY_BOOT_PARTITION" ]; then
-     echo "BOOT_PARTITION=$AERA_RECOVERY_BOOT_PARTITION" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
+     echo "BOOT_PARTITION=$AERA_RECOVERY_BOOT_PARTITION" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
   fi
 
   # save the codebase information
@@ -1717,7 +1727,7 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   	sed -i -e "s/ro.build.fox_id=.*/ro.build.fox_id=$tmp1/g" $DEFAULT_PROP || \
   	echo "ro.build.fox_id=$tmp1" >> $DEFAULT_PROP
 
-   echo "ro.build.fox_id=$tmp1" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
+   echo "ro.build.fox_id=$tmp1" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
 
    # stamp our identity in the prop
    sed -i -e "s/$TARGET_PRODUCT/aera_$AERA_DEVICE/g" $DEFAULT_PROP
@@ -1725,7 +1735,7 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
    # save some original file sizes
    echo -e "${GREEN}-- Saving some original file sizes ${NC}"
    [ -n "$recovery_uncompressed_ramdisk" ] && F=$(filesize $recovery_uncompressed_ramdisk) || F=0
-   echo "ramdisk_size=$F" >> $AERA_RAMDISK/$RAMDISK_ETC/fox.cfg
+   echo "ramdisk_size=$F" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
 
   # let's be clear where we are ...
   if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then

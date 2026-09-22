@@ -24,13 +24,13 @@ else
 	date_cmd="date";
 fi
 
-# copy the ROM version to fox_home
-fox_home=$(getprop "ro.orangefox.home")
-[ ! -n $fox_home ] && fox_home=/sdcard/Fox
-if [ ! -f $fox_home/fox_fix_date ]; then
-   mkdir -p $fox_home;
-   cp -a /FFiles/fox_fix_date $fox_home;
-   chmod 0755 $fox_home/fox_fix_date;
+# Copy the date helper to AERA's storage directory.
+aera_home=$(getprop "ro.orangefox.home")
+[ ! -n "$aera_home" ] && aera_home=/sdcard/AERA
+if [ ! -f "$aera_home/aera_fix_date" ]; then
+   mkdir -p "$aera_home";
+   cp -a /FFiles/aera_fix_date "$aera_home";
+   chmod 0755 "$aera_home/aera_fix_date";
 fi
 
 # process the arguments
@@ -47,7 +47,7 @@ save_drift() {
 	local M=$(cat /proc/mounts | grep "/persist");
 	[ -z "$M" ] && mount /persist > /dev/null 2>&1;
 
-	local epoch_cfg=/persist/.fox_epoch_drift.cfg;
+	local epoch_cfg=/persist/.aera_epoch_drift.cfg;
 	local now=$($date_cmd +%s);
 	local epoch=$(cat /sys/class/rtc/rtc0/since_epoch);
 	local drift=$(expr $now - $epoch);

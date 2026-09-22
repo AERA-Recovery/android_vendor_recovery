@@ -1,5 +1,5 @@
 #
-# 	sample system-wide bashrc file for AERA
+#	sample .bashrc file for AERA
 #
 #	This file is part of the OrangeFox Recovery Project
 # 	Copyright (C) 2018-2026 The OrangeFox Recovery Project
@@ -22,27 +22,38 @@
 
 # HOME
 HOME=$(getprop "ro.orangefox.home")
-[ -z "$HOME" ] && HOME=/sdcard/Fox
+[ -z "$HOME" ] && HOME=/sdcard/AERA
 [ ! -d $HOME ] && mkdir -p -m 0777 $HOME
 [ ! -d $HOME ] && HOME=/tmp
 export HOME
 
 # shell
+export SHELL=$(which bash)
+export HISTFILE=$HOME/.bash_history
 export PS1='\s-\v \w > '
+
+# if running inside the AERA terminal
+[ -n "$ANDROID_SOCKET_recovery" ] && export TERM=pcansi
 
 # aliases
 alias cls="clear"
-alias seek='find . -name "$@"'
+alias seek='find . -type d -path ./proc -prune -o -name "$@"'
+alias dirp="ls -all --color=auto -t | more"
+alias dirt="ls -all --color=auto -t"
+alias dirs="ls -all --color=auto -S"
 alias dir="ls -all --color=auto"
 alias rd="rmdir"
 alias md="mkdir"
 alias del="rm -i"
 alias ren="mv -i"
 alias copy="cp -i"
+alias q="exit"
 alias diskfree="df -Ph"
 alias path="echo $PATH"
-alias ver="echo -n 'AERA ' && echo -n '- ' && echo -n $(getprop ro.orangefox.type) && echo -n ' - ' && getprop ro.orangefox.release.version && cat /proc/version"
-#
+alias mem="cat /proc/meminfo && free"
+alias ver="cat /proc/version"
+alias makediff="diff -u -d -w -B"
+alias makediff_recurse="diff -U3 -d -w -rN"
 
 # go to a neutral location
 cd /tmp

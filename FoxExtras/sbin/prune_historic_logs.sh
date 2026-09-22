@@ -32,10 +32,10 @@ local AERA_HOME=$(getprop "ro.orangefox.home");
 local AERA_SETTINGS=$(getprop "ro.orangefox.settings");
 local days="$1"; # number of days before we start pruning historic logs
 
-	[ -z "$AERA_HOME" ] && AERA_HOME=/sdcard/Fox; # default
-	[ -z "$AERA_SETTINGS" ] && AERA_SETTINGS=/sdcard/Fox; # default
+	[ -z "$AERA_HOME" ] && AERA_HOME=/sdcard/AERA; # default
+	[ -z "$AERA_SETTINGS" ] && AERA_SETTINGS=/sdcard/AERA; # default
 	[ -z "$days" ] && days=14; # default
-	local D="/sdcard/Fox/logs"; # default
+	local D="/sdcard/AERA/logs"; # default
 
 	local D1=$AERA_HOME/logs;
 	local D2=$AERA_SETTINGS/logs;

@@ -510,16 +510,16 @@ local F="0"
 
  F="$cache_dir"recovery/
  [ ! -d $F ] && mkdir -p $F
- ui_print "- AERA fresh installation - "$F"Fox_Installed"
- echo "AERA_NEW=1" > "$F"Fox_Installed
+ ui_print "- AERA fresh installation - "$F"AERA_Installed"
+ echo "AERA_NEW=1" > "$F"AERA_Installed
 
- [ ! -f "$F"Fox_Installed ] && {
+ [ ! -f "$F"AERA_Installed ] && {
     ui_print "- Error writing to the cache directory ($cache_dir); the post-install patches will not be processed."
     return
  }
 
  if [ "$BOOTMODE" = "true" ]; then
-    [ "$AERA_RESET_SETTINGS" != "disabled" ] && echo "BOOTMODE=1" >> "$F"Fox_Installed
+    [ "$AERA_RESET_SETTINGS" != "disabled" ] && echo "BOOTMODE=1" >> "$F"AERA_Installed
  fi
 }
 
@@ -826,64 +826,49 @@ local PART=$(readlink $RECOVERY_PARTITION)
     return
 }
 
-# reset settings to default
-Legacy_Reset_Settings() {
-local F="$1"
-	[ -z "$F" ] && F=/sdcard
-	local FOX=$F/Fox
-	ui_print "- Removing any legacy AERA configuration files ..."
-	rm -rf $FOX/.bin.
-	rm -rf $FOX/.theme
-	rm -rf $FOX/.navbar
-	rm -f $FOX/.fox*
-}
-
 Reset_Settings() {
 local AERA_HOME=$($GETPROP "ro.orangefox.home")
 local AERA_SETTINGS=$($GETPROP "ro.orangefox.settings")
-	[ -z "$AERA_HOME" ] && AERA_HOME=/sdcard/Fox
-	[ -z "$AERA_SETTINGS" ] && AERA_SETTINGS=/sdcard/Fox
+	[ -z "$AERA_HOME" ] && AERA_HOME=/sdcard/AERA
+	[ -z "$AERA_SETTINGS" ] && AERA_SETTINGS=/sdcard/AERA
 
 	ui_print "- Removing any old AERA configuration files ..."
 	rm -rf $AERA_HOME/.bin.
 	rm -f $AERA_HOME/.bash*
-	rm -f $AERA_HOME/fox*
+	rm -f $AERA_HOME/aera*
 	rm -f $AERA_HOME/aromafm.cfg
 	rm -rf $AERA_SETTINGS/.theme
 	rm -rf $AERA_SETTINGS/.navbar
-	rm -f $AERA_SETTINGS/.fox*
+	rm -f $AERA_SETTINGS/.aera*
 
 	if [ "$PERSIST_PATH" != "ERROR" -a -d $PERSIST_PATH ]; then
 	   	[ "$BOOTMODE" != "true" ] && mount_part $PERSIST_PATH
 	   	rm -f $PERSIST_PATH/.fsec*
-	   	rm -f $PERSIST_PATH/.fox*
+	    rm -f $PERSIST_PATH/.aera*
 	   	[ "$PERSIST_PATH" = "$TMP_DIR/persist" -o "$BOOTMODE" != "true" ] && umount_part $PERSIST_PATH
 	else
 		[ "$PERSIST_PATH" = "ERROR" ] && ui_print "- Some old settings might remain."
 	fi
 
-	# remove any lingering legacy settings
-	Legacy_Reset_Settings;
-
-	# other contingencies (eg, installing with R11, or with another recovery)
+	# Clean settings under configured non-default roots as well.
 	local F=""
 	if [ -n "$AERA_SETTINGS_ROOT_DIRECTORY" ]; then
-		F=$AERA_SETTINGS_ROOT_DIRECTORY"/Fox"
+		F=$AERA_SETTINGS_ROOT_DIRECTORY"/AERA"
 		if [ "$F" != "$AERA_SETTINGS" ]; then
 			AERA_SETTINGS=$F
 			rm -rf $AERA_SETTINGS/.theme
 			rm -rf $AERA_SETTINGS/.navbar
-			rm -f $AERA_SETTINGS/.fox*
+			rm -f $AERA_SETTINGS/.aera*
 		fi
 	fi
 
 	if [ -n "$AERA_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
-		F=$AERA_MISCELLANEOUS_ROOT_DIRECTORY"/Fox"
+		F=$AERA_MISCELLANEOUS_ROOT_DIRECTORY"/AERA"
 		if [ "$F" != "$AERA_HOME" ]; then
 			AERA_HOME=$F
 			rm -rf $AERA_HOME/.bin.
 			rm -f $AERA_HOME/.bash*
-			rm -f $AERA_HOME/fox*
+			rm -f $AERA_HOME/aera*
 			rm -f $AERA_HOME/aromafm.cfg
 		fi
 	fi
@@ -894,7 +879,7 @@ local AERA_SETTINGS=$($GETPROP "ro.orangefox.settings")
 Install_AERA_Extras_To_sdcard() {
 	local F=0
 	local internal_SD
-	ui_print "- Installing FoxFiles on the internal SD ..."
+	ui_print "- Installing AERA files on the internal SD ..."
 	if [ -n "$AERA_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
 		internal_SD="$AERA_MISCELLANEOUS_ROOT_DIRECTORY"
 		[ ! -d $internal_SD ] && mkdir -p $internal_SD
@@ -928,11 +913,11 @@ Install_AERA_Extras_To_sdcard() {
 
 	[ "$F" = "1" ] && {
 	   ui_print "- internal_SD=$internal_SD"
-	   rm -rf "$internal_SD/Fox/FoxFiles"
-	   rm -f "$internal_SD/Fox/.wolfs"
+	   rm -rf "$internal_SD/AERA/Files"
+	   rm -f "$internal_SD/AERA/.aera"
 	   package_extract_dir "sdcard" "$internal_SD"
-	   chcon -R "u:object_r:media_rw_data_file:s0" "$internal_SD/Fox"
-	   chown -R "media_rw:media_rw" "$internal_SD/Fox"
+	   chcon -R "u:object_r:media_rw_data_file:s0" "$internal_SD/AERA"
+	   chown -R "media_rw:media_rw" "$internal_SD/AERA"
 	}
 }
 
@@ -996,7 +981,7 @@ Main() {
 # If we only installed the extras
 	if [ "$F" = "1" ]; then
 		ui_print "- Finished installing the AERA extras"
-		ui_print "- The extra files are in $internal_SD/Fox/"
+		ui_print "- The extra files are in $internal_SD/AERA/"
 		ui_print " "
 		rm -rf $EX_DIR
 		exit 0
@@ -1019,9 +1004,9 @@ Main() {
 # backup recovery.log -> Fox/logs/install.log
     ui_print "- Finished."
     [ "$BOOTMODE" = "true" ] || {
-	mkdir -p $internal_SD/Fox/logs
-	ui_print "- Backing up recovery.log to $internal_SD/Fox/logs/install.log ..."
-		cp -a /tmp/recovery.log $internal_SD/Fox/logs/install.log
+	mkdir -p $internal_SD/AERA/logs
+	ui_print "- Backing up recovery.log to $internal_SD/AERA/logs/install.log ..."
+		cp -a /tmp/recovery.log $internal_SD/AERA/logs/install.log
 		[ "$internal_SD" = "/sdcard" ] && umount_part "$internal_SD" > /dev/null 2>&1
 	}
 
@@ -1030,7 +1015,7 @@ Main() {
 
 # Finish and reboot
 	ui_print "- Finished installing AERA!"
-	ui_print "- Extra files are in $internal_SD/Fox/"
+	ui_print "- Extra files are in $internal_SD/AERA/"
 	ui_print " "
 	rm -rf $EX_DIR
 	F=""

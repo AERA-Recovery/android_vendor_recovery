@@ -304,10 +304,10 @@ ramdisk=ramdisk
 echo "#" > img_info
 
 #print_info
-fox_fox_tmp=/tmp/fox_img_info_000.txt
-echo -n "" > $fox_fox_tmp
-save_os_stuff $1 $fox_fox_tmp
-eval $(cat $fox_fox_tmp)
+aera_img_info_tmp=/tmp/aera_img_info_000.txt
+echo -n "" > $aera_img_info_tmp
+save_os_stuff $1 $aera_img_info_tmp
+eval $(cat $aera_img_info_tmp)
 print_info
 
 esq="'\"'\"'"
@@ -317,9 +317,9 @@ escaped_cmd_line=`echo $cmd_line | sed "s/'/$esq/g"`
 printf "kernel=kernel\nramdisk=ramdisk\n${s_name}${dt_name}page_size=$page_size\n\
 kernel_size=$kernel_size\nramdisk_size=$ramdisk_size\n${s_size}${dt_size}base_addr=$base_addr\nkernel_offset=$kernel_offset\n\
 ramdisk_offset=$ramdisk_offset\ntags_offset=$tags_offset\ncmd_line=\'$escaped_cmd_line\'\nboard=\"$board\"\n" > img_info
-cat $fox_fox_tmp >> img_info
+cat $aera_img_info_tmp >> img_info
 
-rm -f $fox_fox_tmp
+rm -f $aera_img_info_tmp
 mkdir ramdisk
 cd ramdisk
 
