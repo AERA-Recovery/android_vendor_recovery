@@ -21,7 +21,7 @@
 #
 
 # HOME
-HOME=$(getprop "ro.orangefox.home")
+HOME=$(getprop "ro.aera.home")
 [ -z "$HOME" ] && HOME=/sdcard/AERA
 [ ! -d $HOME ] && mkdir -p -m 0777 $HOME
 [ ! -d $HOME ] && HOME=/tmp

@@ -21,7 +21,7 @@
 #
 
 # HOME
-HOME=$(getprop "ro.orangefox.home")
+HOME=$(getprop "ro.aera.home")
 [ -z "$HOME" ] && HOME=/sdcard/AERA
 [ ! -d $HOME ] && mkdir -p -m 0777 $HOME
 [ ! -d $HOME ] && HOME=/tmp
@@ -41,7 +41,7 @@ alias ren="mv -i"
 alias copy="cp -i"
 alias diskfree="df -Ph"
 alias path="echo $PATH"
-alias ver="echo -n 'AERA ' && echo -n '- ' && echo -n $(getprop ro.orangefox.type) && echo -n ' - ' && getprop ro.orangefox.release.version && cat /proc/version"
+alias ver="echo -n 'AERA ' && echo -n '- ' && echo -n $(getprop ro.aera.type) && echo -n ' - ' && getprop ro.aera.release.version && cat /proc/version"
 #
 
 # go to a neutral location

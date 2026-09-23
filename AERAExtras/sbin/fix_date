@@ -24,12 +24,12 @@ else
 	date_cmd="date";
 fi
 
-# Copy the date helper to AERA's storage directory.
-aera_home=$(getprop "ro.orangefox.home")
+# Copy the date helper to the AERA home.
+aera_home=$(getprop "ro.aera.home")
 [ ! -n "$aera_home" ] && aera_home=/sdcard/AERA
 if [ ! -f "$aera_home/aera_fix_date" ]; then
    mkdir -p "$aera_home";
-   cp -a /FFiles/aera_fix_date "$aera_home";
+   cp -a /AERA/Files/aera_fix_date "$aera_home";
    chmod 0755 "$aera_home/aera_fix_date";
 fi
 

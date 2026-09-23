@@ -30,7 +30,7 @@
 SCRIPT_LASTMOD_DATE="20251120"
 C="/tmp_cust"
 LOG="/tmp/recovery.log"
-LOG2="/sdcard/AERA/logs/aera-startup.log"
+LOG2="/sdcard/aerastart.log"
 DEBUG="0"  	  # enable for more debug messages
 VERBOSE_DEBUG="0" # enable for really verbose debug messages
 SYS_ROOT="0"	  # do we have system_root?
@@ -38,11 +38,11 @@ SAR="0"	  	  # SAR set up properly in recovery?
 ANDROID_SDK="31"  # assume at least Android 12 in sdk checks
 MOUNT_CMD="mount -r" # only mount in readonly mode
 SUPER="0" # whether the device has a "super" partition
-OUR_TMP="/FFiles/temp" # our "safe" temp directory
+OUR_TMP="/AERA/Files/temp" # our safe temporary directory
 
 # whether this is a vAB or vanilla build
-VIRTUAL_AB=$(getprop "ro.orangefox.virtual_ab")
-VANILLA=$(getprop "ro.orangefox.vanilla")
+VIRTUAL_AB=$(getprop "ro.aera.virtual_ab")
+VANILLA=$(getprop "ro.aera.vanilla")
 
 # whether we have been given a fixed AERA stuff directory
 AERA_MISCELLANEOUS_ROOT_DIRECTORY=""
@@ -58,7 +58,7 @@ else
    [ ! -e $ETC_DIR ] && ETC_DIR=/system/etc
    [ ! -e $ETC_DIR ] && ETC_DIR=/etc
 fi
-CFG="$ETC_DIR/aera-runtime.cfg"
+CFG="$ETC_DIR/aera-live.cfg"
 
 # fstab
 FS="$ETC_DIR/twrp.fstab"
@@ -79,31 +79,30 @@ if [ "$VERBOSE_DEBUG" = "1" ]; then
    set -o xtrace
 fi
 
-# Extra startup diagnostics under AERA's log directory.
+# Extra logs to /sdcard/aerastart.log.
 extralog() {
  [ "$VERBOSE_DEBUG" != "1" ] && return
  local D=$(date)
- mkdir -p /sdcard/AERA/logs
  [ ! -f $LOG2 ] && {
-    echo "---- extra AERA startup logs ----" > $LOG2
+    echo "---- extra logs for aerastart.sh ----" > $LOG2
  }
  echo "[$D]:= $@" >> $LOG2
 
  # copy also the main logs
- cp $LOG /sdcard/AERA/logs/recovery.log
- [ ! -f /sdcard/AERA/logs/dmesg.log ] && cp -a /tmp/dmesg.log /sdcard/AERA/logs/
+ cp $LOG /sdcard/
+ [ ! -f /sdcard/dmesg.log ] && cp -a /tmp/dmesg.log /sdcard/
 }
 
 # partition mountpoints
 BOOT_BLOCK="/dev/block/bootdevice/by-name/boot"
 SYSTEM_BLOCK="/dev/block/bootdevice/by-name/system"
 VENDOR_BLOCK="/dev/block/bootdevice/by-name/vendor"
-if [ "$(getprop ro.boot.dynamic_partitions)" = "true" -o "$(getprop orangefox.super.partition)" = "true" ]; then
+if [ "$(getprop ro.boot.dynamic_partitions)" = "true" -o "$(getprop aera.super.partition)" = "true" ]; then
    SUPER="1"
-   tmp01=$(getprop orangefox.system.block_device)
+   tmp01=$(getprop aera.system.block_device)
    [ -z "$tmp01" ] && tmp01=$(cat /etc/fstab | grep "/system" | cut -f1 -d" ")
    [ -n "$tmp01" ] && SYSTEM_BLOCK="$tmp01"
-   tmp01=$(getprop orangefox.vendor.block_device)
+   tmp01=$(getprop aera.vendor.block_device)
    [ -z "$tmp01" ] && tmp01=$(cat /etc/fstab | grep "/vendor" | cut -f1 -d" ")
    [ -n "$tmp01" ] && VENDOR_BLOCK="$tmp01"
 fi
@@ -265,7 +264,7 @@ local slot=$(getprop "ro.boot.slot_suffix")
       [ -z "$tmp3" ] && tmp3=$(file_getprop "$PROP" "ro.system.build.version.sdk")
       [ -n "$tmp3" ] && {
          ANDROID_SDK="$tmp3"
-         $SETPROP orangefox.rom.sdk "$tmp3" > /dev/null 2>&1
+         $SETPROP aera.rom.sdk "$tmp3" > /dev/null 2>&1
          echo "DEBUG: AERA: ANDROID_SDK=$ANDROID_SDK" >> $LOG
          echo "ANDROID_SDK=$ANDROID_SDK" >> $CFG
       }
@@ -279,7 +278,7 @@ local slot=$(getprop "ro.boot.slot_suffix")
         echo "INCREMENTAL_VERSION=$tmp3" >> $CFG
         [ -x "$SETPROP" ] && {
               $SETPROP "ro.build.version.incremental" "$tmp3" > /dev/null 2>&1
-              $SETPROP "orangefox.system.incremental" "$tmp3" > /dev/null 2>&1
+              $SETPROP "aera.system.incremental" "$tmp3" > /dev/null 2>&1
         }
       }
 
@@ -292,7 +291,7 @@ local slot=$(getprop "ro.boot.slot_suffix")
         echo "RELEASE_VERSION=$tmp3" >> $CFG
         [ -x "$SETPROP" ] && {
               $SETPROP "ro.build.version.release" "$tmp3" > /dev/null 2>&1
-              $SETPROP "orangefox.system.release" "$tmp3" > /dev/null 2>&1
+              $SETPROP "aera.system.release" "$tmp3" > /dev/null 2>&1
         }
       }
 
@@ -316,7 +315,7 @@ local slot=$(getprop "ro.boot.slot_suffix")
            echo "DEBUG: AERA: ROM_FINGERPRINT=$FP" >> $LOG
            [ -x "$SETPROP" ] && {
               $SETPROP "ro.build.fingerprint" "$FP" > /dev/null 2>&1
-              $SETPROP "orangefox.system.fingerprint" "$FP" > /dev/null 2>&1
+              $SETPROP "aera.system.fingerprint" "$FP" > /dev/null 2>&1
             }
       }
    fi # check for ROM fingerprints
@@ -336,7 +335,7 @@ isMIUI() {
    fi
 
    # look for product prop
-   local mv1=$(getprop "orangefox.product.partition")
+   local mv1=$(getprop "aera.product.partition")
    if [ "$mv1" = "1" ]; then
 	$MOUNT_CMD "/product" > /dev/null 2>&1
         is_mounted "/product" && {
@@ -432,9 +431,9 @@ Get_Details() {
    local p1=/dev/block/by-name/product
    local p2=/dev/block/bootdevice/by-name/product
    if [ -e "$p1" -o -e "$p2" -o -h "$p1" -o -h "$p2" ]; then
-	$SETPROP orangefox.product.partition "1" > /dev/null 2>&1
+	$SETPROP aera.product.partition "1" > /dev/null 2>&1
    else
-	$SETPROP orangefox.product.partition "0" > /dev/null 2>&1
+	$SETPROP aera.product.partition "0" > /dev/null 2>&1
    fi
 
    # Treble
@@ -469,7 +468,7 @@ MIUI_Action() {
    fi
   echo $D >> $LOG
   echo "MIUI=$M" >> $CFG
-  $SETPROP orangefox.miui.rom "$M" > /dev/null 2>&1
+  $SETPROP aera.miui.rom "$M" > /dev/null 2>&1
 }
 
 # backup (or restore) fstab
@@ -484,7 +483,7 @@ backup_restore_FS() {
 # start, and mark that we have started
 start_script()
 {
-local OPS=$(getprop "orangefox.postinit.status")
+local OPS=$(getprop "aera.postinit.status")
 local aera_cfg="$ETC_DIR/aera.cfg"
    [ -f "$CFG" ] || [ "$OPS" = "1" ] && exit 0
    echo "# AERA live cfg" > $CFG
@@ -508,9 +507,9 @@ local aera_cfg="$ETC_DIR/aera.cfg"
    echo "DEBUG: AERA: SYSTEM_ROOT=$SYS_ROOT" >> $LOG
    echo "DEBUG: AERA: PROPER_SAR=$SAR" >> $LOG
    echo "DEBUG: AERA: AERA_SCRIPT_DATE=$SCRIPT_LASTMOD_DATE" >> $LOG
-   $SETPROP orangefox.postinit.status 1
-   $SETPROP ro.orangefox.sar "$SAR"
-   $SETPROP ro.orangefox.kernel "$OPS"
+   $SETPROP aera.postinit.status 1
+   $SETPROP ro.aera.sar "$SAR"
+   $SETPROP ro.aera.kernel "$OPS"
 
    local aera_home="/sdcard/AERA"
    local aera_settings=$aera_home
@@ -522,8 +521,10 @@ local aera_cfg="$ETC_DIR/aera.cfg"
       aera_settings=$AERA_SETTINGS_ROOT_DIRECTORY"/AERA"
    fi
 
-   $SETPROP ro.orangefox.home "$aera_home"
-   $SETPROP ro.orangefox.settings "$aera_settings"
+   $SETPROP ro.aera.home "$aera_home"
+   $SETPROP ro.aera.settings "$aera_settings"
+
+   cp $CFG /tmp/aera-live.cfg
 
    # bashrc
    local rc=$ETC_DIR/bash/bashrc
@@ -565,59 +566,59 @@ local KLOG="/tmp/dmesg.log"
 
 # post-init stuff
 post_init() {
-  local M="/FFiles/magiskboot_new"
+  local M="/AERA/Files/magiskboot_new"
   [ -f $M ] && chmod 0755 $M
-  M="/FFiles/aera_fix_date"
+  M="/AERA/Files/aera_fix_date"
   [ -f $M ] && chmod 0755 $M
 
   # write AERA props to the log
   echo "DEBUG: AERA: Fox properties:" >> $LOG
-  getprop | grep 'orangefox' >> $LOG
+  getprop | grep 'aera' >> $LOG
 
   # use new magisk uninstall zip for saving space
-  local MZ="/FFiles/OF_Magisk/Magisk.zip"
+  local MZ="/AERA/Files/OF_Magisk/Magisk.zip"
   if [ -e $MZ ]; then
-     cp $MZ /FFiles/OF_Magisk/uninstall.zip
+     cp $MZ /AERA/Files/OF_Magisk/uninstall.zip
   fi
 }
 
 ### main() ###
-extralog "foxstart: about to start"
+extralog "aerastart: about to start"
 
 # have we executed once before/are we running now?
 start_script
-extralog "foxstart: completed start_script()"
+extralog "aerastart: completed start_script()"
 
 # if not, continue
 backup_restore_FS
-extralog "foxstart: completed backup_restore_FS()"
+extralog "aerastart: completed backup_restore_FS()"
 
 # get kernel logs right now
 dmesg &> /tmp/dmesg.log
-extralog "foxstart: completed dmesg()"
+extralog "aerastart: completed dmesg()"
 
 # get logcat right now
 if [ -f "/system/bin/logcat" ]; then
    logcat -d &> /tmp/logcat.log
-   extralog "foxstart: completed logcat()"
+   extralog "aerastart: completed logcat()"
 fi
 
 #
 Get_Details
-extralog "foxstart: completed Get_Details()"
+extralog "aerastart: completed Get_Details()"
 
 Treble_Action
-extralog "foxstart: completed Treble_Action()"
+extralog "aerastart: completed Treble_Action()"
 
 MIUI_Action
-extralog "foxstart: completed MIUI_Action()"
+extralog "aerastart: completed MIUI_Action()"
 
 Get_Display_Panel
-extralog "foxstart: completed Get_Display_Panel()"
+extralog "aerastart: completed Get_Display_Panel()"
 
 # post-init
 post_init
-extralog "foxstart: completed post_init()"
+extralog "aerastart: completed post_init()"
 
 # end
 exit 0

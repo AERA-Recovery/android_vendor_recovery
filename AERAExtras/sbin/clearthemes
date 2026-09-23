@@ -9,7 +9,7 @@ LOG() {
 }
 
 LOG "Running: $0";
-H=$(getprop ro.orangefox.home);
+H=$(getprop ro.aera.home);
 if [ -n "$H" ]; then
 	if [ -d $H/.theme -o -d $H/.navbar ]; then
 		LOG "I: removing themes and navbar from $H";
@@ -18,7 +18,7 @@ if [ -n "$H" ]; then
 	fi
 fi
 
-H=$(getprop ro.orangefox.settings);
+H=$(getprop ro.aera.settings);
 if [ -n "$H" ]; then
 	if [ -d $H/.theme -o -d $H/.navbar ]; then
 		LOG "I: removing themes and navbar from $H";

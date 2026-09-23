@@ -5,7 +5,7 @@
 # DarthJabba9  @ xda-developers
 # Date: 23 February 2025
 
-NANO_DIR=/FFiles/nano;
+NANO_DIR=/AERA/Files/nano;
 nano_bin=$NANO_DIR/bin/nano.bin;
 ETC_TNFO_DIR=/system/etc/terminfo;
 
@@ -16,7 +16,7 @@ fi
 # help screen
 if [ "$1" = "--help" -o "$1" = "-h" ]; then
     echo "Usage = $0 [--help2] [--term <terminal>] [arguments]"
-    F=/FFiles/nano/terminals.txt;
+    F=/AERA/Files/nano/terminals.txt;
     [ -e $F ] && cat $F;
     exit 0;
 elif [ "$1" = "--help2" -o "$1" = "-h2" ]; then

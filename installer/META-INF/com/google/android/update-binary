@@ -308,7 +308,7 @@ CheckRequirements() {
 
 # do we have a virtual A/B device?
 is_VAB() {
-	if [ "$AERA_VIRTUAL_AB_DEVICE" = "1" -o "$($GETPROP ro.orangefox.virtual_ab)" = "1" -o "$($GETPROP ro.virtual_ab.enabled)" = "true" ]; then
+	if [ "$AERA_VIRTUAL_AB_DEVICE" = "1" -o "$($GETPROP ro.aera.virtual_ab)" = "1" -o "$($GETPROP ro.virtual_ab.enabled)" = "true" ]; then
 		echo "1"
 	else
 		echo "0"
@@ -329,7 +329,7 @@ is_SAR() {
     return
   }
 
-  F=$($GETPROP "ro.orangefox.sar")
+  F=$($GETPROP "ro.aera.sar")
   [ "$F" = "1" ] && {
     echo "1"
     return
@@ -510,16 +510,16 @@ local F="0"
 
  F="$cache_dir"recovery/
  [ ! -d $F ] && mkdir -p $F
- ui_print "- AERA fresh installation - "$F"AERA_Installed"
- echo "AERA_NEW=1" > "$F"AERA_Installed
+ ui_print "- AERA fresh installation - "$F"Fox_Installed"
+ echo "AERA_NEW=1" > "$F"Fox_Installed
 
- [ ! -f "$F"AERA_Installed ] && {
+ [ ! -f "$F"Fox_Installed ] && {
     ui_print "- Error writing to the cache directory ($cache_dir); the post-install patches will not be processed."
     return
  }
 
  if [ "$BOOTMODE" = "true" ]; then
-    [ "$AERA_RESET_SETTINGS" != "disabled" ] && echo "BOOTMODE=1" >> "$F"AERA_Installed
+    [ "$AERA_RESET_SETTINGS" != "disabled" ] && echo "BOOTMODE=1" >> "$F"Fox_Installed
  fi
 }
 
@@ -574,7 +574,7 @@ local F_RAM
 	   tool=/system/bin/magiskboot
 	   if [ ! -e "$tool" ]; then
 	      tool=/sbin/magiskboot
-	      [ ! -e "$tool" ] && tool=/FFiles/magiskboot_new
+	      [ ! -e "$tool" ] && tool=/AERA/Files/magiskboot_new
 	      [ ! -e "$tool" ] && tool=$(which magiskboot)
 	   fi
 	   [ -z "$tool" ] && abort "- I cannot find magiskboot. Quitting!"
@@ -639,7 +639,7 @@ local F_RAM
 	   [ "$AERA_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL" != "1" ] && no_ramdisk_only=1
 
 	   if [ "$no_ramdisk_only" != "1" ]; then
-	   	tmp=$($GETPROP "orangefox.vendor_boot.recovery")
+		tmp=$($GETPROP "aera.vendor_boot.recovery")
 		if [ "$tmp" != "true" ]; then
 			ui_print "- Warning: you are not running a vendor_boot AERA recovery!";
 			ui_print "- Caution: this may be a problem (or maybe not!)";
@@ -826,9 +826,10 @@ local PART=$(readlink $RECOVERY_PARTITION)
     return
 }
 
+# reset settings to default
 Reset_Settings() {
-local AERA_HOME=$($GETPROP "ro.orangefox.home")
-local AERA_SETTINGS=$($GETPROP "ro.orangefox.settings")
+local AERA_HOME=$($GETPROP "ro.aera.home")
+local AERA_SETTINGS=$($GETPROP "ro.aera.settings")
 	[ -z "$AERA_HOME" ] && AERA_HOME=/sdcard/AERA
 	[ -z "$AERA_SETTINGS" ] && AERA_SETTINGS=/sdcard/AERA
 
@@ -844,13 +845,13 @@ local AERA_SETTINGS=$($GETPROP "ro.orangefox.settings")
 	if [ "$PERSIST_PATH" != "ERROR" -a -d $PERSIST_PATH ]; then
 	   	[ "$BOOTMODE" != "true" ] && mount_part $PERSIST_PATH
 	   	rm -f $PERSIST_PATH/.fsec*
-	    rm -f $PERSIST_PATH/.aera*
+		rm -f $PERSIST_PATH/.aera*
 	   	[ "$PERSIST_PATH" = "$TMP_DIR/persist" -o "$BOOTMODE" != "true" ] && umount_part $PERSIST_PATH
 	else
 		[ "$PERSIST_PATH" = "ERROR" ] && ui_print "- Some old settings might remain."
 	fi
 
-	# Clean settings under configured non-default roots as well.
+	# other contingencies (eg, installing with R11, or with another recovery)
 	local F=""
 	if [ -n "$AERA_SETTINGS_ROOT_DIRECTORY" ]; then
 		F=$AERA_SETTINGS_ROOT_DIRECTORY"/AERA"
@@ -858,7 +859,7 @@ local AERA_SETTINGS=$($GETPROP "ro.orangefox.settings")
 			AERA_SETTINGS=$F
 			rm -rf $AERA_SETTINGS/.theme
 			rm -rf $AERA_SETTINGS/.navbar
-			rm -f $AERA_SETTINGS/.aera*
+			rm -f $AERA_SETTINGS/.fox*
 		fi
 	fi
 
@@ -868,7 +869,7 @@ local AERA_SETTINGS=$($GETPROP "ro.orangefox.settings")
 			AERA_HOME=$F
 			rm -rf $AERA_HOME/.bin.
 			rm -f $AERA_HOME/.bash*
-			rm -f $AERA_HOME/aera*
+			rm -f $AERA_HOME/fox*
 			rm -f $AERA_HOME/aromafm.cfg
 		fi
 	fi
@@ -914,7 +915,6 @@ Install_AERA_Extras_To_sdcard() {
 	[ "$F" = "1" ] && {
 	   ui_print "- internal_SD=$internal_SD"
 	   rm -rf "$internal_SD/AERA/Files"
-	   rm -f "$internal_SD/AERA/.aera"
 	   package_extract_dir "sdcard" "$internal_SD"
 	   chcon -R "u:object_r:media_rw_data_file:s0" "$internal_SD/AERA"
 	   chown -R "media_rw:media_rw" "$internal_SD/AERA"
@@ -981,7 +981,7 @@ Main() {
 # If we only installed the extras
 	if [ "$F" = "1" ]; then
 		ui_print "- Finished installing the AERA extras"
-		ui_print "- The extra files are in $internal_SD/AERA/"
+		ui_print "- The extra files are in $internal_SD/AERA/Files/"
 		ui_print " "
 		rm -rf $EX_DIR
 		exit 0
@@ -1015,7 +1015,7 @@ Main() {
 
 # Finish and reboot
 	ui_print "- Finished installing AERA!"
-	ui_print "- Extra files are in $internal_SD/AERA/"
+	ui_print "- Extra files are in $internal_SD/AERA/Files/"
 	ui_print " "
 	rm -rf $EX_DIR
 	F=""
@@ -1024,8 +1024,8 @@ Main() {
 	if [ "$AERA_AB_DEVICE_WITH_RECOVERY_PARTITION" = "1" -o -e $RECOVERY_PARTITION"_b" ]; then
 	   F=""; # dummy, to prevent a runtime error
 	elif [ "$AERA_AB_DEVICE" = "1" -o "$(Is_AB_Device)" = "1" ]; then
-	   F=$($GETPROP "orangefox.postinit.status")
-	   [ -z "$F" ] && F=$($GETPROP "orangefox.crash_counter")
+	   F=$($GETPROP "aera.postinit.status")
+	   [ -z "$F" ] && F=$($GETPROP "aera.crash_counter")
 	   if [ -n "$F" ]; then
 	   	ui_print " "
 		ui_print "- Now, you need to reboot AERA."

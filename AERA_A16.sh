@@ -83,8 +83,8 @@ WHITEONORANGE='\033[0;43m'
 WHITEONBLUE='\033[0;44m'
 WHITEONPURPLE='\033[0;46m'
 NC='\033[0m'
-TMP_SCRATCH=/tmp/aera_build_000tmp.txt
-WORKING_TMP=/tmp/AERA_000_tmp
+TMP_SCRATCH=/tmp/fox_build_000tmp.txt
+WORKING_TMP=/tmp/Fox_000_tmp
 
 # make sure we know exactly which commands we are running
 CP=/bin/cp
@@ -306,10 +306,30 @@ if [ "$DEFAULT_PROP" != "$PROP_DEFAULT" ]; then
    fi
 fi
 
-# build_type
+# Release channel. This keeps the familiar recovery build-type model while
+# allowing AERA to distinguish release maturity from project authorization.
 if [ -z "$AERA_BUILD_TYPE" ]; then
-   export AERA_BUILD_TYPE=Unofficial
+   export AERA_BUILD_TYPE=Stable
 fi
+case "$AERA_BUILD_TYPE" in
+   Alpha|Beta|Nightly|Stable) ;;
+   *)
+      echo "ERROR: AERA_BUILD_TYPE must be Alpha, Beta, Nightly, or Stable." >&2
+      exit 1
+      ;;
+esac
+
+# Build status is independent from the release channel.
+if [ -z "$AERA_BUILD_STATUS" ]; then
+   export AERA_BUILD_STATUS=Unofficial
+fi
+case "$AERA_BUILD_STATUS" in
+   Official|Unofficial) ;;
+   *)
+      echo "ERROR: AERA_BUILD_STATUS must be Official or Unofficial." >&2
+      exit 1
+      ;;
+esac
 
 # build name
 AERA_BUILD="$AERA_INTERNAL_RELEASE"
@@ -326,14 +346,10 @@ fi
 AERA_PRODUCT_PREFIX="${AERA_PRODUCT_PREFIX:-AERA}"
 # Keep AERA_PRODUCT_PREFIX as a downstream-compatible override.
 AERA_PRODUCT_PREFIX="${AERA_PRODUCT_PREFIX:-$AERA_PRODUCT_PREFIX}"
-if [ "$AERA_BUILD_TYPE" = "Unofficial" ] && [ "$AERA_BUILD" = "Unofficial" ]; then
-   AERA_OUT_NAME="$AERA_PRODUCT_PREFIX-$AERA_BUILD-$AERA_DEVICE"
+if [ "$AERA_VARIANT" = "default" ]; then
+   AERA_OUT_NAME="$AERA_PRODUCT_PREFIX-$AERA_BUILD-$AERA_BUILD_TYPE-$AERA_BUILD_STATUS-$AERA_DEVICE"
 else
-   if [ "$AERA_VARIANT" = "default" ]; then
-      AERA_OUT_NAME="$AERA_PRODUCT_PREFIX-$AERA_BUILD-$AERA_BUILD_TYPE-$AERA_DEVICE"
-   else
-      AERA_OUT_NAME="$AERA_PRODUCT_PREFIX-${AERA_BUILD}_${AERA_VARIANT}-$AERA_BUILD_TYPE-$AERA_DEVICE"
-   fi
+   AERA_OUT_NAME="$AERA_PRODUCT_PREFIX-${AERA_BUILD}_${AERA_VARIANT}-$AERA_BUILD_TYPE-$AERA_BUILD_STATUS-$AERA_DEVICE"
 fi
 
 RECOVERY_IMAGE="$OUT/$AERA_OUT_NAME.img"
@@ -347,7 +363,7 @@ if [ -z "$TARGET_ARCH" ]; then
 fi
 
 # tmp for "AERA_CUSTOM_BINS_TO_SDCARD"
-AERA_BIN_tmp=$OUT/tmp_bin/Files
+AERA_BIN_tmp=$OUT/tmp_bin/AERAFiles
 
 # alternative devices
 if [ -z "$TARGET_DEVICE_ALT" ]; then
@@ -614,13 +630,13 @@ local TDT=$(date "+%d %B %Y")
   # copy installer bins and script
   $CP -pr $INST_DIR/* .
 
-  # Copy bundled recovery files to /sdcard/AERA/Files/.
+  # Copy recovery extras to /sdcard/AERA/Files/.
   $CP -a $FILES_DIR/. sdcard/AERA/Files/
 
   # Copy any custom binaries to /sdcard/AERA/Files/bin/.
   if [ "$(enabled $AERA_CUSTOM_BINS_TO_SDCARD)" = "1" -a -d "$AERA_BIN_tmp/bin" ]; then
      chmod +x $AERA_BIN_tmp/bin/*
-     $CP -a $AERA_BIN_tmp/ sdcard/AERA/
+     $CP -a $AERA_BIN_tmp/. sdcard/AERA/Files/
      rm -rf $AERA_BIN_tmp
   fi
 
@@ -680,7 +696,7 @@ local TDT=$(date "+%d %B %Y")
      echo -e "${RED}-- A/B device - copying magiskboot to zip installer ... ${NC}"
      tmp=$AERA_RAMDISK/$RAMDISK_SBIN/magiskboot
      [ ! -e "$tmp" ] && tmp=$AERA_VENDOR_PATH/prebuilt/$TARGET_ARCH/magiskboot"$UPDATED"
-     [ ! -e "$tmp" ] && tmp=/tmp/aera_build_tmp/magiskboot
+     [ ! -e "$tmp" ] && tmp=/tmp/fox_build_tmp/magiskboot
      [ ! -e "$tmp" ] && {
        echo -e "${WHITEONRED}-- I cannot find magiskboot. Quitting! ${NC}"
        abort 200
@@ -689,7 +705,7 @@ local TDT=$(date "+%d %B %Y")
      chmod 0755 ./magiskboot
      sed -i -e "s/^AERA_AB_DEVICE=.*/AERA_AB_DEVICE=\"1\"/" $F
   fi
-  rm -rf /tmp/aera_build_tmp/
+  rm -rf /tmp/fox_build_tmp/
 
   # vendor_boot
   if [ "$IS_VENDOR_BOOT_RECOVERY" = "1" ]; then
@@ -727,7 +743,7 @@ local TDT=$(date "+%d %B %Y")
      sed -i -e "s/^AERA_VANILLA_BUILD=.*/AERA_VANILLA_BUILD=\"1\"/" $F
   fi
 
-  # Use a configured root instead of /sdcard/AERA for add-ons, logs, and backups.
+  # Use the configured AERA home for add-ons, logs, and backups.
   if [ -n "$AERA_MISCELLANEOUS_ROOT_DIRECTORY" ]; then
      echo -e "${RED}-- This build will use $AERA_MISCELLANEOUS_ROOT_DIRECTORY for its stuff ... ${NC}"
      sed -i -e "s|^AERA_MISCELLANEOUS_ROOT_DIRECTORY=.*|AERA_MISCELLANEOUS_ROOT_DIRECTORY=\"$AERA_MISCELLANEOUS_ROOT_DIRECTORY\"|" $F
@@ -790,7 +806,7 @@ local TDT=$(date "+%d %B %Y")
   fi
 
   # save the build vars
-  save_build_vars "$AERA_TMP_WORKING_DIR/META-INF/debug/aera_build_vars.txt"
+  save_build_vars "$AERA_TMP_WORKING_DIR/META-INF/debug/fox_build_vars.txt"
   tmp="$AERA_RAMDISK/prop.default"
   [ ! -e "$tmp" ] && tmp="$DEFAULT_PROP"
   [ ! -e "$tmp" ] && tmp="$AERA_RAMDISK/default.prop"
@@ -839,9 +855,9 @@ local TDT=$(date "+%d %B %Y")
   echo "---------------------------------"
 
   # export the filenames
-  echo "ZIP_FILE=$ZIP_FILE">/tmp/aera-build-output.tmp
-  echo "RECOVERY_IMAGE=$RECOVERY_IMAGE">>/tmp/aera-build-output.tmp
-  [ -f $RECOVERY_IMAGE".tar" ] && echo "RECOVERY_ODIN=$RECOVERY_IMAGE.tar" >>/tmp/aera-build-output.tmp
+  echo "ZIP_FILE=$ZIP_FILE">/tmp/oFox00.tmp
+  echo "RECOVERY_IMAGE=$RECOVERY_IMAGE">>/tmp/oFox00.tmp
+  [ -f $RECOVERY_IMAGE".tar" ] && echo "RECOVERY_ODIN=$RECOVERY_IMAGE.tar" >>/tmp/oFox00.tmp
 
   # delete OF Working dir
   rm -rf $AERA_TMP_WORKING_DIR
@@ -861,13 +877,7 @@ uses_toolbox() {
 # drastic size reduction
 # This can reduce the recovery image size by up to 3 MB
 reduce_ramdisk_size() {
-local custom_xml=$AERA_RAMDISK/twres/pages/customization.xml
-local image_xml=$AERA_RAMDISK/twres/resources/images.xml
-local CURRDIR=$PWD
-local TWRES_DIR=$AERA_RAMDISK/twres
-local FFil="$AERA_RAMDISK/FFiles"
-local C=""
-local F=""
+local FFil="$AERA_RAMDISK/AERA/Files"
 
       echo -e "${GREEN}-- Pruning the ramdisk to reduce the size ... ${NC}"
 
@@ -896,66 +906,6 @@ local F=""
       	 fi
       fi
 
-      if [ "$AERA_EXTREME_SIZE_REDUCTION" != "1" ]; then
-         return
-      fi
-      
-      # fonts to be deleted      
-      declare -a FontFiles=(
-        "Amatic" 
-	"Chococooky" 
-	"Exo2-Medium"
-	"Exo2-Regular"
-	"EuclidFlex-Medium"
-	"EuclidFlex-Regular"
-	"GoogleSans-Medium"
-	"GoogleSans-Regular"
-        "FiraCode-Medium" 
-	"MILanPro-Medium"
-        "MILanPro-Regular")
-
-	# first of all, substitute the fonts that will be deleted
-	XML=$TWRES_DIR/themes/font.xml
-	sed -i -e "s/GoogleSans/Roboto/g" $XML
-
-	XML=$TWRES_DIR/resources/images.xml
-	sed -i -e "s/EuclidFlex/Roboto/g" $XML
-	sed -i -e "s/GoogleSans/Roboto/g" $XML
-
-	XML=$TWRES_DIR/splash.xml
-	sed -i -e "s/EuclidFlex/Roboto/g" $XML
-	sed -i -e "s/GoogleSans/Roboto/g" $XML
-
-	XML=$TWRES_DIR/themes/sed/splash.xml
-	sed -i -e "s/EuclidFlex/Roboto/g" $XML
-
-	XML=$TWRES_DIR/themes/sed/splash_orig.xml
-	sed -i -e "s/EuclidFlex/Roboto/g" $XML
-
-	if [ "$AERA_EXTREME_SIZE_REDUCTION" = "1" ]; then
-     	   sed -i -e "s/FiraCode/Roboto/g" $TWRES_DIR/resources/images.xml
-     	   sed -i -e "s/FiraCode/Roboto/g" $TWRES_DIR/splash.xml
-     	fi
-
-      	# delete the font files
-      	for i in "${FontFiles[@]}"
-      	do
-     	   C=$i".ttf"
-     	   F=$TWRES_DIR/fonts/$C
-     	   rm -f $F
-     	   # remove references to them in resources/images.xml 
-     	   sed -i "/$C/d" $image_xml
-      	done
-
-      	# delete the matching line plus the next 2 lines
-      	for i in {3..9}; do
-    	   F="font"$i
-     	   # remove references to them in customization.xml		   
-     	   sed -i "/$F/I,+2 d" $custom_xml
-      	done
-
-	# return to where we started from
-	cd $CURRDIR
 }
 
 # is this an executable arm binary?
@@ -995,7 +945,7 @@ local upx_bin=$AERA_VENDOR_PATH/tools/upx;
     fi
 }
 
-# Are large optional binaries stored in /sdcard/AERA/Files/bin/?
+# Have some large binaries in /sdcard/AERA/Files/bin/.
 process_custom_bins_to_sdcard() {
 local tmp1
 local tmp2
@@ -1090,7 +1040,7 @@ cat << EOF >> "$tmp1"
    	if [ "\$cmd" = "cp" ]; then
            [ -d $sdcard_bin/nano/ ] && mv /sbin/nano /sbin/nano_script
            cp -af $sdcard_bin/* /sbin/
-           [ -d $sdcard_bin/nano/ ] && { cp -af $sdcard_bin/nano/ /FFiles/nano/; rm -rf /sbin/nano/; mv -f /sbin/nano_script /sbin/nano; }
+           [ -d $sdcard_bin/nano/ ] && { cp -af $sdcard_bin/nano/ /AERA/Files/nano/; rm -rf /sbin/nano/; mv -f /sbin/nano_script /sbin/nano; }
            [ -f $sdcard_bin/nano ] && cp -af $sdcard_bin/nano /system/bin/
    	else
 	   files="aapt bash gnused gnutar gnudate lzma zip zstd lz4 ksud"
@@ -1108,19 +1058,18 @@ cat << EOF >> "$tmp1"
 EOF
 chmod 0755 $tmp1
  
-# Run the script to copy /sdcard/AERA/Files/bin/* to the ramdisk at runtime.
-# Source this script in postrecoveryboot.sh ("source /sbin/from_aera_sd.sh").
-tmp1=$ramdisk_sbindir/from_aera_sd.sh
+# Run the script that exposes /sdcard/AERA/Files/bin/* at runtime.
+tmp1=$ramdisk_sbindir/aera_sdcard_to_bin.sh
 rm -f $tmp1
 cat << EOF >> "$tmp1"
-fxDIR=$sdcard_bin;
-fxF=\$fxDIR/sdcard_to_bin.sh;
-if [ -f \$fxF ]; then
-   chmod +x \$fxDIR/*;
-   echo "I: Running \$fxF !" >> /tmp/recovery.log;
-   \$fxF;
+files_dir=$sdcard_bin;
+files_script=\$files_dir/sdcard_to_bin.sh;
+if [ -f \$files_script ]; then
+   chmod +x \$files_dir/*;
+   echo "I: Running \$files_script !" >> /tmp/recovery.log;
+   \$files_script;
 fi
-rm -f "/sbin/from_aera_sd.sh"
+rm -f "/sbin/aera_sdcard_to_bin.sh"
 rm -f "/sbin/sdcard_to_bin.sh"
 EOF
 chmod 0755 $tmp1
@@ -1134,7 +1083,7 @@ chmod 0755 $tmp1
 expand_vendor_path
 
 # did we export the temporary directory for AERA ports?
-[ -n "$AERA_PORTS_TMP" ] && AERA_TMP_WORKING_DIR="$AERA_PORTS_TMP" || AERA_TMP_WORKING_DIR="/tmp/aera_zip_tmp"
+[ -n "$AERA_PORTS_TMP" ] && AERA_TMP_WORKING_DIR="$AERA_PORTS_TMP" || AERA_TMP_WORKING_DIR="/tmp/fox_zip_tmp"
 
 # is the working directory still there from a previous build? If so, remove it
 if [ "$AERA_VENDOR_CMD" != "Fox_Before_Recovery_Image" ]; then
@@ -1150,7 +1099,7 @@ if [ "$AERA_VENDOR_CMD" != "Fox_Before_Recovery_Image" ]; then
      echo -e "${GREEN}-- This is a system-as-root build ...${NC}"
   else
      echo -e "${GREEN}-- This is NOT a system-as-root build - removing the system_sar_mount directory ...${NC}"
-     rm -rf "$AERA_RAMDISK/FFiles/Tools/system_sar_mount/"
+     rm -rf "$AERA_RAMDISK/AERA/Files/Tools/system_sar_mount/"
   fi
 fi
 
@@ -1180,9 +1129,9 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   esac
 
   # build standard (3GB) version
-  # copy over vendor FFiles/ and vendor sbin/ stuff before creating the boot image
-  #[ "$AERA_BUILD_DEBUG_MESSAGES" = "1" ] && echo "- AERA_BUILD_DEBUG_MESSAGES: Copying: $AERA_VENDOR_PATH/FoxExtras/* to $AERA_RAMDISK/"
-  $CP -pr $AERA_VENDOR_PATH/FoxExtras/* $AERA_RAMDISK/
+  # Copy AERA recovery files and sbin helpers before creating the boot image.
+  #[ "$AERA_BUILD_DEBUG_MESSAGES" = "1" ] && echo "- AERA_BUILD_DEBUG_MESSAGES: Copying: $AERA_VENDOR_PATH/AERAExtras/* to $AERA_RAMDISK/"
+  $CP -pr $AERA_VENDOR_PATH/AERAExtras/* $AERA_RAMDISK/
 
   # if these directories don't already exist
   mkdir -p $AERA_RAMDISK/$RAMDISK_ETC/
@@ -1194,15 +1143,16 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
 
   # deal with magiskboot
   echo -e "${GREEN}-- This build will use magiskboot for patching boot images ...${NC}"
-  echo -e "${GREEN}-- Backing up $AERA_RAMDISK/$RAMDISK_SBIN/magiskboot to: /tmp/aera_build_tmp/ ...${NC}"
-  mkdir -p /tmp/aera_build_tmp/
-  $CP -pf $AERA_RAMDISK/$RAMDISK_SBIN/magiskboot /tmp/aera_build_tmp/magiskboot
+  echo -e "${GREEN}-- Backing up $AERA_RAMDISK/$RAMDISK_SBIN/magiskboot to: /tmp/fox_build_tmp/ ...${NC}"
+  mkdir -p /tmp/fox_build_tmp/
+  $CP -pf $AERA_RAMDISK/$RAMDISK_SBIN/magiskboot /tmp/fox_build_tmp/magiskboot
 
-  # "fox" CLI: prefer the real foxcli binary (module foxcli, stem "fox"). Only
-  # fall back to symlinking the legacy "twrp" tool when foxcli was not built, so
-  # we never clobber the real /system/bin/fox with the legacy CLI.
-  if [ ! -e "$AERA_RAMDISK/$RAMDISK_SYSTEM_BIN/fox" ] && [ -f "$AERA_RAMDISK/$RAMDISK_SYSTEM_BIN/twrp" ]; then
-     ln -sf /system/bin/twrp "$AERA_RAMDISK/$RAMDISK_SYSTEM_BIN/fox"
+  # AERA's clean-room native CLI is installed as /system/bin/aera. Remove any
+  # stale FoxCLI artifact left by an incremental build and expose the AERA
+  # client from /sbin for interactive recovery shells.
+  rm -f "$AERA_RAMDISK/$RAMDISK_SYSTEM_BIN/fox" "$AERA_RAMDISK/$RAMDISK_SBIN/fox"
+  if [ -x "$AERA_RAMDISK/$RAMDISK_SYSTEM_BIN/aera" ]; then
+     ln -sf /system/bin/aera "$AERA_RAMDISK/$RAMDISK_SBIN/aera"
   fi
 
   # symlink for /sbin/magiskboot in /system/bin/
@@ -1251,14 +1201,7 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
      echo -e "${GREEN}-- Disabling the \"More...\" link in the \"About\" page ...${NC}"
   fi
 
-  # disable the magisk addon ui entries?
-  if [ "$AERA_DELETE_MAGISK_ADDON" = "1" ]; then
-     echo -e "${GREEN}-- Disabling the magisk addon entries in advanced.xml ...${NC}"
-     Led_xml_File=$AERA_RAMDISK/twres/pages/advanced.xml
-     sed -i "/>mod_magisk</I,+0 d" $Led_xml_File
-     sed -i "/>mod_unmagisk</I,+0 d" $Led_xml_File
-     sed -i "s/>Magisk</>Magisk ({@disabled})</" $Led_xml_File
-  elif [ "$AERA_MOVE_MAGISK_INSTALLER_TO_RAMDISK" = "1" ]; then
+  if [ "$AERA_DELETE_MAGISK_ADDON" != "1" -a "$AERA_MOVE_MAGISK_INSTALLER_TO_RAMDISK" = "1" ]; then
      tmp=$AERA_VENDOR_PATH/Files/Magisk.zip
 
      # are we using a specific magisk zip?
@@ -1271,8 +1214,8 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
         fi
      fi
 
-     mkdir -p $AERA_RAMDISK/FFiles/OF_Magisk/
-     $CP -pf $tmp $AERA_RAMDISK/FFiles/OF_Magisk/Magisk.zip
+     mkdir -p $AERA_RAMDISK/AERA/Files/OF_Magisk/
+     $CP -pf $tmp $AERA_RAMDISK/AERA/Files/OF_Magisk/Magisk.zip
   fi
 
   # Include bash shell ?
@@ -1289,7 +1232,7 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   else
      echo -e "${GREEN}-- Copying bash ...${NC}"
      $CP -p $AERA_VENDOR_PATH/Files/aera.bashrc $AERA_RAMDISK/$RAMDISK_ETC/bash.bashrc
-     $CP -p $AERA_VENDOR_PATH/Files/aera.bashrc $AERA_RAMDISK/FFiles/aera.mkshrc
+     $CP -p $AERA_VENDOR_PATH/Files/aera.bashrc $AERA_RAMDISK/AERA/Files/aera.mkshrc
      
      if [ "$AERA_BUILD_BASH" = "1" ]; then
         local aera_home="/sdcard/AERA"
@@ -1301,7 +1244,7 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
            echo "# AERA Recovery Project" >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
            echo "[ -f $aera_home/aera.bashrc ] && source $aera_home/aera.bashrc" >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
         fi
-        echo "[ ! -f $aera_home/aera.bashrc -a -f /FFiles/aera.mkshrc ] && source /FFiles/aera.mkshrc" >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
+        echo "[ ! -f $aera_home/aera.bashrc -a -f /AERA/Files/aera.mkshrc ] && source /AERA/Files/aera.mkshrc" >> "$AERA_RAMDISK/$RAMDISK_SYSTEM_ETC/bash/bashrc"
      else
 	rm -f $AERA_RAMDISK/$RAMDISK_SBIN/bash
 	rm -f $AERA_RAMDISK/$RAMDISK_SYSTEM_BIN/bash
@@ -1365,23 +1308,23 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   # Include nano editor ?
   if [ "$AERA_USE_NANO_EDITOR" = "1" ]; then
       echo -e "${GREEN}-- Copying nano editor ...${NC}"
-      mkdir -p $AERA_RAMDISK/FFiles/nano/bin/
+      mkdir -p $AERA_RAMDISK/AERA/Files/nano/bin/
       $CP -af $AERA_VENDOR_PATH/Files/nano/sbin/nano $AERA_RAMDISK/$RAMDISK_SBIN/
       if [ "$(enabled $AERA_CUSTOM_BINS_TO_SDCARD)" != "1" ]; then
-	$CP -af $AERA_VENDOR_PATH/Files/nano/ $AERA_RAMDISK/FFiles/
-	$CP -af $AERA_VENDOR_PATH/prebuilt/$TARGET_ARCH/nano.bin $AERA_RAMDISK/FFiles/nano/bin/nano.bin
+	$CP -af $AERA_VENDOR_PATH/Files/nano/ $AERA_RAMDISK/AERA/Files/
+	$CP -af $AERA_VENDOR_PATH/prebuilt/$TARGET_ARCH/nano.bin $AERA_RAMDISK/AERA/Files/nano/bin/nano.bin
       fi
   else
-      if [ -d $AERA_RAMDISK/FFiles/nano/ ]; then
-         echo -e "${GREEN}-- Removing the dangling \"$AERA_RAMDISK/FFiles/nano/\" ...${NC}"
-         rm -rf $AERA_RAMDISK/FFiles/nano/
+      if [ -d $AERA_RAMDISK/AERA/Files/nano/ ]; then
+         echo -e "${GREEN}-- Removing the dangling \"$AERA_RAMDISK/AERA/Files/nano/\" ...${NC}"
+         rm -rf $AERA_RAMDISK/AERA/Files/nano/
       fi
   fi
 
   # exclude all species of nano?
   if [ "$AERA_EXCLUDE_NANO_EDITOR" = "1" ]; then
       echo -e "${RED}-- Removing the nano files from the build ...${NC}"
-      [ -d $AERA_RAMDISK/FFiles/nano/ ] && rm -rf $AERA_RAMDISK/FFiles/nano/
+      [ -d $AERA_RAMDISK/AERA/Files/nano/ ] && rm -rf $AERA_RAMDISK/AERA/Files/nano/
       rm -f $AERA_RAMDISK/$RAMDISK_SBIN/nano
       rm -f $AERA_RAMDISK/$RAMDISK_SYSTEM_BIN/nano
       rm -f $AERA_RAMDISK/$RAMDISK_ETC/init/nano*
@@ -1497,29 +1440,29 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
      ln -sf /system/bin/resetprop $AERA_RAMDISK/$RAMDISK_SYSTEM_BIN/getprop
   fi
 
-  # embed the system partition (in foxstart.sh)
-  F=$AERA_RAMDISK/$RAMDISK_SBIN/foxstart.sh
+  # Embed the system partition in aerastart.sh.
+  F=$AERA_RAMDISK/$RAMDISK_SBIN/aerastart.sh
   if [ -n "$AERA_RECOVERY_SYSTEM_PARTITION" ]; then
      echo -e "${RED}-- Changing the recovery system partition to \"$AERA_RECOVERY_SYSTEM_PARTITION\" ${NC}"
      sed -i -e "s|^SYSTEM_BLOCK=.*|SYSTEM_BLOCK=\"$AERA_RECOVERY_SYSTEM_PARTITION\"|" $F
   fi
 
-  # embed the vendor partition (in foxstart.sh)
-  F=$AERA_RAMDISK/$RAMDISK_SBIN/foxstart.sh
+  # Embed the vendor partition in aerastart.sh.
+  F=$AERA_RAMDISK/$RAMDISK_SBIN/aerastart.sh
   if [ -n "$AERA_RECOVERY_VENDOR_PARTITION" ]; then
      echo -e "${RED}-- Changing the recovery vendor partition to \"$AERA_RECOVERY_VENDOR_PARTITION\" ${NC}"
      sed -i -e "s|^VENDOR_BLOCK=.*|VENDOR_BLOCK=\"$AERA_RECOVERY_VENDOR_PARTITION\"|" $F
   fi
 
-  # embed the boot partition (in foxstart.sh)
-  F=$AERA_RAMDISK/sbin/foxstart.sh
+  # Embed the boot partition in aerastart.sh.
+  F=$AERA_RAMDISK/sbin/aerastart.sh
   if [ -n "$AERA_RECOVERY_BOOT_PARTITION" ]; then
      echo -e "${RED}-- Changing the recovery boot partition to \"$AERA_RECOVERY_BOOT_PARTITION\" ${NC}"
      sed -i -e "s|^BOOT_BLOCK=.*|BOOT_BLOCK=\"$AERA_RECOVERY_BOOT_PARTITION\"|" $F
   fi
 
-  # embed the build var (in foxstart.sh) AERA_SETTINGS_ROOT_DIRECTORY
-  F=$AERA_RAMDISK/sbin/foxstart.sh
+  # Embed the AERA_SETTINGS_ROOT_DIRECTORY build variable.
+  F=$AERA_RAMDISK/sbin/aerastart.sh
   if [ -n "$AERA_SETTINGS_ROOT_DIRECTORY" ]; then
      echo -e "${RED}-- This build will use $AERA_SETTINGS_ROOT_DIRECTORY for its internal settings ... ${NC}"
      sed -i -e "s|^AERA_SETTINGS_ROOT_DIRECTORY=.*|AERA_SETTINGS_ROOT_DIRECTORY=\"$AERA_SETTINGS_ROOT_DIRECTORY\"|" $F
@@ -1532,7 +1475,7 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
 
   # mark whether this is a vAB or vanilla build
   if [ "$IS_VIRTUAL_AB_DEVICE" = "1" -o "$IS_VANILLA_BUILD=1" = "1" ]; then
-	F=$AERA_RAMDISK/sbin/foxstart.sh
+	F=$AERA_RAMDISK/sbin/aerastart.sh
 	sed -i -e "s/^VIRTUAL_AB_OR_VANILLA=.*/VIRTUAL_AB_OR_VANILLA=\"1\"/" $F
   fi
 
@@ -1561,14 +1504,14 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
       chmod 0755 $AERA_RAMDISK/$RAMDISK_SBIN/ksud
 
       echo -e "${GREEN}-- Copying other rooting installer(s)  ...${NC}"
-      mkdir -p $AERA_RAMDISK/FFiles/KernelSU/
-      [ "$AERA_ENABLE_KERNELSU_SUPPORT" = "1" ] && $CP -p $AERA_VENDOR_PATH/Files/KernelSU_Installer.zip $AERA_RAMDISK/FFiles/KernelSU/
-      [ "$AERA_ENABLE_KERNELSU_NEXT_SUPPORT" = "1" ] && $CP -p $AERA_VENDOR_PATH/Files/KernelSU_Next_Installer.zip $AERA_RAMDISK/FFiles/KernelSU/
-      [ "$AERA_ENABLE_SUKISU_SUPPORT" = "1" ] && $CP -p $AERA_VENDOR_PATH/Files/KernelSU_Suki_Installer.zip $AERA_RAMDISK/FFiles/KernelSU/
+      mkdir -p $AERA_RAMDISK/AERA/Files/KernelSU/
+      [ "$AERA_ENABLE_KERNELSU_SUPPORT" = "1" ] && $CP -p $AERA_VENDOR_PATH/Files/KernelSU_Installer.zip $AERA_RAMDISK/AERA/Files/KernelSU/
+      [ "$AERA_ENABLE_KERNELSU_NEXT_SUPPORT" = "1" ] && $CP -p $AERA_VENDOR_PATH/Files/KernelSU_Next_Installer.zip $AERA_RAMDISK/AERA/Files/KernelSU/
+      [ "$AERA_ENABLE_SUKISU_SUPPORT" = "1" ] && $CP -p $AERA_VENDOR_PATH/Files/KernelSU_Suki_Installer.zip $AERA_RAMDISK/AERA/Files/KernelSU/
    fi
   else
       rm -f $AERA_RAMDISK/$RAMDISK_SBIN/ksud
-      rm -rf $AERA_RAMDISK/FFiles/KernelSU/
+      rm -rf $AERA_RAMDISK/AERA/Files/KernelSU/
   fi
 
   # enable the app manager?
@@ -1616,13 +1559,6 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   fi
 
   echo -e "${GREEN}-- Detected Magisk version: ${MAGISK_VER}${NC}"
-  sed -i -E "s+\"magisk_ver\" value=\"(.*)\"+\"magisk_ver\" value=\"$MAGISK_VER\"+" $AERA_RAMDISK/twres/ui.xml
-
-  # Include text files
-  $CP -p $AERA_VENDOR_PATH/Files/credits.txt $AERA_RAMDISK/twres/credits.txt
-  $CP -p $AERA_VENDOR_PATH/Files/translators.txt $AERA_RAMDISK/twres/translators.txt
-  $CP -p $AERA_VENDOR_PATH/Files/changelog.txt $AERA_RAMDISK/twres/changelog.txt
-
   # if a local callback script is declared, run it, passing to it the ramdisk directory (first call)
   if [ -n "$AERA_LOCAL_CALLBACK_SCRIPT" -a -f "$AERA_LOCAL_CALLBACK_SCRIPT" ]; then
 	bash $AERA_LOCAL_CALLBACK_SCRIPT "$AERA_RAMDISK" "--first-call"
@@ -1646,16 +1582,6 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   BUILD_DATE_UTC=$(date "+%s")
   [ ! -e "$DEFAULT_PROP" ] && DEFAULT_PROP="$AERA_RAMDISK/default.prop"
   [ ! -e "$DEFAULT_PROP_ROOT" ] && DEFAULT_PROP_ROOT="$DEFAULT_PROP"
-
-  # Removed files can survive in the prepared ramdisk during incremental builds.
-  rm -f "$AERA_RAMDISK/$RAMDISK_ETC/fox.cfg" \
-        "$AERA_RAMDISK/$RAMDISK_ETC/orangefox.cfg" \
-        "$AERA_RAMDISK/orangefox.info"
-  for prop_file in "$DEFAULT_PROP" "$DEFAULT_PROP_ROOT"; do
-    [ -f "$prop_file" ] || continue
-    sed -i -e '/^ro\.build\.date\.utc_fox=/d' \
-           -e '/^ro\.bootimage\.build\.date\.utc_fox=/d' "$prop_file"
-  done
 
   # if we need to work around the bugged aosp alleged anti-rollback protection
   if [ -n "$AERA_BUGGED_AOSP_ARB_WORKAROUND" ]; then
@@ -1683,7 +1609,7 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
 	sed -i -e "s/ro.bootimage.build.date.utc_aera=.*/ro.bootimage.build.date.utc_aera=$BUILD_DATE_UTC/g" $DEFAULT_PROP || \
 	echo "ro.bootimage.build.date.utc_aera=$BUILD_DATE_UTC" >> $DEFAULT_PROP
 
-  #  save also to /etc/aera.cfg
+  # Save the AERA runtime metadata in /etc/aera.cfg.
   echo "AERA_BUILD_DATE=$BUILD_DATE" > $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
   [ -z "$AERA_CURRENT_DEV_STR" ] && AERA_CURRENT_DEV_STR=$(git -C $AERA_VENDOR_PATH/../../bootable/recovery log -1 --format='%ad (%h)' --date=short) > /dev/null 2>&1
   if [ -n "$AERA_CURRENT_DEV_STR" ]; then
@@ -1707,27 +1633,27 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   fi
 
   # save the codebase information
-  grep -q "ro.build.fox_codebase=" $DEFAULT_PROP && \
-	sed -i -e "s/ro.build.fox_codebase=.*/ro.build.fox_codebase=$AERA_CURRENT_DEV_STR/g" $DEFAULT_PROP || \
-	echo "ro.build.fox_codebase=$AERA_CURRENT_DEV_STR" >> $DEFAULT_PROP
+  grep -q "ro.build.aera_codebase=" $DEFAULT_PROP && \
+	sed -i -e "s/ro.build.aera_codebase=.*/ro.build.aera_codebase=$AERA_CURRENT_DEV_STR/g" $DEFAULT_PROP || \
+	echo "ro.build.aera_codebase=$AERA_CURRENT_DEV_STR" >> $DEFAULT_PROP
 
-  grep -q "ro.build.fox_codebase=" $DEFAULT_PROP_ROOT && \
-	sed -i -e "s/ro.build.fox_codebase=.*/ro.build.fox_codebase=$AERA_CURRENT_DEV_STR/g" $DEFAULT_PROP_ROOT || \
-	echo "ro.build.fox_codebase=$AERA_CURRENT_DEV_STR" >> $DEFAULT_PROP_ROOT
+  grep -q "ro.build.aera_codebase=" $DEFAULT_PROP_ROOT && \
+	sed -i -e "s/ro.build.aera_codebase=.*/ro.build.aera_codebase=$AERA_CURRENT_DEV_STR/g" $DEFAULT_PROP_ROOT || \
+	echo "ro.build.aera_codebase=$AERA_CURRENT_DEV_STR" >> $DEFAULT_PROP_ROOT
 
   # save the build id
    echo -e "${GREEN}-- Generating the build ID ${NC}"
    tmp1=$(generate_build_id)
-   grep -q "ro.build.fox_id=" $DEFAULT_PROP_ROOT && \
-  	sed -i -e "s/ro.build.fox_id=.*/ro.build.fox_id=$tmp1/g" $DEFAULT_PROP_ROOT || \
-  	echo "ro.build.fox_id=$tmp1" >> $DEFAULT_PROP_ROOT
+   grep -q "ro.build.aera_id=" $DEFAULT_PROP_ROOT && \
+	sed -i -e "s/ro.build.aera_id=.*/ro.build.aera_id=$tmp1/g" $DEFAULT_PROP_ROOT || \
+	echo "ro.build.aera_id=$tmp1" >> $DEFAULT_PROP_ROOT
 
   # also update prop.default
-   grep -q "ro.build.fox_id=" $DEFAULT_PROP && \
-  	sed -i -e "s/ro.build.fox_id=.*/ro.build.fox_id=$tmp1/g" $DEFAULT_PROP || \
-  	echo "ro.build.fox_id=$tmp1" >> $DEFAULT_PROP
+   grep -q "ro.build.aera_id=" $DEFAULT_PROP && \
+	sed -i -e "s/ro.build.aera_id=.*/ro.build.aera_id=$tmp1/g" $DEFAULT_PROP || \
+	echo "ro.build.aera_id=$tmp1" >> $DEFAULT_PROP
 
-   echo "ro.build.fox_id=$tmp1" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
+   echo "ro.build.aera_id=$tmp1" >> $AERA_RAMDISK/$RAMDISK_ETC/aera.cfg
 
    # stamp our identity in the prop
    sed -i -e "s/$TARGET_PRODUCT/aera_$AERA_DEVICE/g" $DEFAULT_PROP

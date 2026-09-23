@@ -15,7 +15,7 @@
 # Export the translated backend flags and native AERA values needed by Soong.
 # getMakeVars() in the recovery *_defaults reads exactly these names.
 $(call add_soong_config_var,twrpVarsPlugin,\
-    AERA_UI2_ADAPTIVE_RESOLUTION \
+    AERA_UI_ADAPTIVE_RESOLUTION \
     AERA_SCREEN_H \
     AERA_STATUS_H \
     AERA_STATUS_INDENT_LEFT \

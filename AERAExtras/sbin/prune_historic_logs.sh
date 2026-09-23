@@ -28,8 +28,8 @@ LOGMSG() {
 
 # prune historic logs
 prune_historic_logs() {
-local AERA_HOME=$(getprop "ro.orangefox.home");
-local AERA_SETTINGS=$(getprop "ro.orangefox.settings");
+local AERA_HOME=$(getprop "ro.aera.home");
+local AERA_SETTINGS=$(getprop "ro.aera.settings");
 local days="$1"; # number of days before we start pruning historic logs
 
 	[ -z "$AERA_HOME" ] && AERA_HOME=/sdcard/AERA; # default
