@@ -22,6 +22,7 @@ $(call add_soong_config_var,twrpVarsPlugin,\
     AERA_STATUS_INDENT_RIGHT \
     AERA_DEFAULT_LANGUAGE \
     AERA_EXTRA_LANGUAGES \
+    TW_SUPPORT_INPUT_FF_HAPTICS \
     OF_ENABLE_WLAN \
     OF_ENABLE_LAB \
     OF_LANDSCAPE_MODE \
