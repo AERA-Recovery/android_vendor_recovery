@@ -61,6 +61,25 @@ SCREEN=/proc/self/fd/$2
 # the current zip installer
 ZIPFILE="$3"
 
+# AERA Recovery understands a richer installer protocol. Keep this standard
+# update-binary fully functional for every other recovery, but hand the same
+# generated package configuration to the dedicated AERA entry when available.
+AERA_INSTALLER_ENTRY="META-INF/com/google/android/aera-installer"
+AERA_INSTALLER_PATH="/tmp/aera-installer-entry.$$"
+if [ "$AERA_INSTALLER_NATIVE" != "1" ] && \
+   [ "$($GETPROP ro.aera.build 2>/dev/null)" = "aera" ] && \
+   unzip -l "$ZIPFILE" "$AERA_INSTALLER_ENTRY" 2>/dev/null | \
+     grep -Fq "$AERA_INSTALLER_ENTRY"; then
+   if unzip -p "$ZIPFILE" "$AERA_INSTALLER_ENTRY" > \
+        "$AERA_INSTALLER_PATH" 2>/dev/null; then
+      chmod 0755 "$AERA_INSTALLER_PATH"
+      AERA_INSTALLER_NATIVE=1
+      export AERA_INSTALLER_NATIVE
+      exec "$AERA_INSTALLER_PATH" "$@"
+   fi
+   rm -f "$AERA_INSTALLER_PATH"
+fi
+
 # detect Magisk app/ROM flashing
 BOOTMODE=false
 ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true
@@ -157,8 +176,36 @@ ui_print() {
   fi
 }
 
+# Native AERA installer messages are deliberately silent on the compatibility
+# path, so older recoveries only receive commands they already understand.
+aera_emit() {
+   [ "$AERA_INSTALLER_NATIVE" = "1" ] || return 0
+   echo "$1" >> $SCREEN
+}
+
+aera_package() {
+   aera_emit "aera_package $1|$2|$3|$4"
+}
+
+aera_stage() {
+   aera_emit "aera_stage $1|$2|$3|$4|$5"
+}
+
+aera_status() {
+   aera_emit "aera_status $1"
+}
+
+aera_complete() {
+   aera_emit "aera_complete $1|$2"
+}
+
+aera_reboot() {
+   aera_emit "aera_reboot $1|$2"
+}
+
 # abort [<message>]
 abort() {
+   aera_status "$*"
    ui_print "$*"
    ERROR_CODE=1
    rm -rf $EX_DIR
@@ -926,6 +973,11 @@ Main() {
 	local internal_SD=""
 	local F=0
 
+	aera_package "AERA Recovery RELEASE_VER" "$TARGET_DEVICE" \
+		"AERA Recovery Project" "AERA build system"
+	aera_stage 5 1 4 "Verifying update" \
+		"Checking device identity and installer requirements."
+
 	ui_print "*************************************"
 	ui_print "*** |AERA Recovery Project|  ***"
 	ui_print "***   |By The AERA Team|     ***"
@@ -962,10 +1014,14 @@ Main() {
 	CheckRequirements
 
 # extract the zip installer
+	aera_stage 18 1 4 "Preparing update" \
+		"Extracting the recovery image and installation tools."
 	Unzip_Installer_Package
 
 # Install the recovery
 	if [ "$F" != "1" ]; then
+		aera_stage 38 2 4 "Updating AERA Recovery" \
+			"Installing the recovery image to the required partition slots."
 		ui_print "- Installing AERA recovery ..."
 
 		Install_Recovery
@@ -976,6 +1032,8 @@ Main() {
 	fi
 
 # Install /sdcard stuff
+	aera_stage 78 3 4 "Installing support files" \
+		"Copying recovery tools and files to device storage."
 	internal_SD=$(Install_AERA_Extras_To_sdcard)
 
 # If we only installed the extras
@@ -984,10 +1042,14 @@ Main() {
 		ui_print "- The extra files are in $internal_SD/AERA/Files/"
 		ui_print " "
 		rm -rf $EX_DIR
+		aera_complete "Installation complete" \
+			"AERA files were installed successfully."
 		exit 0
 	fi
 
 # Prevent the stock recovery from replacing this recovery
+	aera_stage 92 4 4 "Finalizing update" \
+		"Applying settings and protecting the installed recovery."
 	MountThemAll
 
 	if [ "$AERA_VANILLA_BUILD" = "1" ]; then
@@ -1035,7 +1097,9 @@ Main() {
 	   		ui_print " "
 	   		ui_print " "
 	   	fi
-	   	exit 0
+		aera_complete "AERA Recovery updated" \
+			"The update finished successfully. Reboot recovery when ready."
+		exit 0
 	   fi
 	fi
 
@@ -1045,22 +1109,31 @@ Main() {
 	   ui_print " "
 	   ui_print "- Auto-reboot has been disabled. Please reboot to Recovery manually."
 	   ui_print " "
+	   aera_complete "AERA Recovery updated" \
+		   "The update finished successfully. Reboot recovery when ready."
 	   exit 0
 	fi
 
+	aera_stage 100 4 4 "Restarting AERA Recovery" \
+		"Update complete. AERA will restart recovery automatically."
+	aera_reboot 5 recovery
 	ui_print " >> Rebooting to AERA Recovery in 5 seconds ..."
-	sleep 1
 	ui_print "-5s...."
 	sleep 1
+	aera_reboot 4 recovery
 	ui_print "-4s...."
 	sleep 1
+	aera_reboot 3 recovery
 	ui_print "-3s..."
 	sleep 1
+	aera_reboot 2 recovery
 	ui_print "-2s.."
 	sleep 1
+	aera_reboot 1 recovery
 	ui_print "-1s."
 	sleep 1
 
+	aera_reboot 0 recovery
 	ui_print " "
 	ui_print "- Rebooting to Recovery now ..."
 	sleep 1
@@ -1070,6 +1143,8 @@ Main() {
 	sleep 3
 	ui_print " "
 	ui_print "- Hmmm ... it seems that auto-reboot has failed. Please reboot to Recovery manually."
+	aera_complete "Restart required" \
+		"Automatic restart failed. Reboot recovery manually to continue."
 	exit 0
 } # end Main();
 

@@ -799,6 +799,14 @@ local TDT=$(date "+%d %B %Y")
      Add_Target_Alt;
   fi
 
+  # AERA launches a dedicated native installer entry. It is generated from
+  # the already-patched compatibility installer so device aliases, partition
+  # paths, build metadata, and every safety flag remain exactly identical.
+  # Other recoveries continue to execute update-binary normally.
+  tmp="$AERA_TMP_WORKING_DIR/META-INF/com/google/android/aera-installer"
+  $CP -pf "$F" "$tmp"
+  chmod 0755 "$tmp"
+
   # if a local callback script is declared, run it, passing to it the temporary working directory (Last call)
   # "--last-call" = just before creating the AERA update zip file
   if [ -n "$AERA_LOCAL_CALLBACK_SCRIPT" -a -f "$AERA_LOCAL_CALLBACK_SCRIPT" ]; then
