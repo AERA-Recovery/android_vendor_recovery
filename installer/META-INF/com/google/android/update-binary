@@ -884,7 +884,6 @@ local AERA_SETTINGS=$($GETPROP "ro.aera.settings")
 	rm -rf $AERA_HOME/.bin.
 	rm -f $AERA_HOME/.bash*
 	rm -f $AERA_HOME/aera*
-	rm -f $AERA_HOME/aromafm.cfg
 	rm -rf $AERA_SETTINGS/.theme
 	rm -rf $AERA_SETTINGS/.navbar
 	rm -f $AERA_SETTINGS/.aera*
@@ -917,7 +916,6 @@ local AERA_SETTINGS=$($GETPROP "ro.aera.settings")
 			rm -rf $AERA_HOME/.bin.
 			rm -f $AERA_HOME/.bash*
 			rm -f $AERA_HOME/fox*
-			rm -f $AERA_HOME/aromafm.cfg
 		fi
 	fi
 	#

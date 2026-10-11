@@ -575,11 +575,6 @@ post_init() {
   echo "DEBUG: AERA: Fox properties:" >> $LOG
   getprop | grep 'aera' >> $LOG
 
-  # use new magisk uninstall zip for saving space
-  local MZ="/AERA/Files/OF_Magisk/Magisk.zip"
-  if [ -e $MZ ]; then
-     cp $MZ /AERA/Files/OF_Magisk/uninstall.zip
-  fi
 }
 
 ### main() ###

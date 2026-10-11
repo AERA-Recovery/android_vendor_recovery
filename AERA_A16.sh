@@ -528,7 +528,6 @@ local F=$1
    sed -i '/AERA_BUILD_LOG_FILE/d' $F
    sed -i '/AERA_BUILD_DEVICE/d' $F
    sed -i '/AERA_LOCAL_CALLBACK_SCRIPT/d' $F
-   sed -i '/AERA_USE_SPECIFIC_MAGISK_ZIP/d' $F
    sed -i '/AERA_MANIFEST_ROOT/d' $F
    sed -i '/AERA_PORTS_TMP/d' $F
    sed -i '/AERA_RAMDISK/d' $F
@@ -755,29 +754,6 @@ local TDT=$(date "+%d %B %Y")
      sed -i -e "s/^AERA_INSTALLER_DISABLE_AUTOREBOOT=.*/AERA_INSTALLER_DISABLE_AUTOREBOOT=\"1\"/" $F
   fi
 
-  # omit AromaFM ?
-  if [ "$AERA_DELETE_AROMAFM" = "1" ]; then
-     echo -e "${GREEN}-- Deleting AromaFM ...${NC}"
-     rm -rf $AERA_TMP_WORKING_DIR/sdcard/AERA/Files/AromaFM
-  fi
-
-  # copy the magisk addon zip ?
-  if [ "$AERA_DELETE_MAGISK_ADDON" != "1" ] && [ "$AERA_MOVE_MAGISK_INSTALLER_TO_RAMDISK" != "1" ]; then
-     tmp=$AERA_VENDOR_PATH/Files/Magisk.zip
-
-     # are we using a specific magisk zip?
-     if [ -n "$AERA_USE_SPECIFIC_MAGISK_ZIP" ]; then
-        if [ -e $AERA_USE_SPECIFIC_MAGISK_ZIP ]; then
-           echo -e "${WHITEONGREEN}-- Using magisk zip: \"$AERA_USE_SPECIFIC_MAGISK_ZIP\" ${NC}"
-           tmp=$AERA_USE_SPECIFIC_MAGISK_ZIP
-        else
-           echo -e "${WHITEONRED}-- I cannot find \"$AERA_USE_SPECIFIC_MAGISK_ZIP\"! Using the default.${NC}"
-        fi
-     fi
-
-     $CP -pf $tmp $AERA_TMP_WORKING_DIR/sdcard/AERA/Files/Magisk.zip
-     $CP -pf $tmp $AERA_TMP_WORKING_DIR/sdcard/AERA/Files/uninstall.zip
-  fi
 
   # OF_initd
   if [ "$AERA_DELETE_INITD_ADDON" = "1" ]; then
@@ -1140,6 +1116,16 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   if [ -n "$AERA_RAMDISK" ] && [ "$AERA_RAMDISK" != "/" ]; then
     rm -f "$AERA_RAMDISK/AERA/Files/OF_DelFRP/OF_DelFRP.zip"
     rmdir "$AERA_RAMDISK/AERA/Files/OF_DelFRP" 2>/dev/null || true
+    # Remove retired bundled installers left by previous incremental builds.
+    # magiskboot is a separate boot-image tool and must remain available.
+    rm -f "$AERA_RAMDISK/AERA/Files/OF_Magisk/Magisk.zip" \
+          "$AERA_RAMDISK/AERA/Files/OF_Magisk/uninstall.zip" \
+          "$AERA_RAMDISK/AERA/Files/Magisk.zip" \
+          "$AERA_RAMDISK/AERA/Files/uninstall.zip" \
+          "$AERA_RAMDISK/AERA/Files/AromaFM/AromaFM.zip" \
+          "$AERA_RAMDISK/AERA/Files/AromaFM/AromaFM.zip.cfg"
+    rmdir "$AERA_RAMDISK/AERA/Files/OF_Magisk" \
+          "$AERA_RAMDISK/AERA/Files/AromaFM" 2>/dev/null || true
   fi
 
   # if these directories don't already exist
@@ -1210,22 +1196,6 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
      echo -e "${GREEN}-- Disabling the \"More...\" link in the \"About\" page ...${NC}"
   fi
 
-  if [ "$AERA_DELETE_MAGISK_ADDON" != "1" -a "$AERA_MOVE_MAGISK_INSTALLER_TO_RAMDISK" = "1" ]; then
-     tmp=$AERA_VENDOR_PATH/Files/Magisk.zip
-
-     # are we using a specific magisk zip?
-     if [ -n "$AERA_USE_SPECIFIC_MAGISK_ZIP" ]; then
-        if [ -e $AERA_USE_SPECIFIC_MAGISK_ZIP ]; then
-           echo -e "${WHITEONGREEN}-- Using magisk zip: \"$AERA_USE_SPECIFIC_MAGISK_ZIP\" ${NC}"
-           tmp=$AERA_USE_SPECIFIC_MAGISK_ZIP
-        else
-           echo -e "${WHITEONRED}-- I cannot find \"$AERA_USE_SPECIFIC_MAGISK_ZIP\"! Using the default.${NC}"
-        fi
-     fi
-
-     mkdir -p $AERA_RAMDISK/AERA/Files/OF_Magisk/
-     $CP -pf $tmp $AERA_RAMDISK/AERA/Files/OF_Magisk/Magisk.zip
-  fi
 
   # Include bash shell ?
   if [ "$AERA_REMOVE_BASH" = "1" ]; then
@@ -1543,21 +1513,6 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   fi
 #########################################################################################
   
-  # Get Magisk version
-  tmp1=$AERA_VENDOR_PATH/Files/Magisk.zip
-  if [ -n "$AERA_USE_SPECIFIC_MAGISK_ZIP" -a -e "$AERA_USE_SPECIFIC_MAGISK_ZIP" ]; then
-     tmp1=$AERA_USE_SPECIFIC_MAGISK_ZIP
-  fi
-  # is this an old magisk zip or a new one?
-  tmp2=$(unzip -l $tmp1 | grep common/util_functions.sh)
-  if [ -n "$tmp2" ]; then
-     MAGISK_VER=$(unzip -c $tmp1 common/util_functions.sh | grep MAGISK_VER= | sed -E 's+MAGISK_VER="(.*)"+\1+')
-  else
-     tmp2=$(unzip -c $tmp1 assets/util_functions.sh | grep "MAGISK_VER=")
-     MAGISK_VER=$(cut -d= -f2 <<<$tmp2 | sed "s|[',]||g")
-  fi
-
-  echo -e "${GREEN}-- Detected Magisk version: ${MAGISK_VER}${NC}"
   # if a local callback script is declared, run it, passing to it the ramdisk directory (first call)
   if [ -n "$AERA_LOCAL_CALLBACK_SCRIPT" -a -f "$AERA_LOCAL_CALLBACK_SCRIPT" ]; then
 	bash $AERA_LOCAL_CALLBACK_SCRIPT "$AERA_RAMDISK" "--first-call"
