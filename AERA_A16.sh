@@ -1135,6 +1135,13 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
   #[ "$AERA_BUILD_DEBUG_MESSAGES" = "1" ] && echo "- AERA_BUILD_DEBUG_MESSAGES: Copying: $AERA_VENDOR_PATH/AERAExtras/* to $AERA_RAMDISK/"
   $CP -pr $AERA_VENDOR_PATH/AERAExtras/* $AERA_RAMDISK/
 
+  # FRP wiping is now a build-gated native operation, not an installer add-on.
+  # Incremental builds may retain the retired ZIP in the staging ramdisk.
+  if [ -n "$AERA_RAMDISK" ] && [ "$AERA_RAMDISK" != "/" ]; then
+    rm -f "$AERA_RAMDISK/AERA/Files/OF_DelFRP/OF_DelFRP.zip"
+    rmdir "$AERA_RAMDISK/AERA/Files/OF_DelFRP" 2>/dev/null || true
+  fi
+
   # if these directories don't already exist
   mkdir -p $AERA_RAMDISK/$RAMDISK_ETC/
   mkdir -p $AERA_RAMDISK/$RAMDISK_SBIN/
