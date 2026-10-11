@@ -393,9 +393,6 @@ if [ "$AERA_DRASTIC_SIZE_REDUCTION" = "1" -a "$(enabled $AERA_CUSTOM_BINS_TO_SDC
    export BUILD_2GB_VERSION=0
    export AERA_USE_XZ_UTILS=0
    export AERA_USE_ZSTD_BINARY=0
-   export AERA_ENABLE_KERNELSU_SUPPORT=0
-   export AERA_ENABLE_KERNELSU_NEXT_SUPPORT=0
-   export AERA_ENABLE_SUKISU_SUPPORT=0
    export AERA_USE_LZ4_BINARY=0
    export AERA_USE_FSCK_EROFS_BINARY=0
    export AERA_USE_PATCHELF_BINARY=0
@@ -445,9 +442,6 @@ if [ "$AERA_DYNAMIC_SAMSUNG_FIX" = "1" ]; then
    unset AERA_USE_TAR_BINARY
    unset AERA_USE_GREP_BINARY
    unset AERA_USE_ZSTD_BINARY
-   unset AERA_ENABLE_KERNELSU_SUPPORT
-   unset AERA_ENABLE_KERNELSU_NEXT_SUPPORT
-   unset AERA_ENABLE_SUKISU_SUPPORT
    unset AERA_USE_LZ4_BINARY
 fi
 
@@ -897,7 +891,7 @@ local FFil="$AERA_RAMDISK/AERA/Files"
 	 rm -f $AERA_RAMDISK/sbin/nano
 	 rm -f $AERA_RAMDISK/sbin/gnutar
 	 rm -f $AERA_RAMDISK/sbin/zstd
-	 rm -f $AERA_RAMDISK/sbin/ksud
+	 [ "${AERA_ENABLE_ROOT_MANAGER:-0}" = "1" ] || rm -f $AERA_RAMDISK/sbin/ksud
 	 rm -f $AERA_RAMDISK/sbin/lz4
 	 rm -f $AERA_RAMDISK/sbin/gnused
 	 rm -f $AERA_RAMDISK/sbin/gnudate
@@ -1502,24 +1496,14 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
 	chmod 0755 $AERA_RAMDISK/$RAMDISK_SBIN/aapt
   fi
 
-  # enable kernelSU support ?
-  if [ "$AERA_ENABLE_KERNELSU_SUPPORT" = "1" -o  "$AERA_ENABLE_KERNELSU_NEXT_SUPPORT" = "1" -o  "$AERA_ENABLE_SUKISU_SUPPORT" = "1" ]; then
-    if [ "$TARGET_ARCH" != "arm64" ]; then
-      echo -e "${RED}-- Error: only arm64 is supported for KernelSU/SukiSU  ...${NC}"
-    else
-      echo -e "${GREEN}-- Copying the \"ksud\" binary ...${NC}"
+  # Clear obsolete installer addons from incremental ramdisks as well.
+  rm -rf $AERA_RAMDISK/AERA/Files/KernelSU/
+  if [ "${AERA_ENABLE_ROOT_MANAGER:-0}" = "1" ] && [ "$TARGET_ARCH" = "arm64" ]; then
+      echo -e "${GREEN}-- Copying the AERA Root Manager ksud binary ...${NC}"
       $CP -p $AERA_VENDOR_PATH/prebuilt/$TARGET_ARCH/ksud $AERA_RAMDISK/$RAMDISK_SBIN/
       chmod 0755 $AERA_RAMDISK/$RAMDISK_SBIN/ksud
-
-      echo -e "${GREEN}-- Copying other rooting installer(s)  ...${NC}"
-      mkdir -p $AERA_RAMDISK/AERA/Files/KernelSU/
-      [ "$AERA_ENABLE_KERNELSU_SUPPORT" = "1" ] && $CP -p $AERA_VENDOR_PATH/Files/KernelSU_Installer.zip $AERA_RAMDISK/AERA/Files/KernelSU/
-      [ "$AERA_ENABLE_KERNELSU_NEXT_SUPPORT" = "1" ] && $CP -p $AERA_VENDOR_PATH/Files/KernelSU_Next_Installer.zip $AERA_RAMDISK/AERA/Files/KernelSU/
-      [ "$AERA_ENABLE_SUKISU_SUPPORT" = "1" ] && $CP -p $AERA_VENDOR_PATH/Files/KernelSU_Suki_Installer.zip $AERA_RAMDISK/AERA/Files/KernelSU/
-   fi
   else
       rm -f $AERA_RAMDISK/$RAMDISK_SBIN/ksud
-      rm -rf $AERA_RAMDISK/AERA/Files/KernelSU/
   fi
 
   # enable the app manager?
