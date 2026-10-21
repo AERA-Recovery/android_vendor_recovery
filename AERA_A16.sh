@@ -859,6 +859,12 @@ local FFil="$AERA_RAMDISK/AERA/Files"
 
       echo -e "${GREEN}-- Pruning the ramdisk to reduce the size ... ${NC}"
 
+      if [ "${AERA_ENABLE_MOBILE_DATA:-0}" != "1" ]; then
+         rm -f "$AERA_RAMDISK/system/bin/aera-cellular-provider" \
+               "$AERA_RAMDISK/system/bin/aera-mobile-rmtfs" \
+               "$AERA_RAMDISK/system/bin/aera-mobile-tftp"
+      fi
+
       # remove some large files
       if [ "$(enabled $AERA_CUSTOM_BINS_TO_SDCARD)" != "1" ]; then
       	 rm -rf $FFil/nano
