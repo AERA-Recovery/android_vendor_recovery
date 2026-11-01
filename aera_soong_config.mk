@@ -17,6 +17,7 @@
 $(call add_soong_config_var,twrpVarsPlugin,\
     AERA_ENABLE_ROOT_MANAGER \
     AERA_ENABLE_MOBILE_DATA \
+    AERA_ENABLE_EFISP \
     AERA_UI_ADAPTIVE_RESOLUTION \
     AERA_SCREEN_H \
     AERA_STATUS_H \
