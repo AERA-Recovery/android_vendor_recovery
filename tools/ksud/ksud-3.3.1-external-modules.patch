@@ -1,0 +1,155 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 3f107160..7f0901c4 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1533,6 +1533,7 @@ version = "8.12.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "42ffa149f6aa81b58a5b3011d01a857c4ed12c7a732d2c51947a4c7c692185f0"
+ dependencies = [
++ "globset",
+  "include-flate",
+  "sha2 0.11.0",
+  "walkdir",
+diff --git a/userspace/ksud/Cargo.toml b/userspace/ksud/Cargo.toml
+index f5a41350..041f430d 100644
+--- a/userspace/ksud/Cargo.toml
++++ b/userspace/ksud/Cargo.toml
+@@ -5,6 +5,10 @@ edition.workspace = true
+ 
+ # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+ 
++[features]
++# AERA supplies the selected provider's module explicitly to boot-patch -m.
++aera-external-modules = ["rust-embed/include-exclude"]
++
+ [dependencies]
+ anyhow.workspace = true
+ clap = { version = "4", features = ["derive"] }
+diff --git a/userspace/ksud/src/assets.rs b/userspace/ksud/src/assets.rs
+index 9b183b16..c764ea71 100644
+--- a/userspace/ksud/src/assets.rs
++++ b/userspace/ksud/src/assets.rs
+@@ -43,6 +43,7 @@ struct Asset;
+ #[cfg(all(target_arch = "aarch64", target_os = "android"))]
+ #[derive(RustEmbed)]
+ #[folder = "bin/aarch64"]
++#[cfg_attr(feature = "aera-external-modules", exclude = "*.ko")]
+ struct Asset;
+ 
+ #[cfg(all(target_arch = "riscv64", target_os = "android"))]
+@@ -58,15 +59,49 @@ struct Asset;
+ 
+ #[allow(unused)]
+ pub fn get_asset_data(name: &str) -> Result<std::borrow::Cow<'static, [u8]>> {
++    #[cfg(all(
++        feature = "aera-external-modules",
++        target_arch = "aarch64",
++        target_os = "android"
++    ))]
++    if let Some(path) = external_module_path(name) {
++        return std::fs::read(&path)
++            .map(std::borrow::Cow::Owned)
++            .map_err(|error| anyhow::anyhow!("cannot read external module {path}: {error}"));
++    }
+     let asset = Asset::get(name).ok_or_else(|| anyhow::anyhow!("asset not found: {name}"))?;
+     Ok(asset.data)
+ }
+ 
+ pub fn get_asset(name: &str) -> Result<Box<dyn AsRef<[u8]>>> {
+-    let asset = Asset::get(name).ok_or_else(|| anyhow::anyhow!("asset not found: {name}"))?;
+-    Ok(Box::new(asset.data))
++    Ok(Box::new(get_asset_data(name)?))
++}
++
++// Commands that normally select the built-in KernelSU module can instead use
++// AERA's separate KernelSU provider. Explicit boot-patch -m paths still win.
++#[cfg(all(
++    feature = "aera-external-modules",
++    target_arch = "aarch64",
++    target_os = "android"
++))]
++fn external_module_path(name: &str) -> Option<String> {
++    let kmi = name.strip_suffix("_kernelsu.ko")?;
++    if !list_supported_kmi()
++        .iter()
++        .any(|supported| supported == kmi)
++    {
++        return None;
++    }
++    Some(format!(
++        "/system/etc/aera/root-providers/kernelsu/lkm-aarch64-{name}"
++    ))
+ }
+ 
++#[cfg(not(all(
++    feature = "aera-external-modules",
++    target_arch = "aarch64",
++    target_os = "android"
++)))]
+ pub fn list_supported_kmi() -> std::vec::Vec<std::string::String> {
+     let mut list = Vec::new();
+     for file in Asset::iter() {
+@@ -77,3 +112,63 @@ pub fn list_supported_kmi() -> std::vec::Vec<std::string::String> {
+     }
+     list
+ }
++
++// Keep the upstream ARM64 KMI list even though the corresponding module bytes
++// are supplied externally. AERA uses this command to validate KMI detection.
++#[cfg(all(
++    feature = "aera-external-modules",
++    target_arch = "aarch64",
++    target_os = "android"
++))]
++pub fn list_supported_kmi() -> std::vec::Vec<std::string::String> {
++    [
++        "android12-5.10",
++        "android13-5.10",
++        "android13-5.15",
++        "android14-5.15",
++        "android14-6.1",
++        "android15-6.6",
++        "android16-6.12",
++        "android17-6.18",
++    ]
++    .into_iter()
++    .map(String::from)
++    .collect()
++}
++
++#[cfg(all(
++    test,
++    feature = "aera-external-modules",
++    target_arch = "aarch64",
++    target_os = "android"
++))]
++mod aera_tests {
++    use super::*;
++
++    #[test]
++    fn keeps_helpers_without_embedded_modules() {
++        assert!(!Asset::iter().any(|name| name.ends_with(".ko")));
++        for helper in ["ksuinit", "busybox", "bootctl", "waitsys"] {
++            assert!(Asset::get(helper).is_some(), "missing helper {helper}");
++        }
++    }
++
++    #[test]
++    fn preserves_supported_kmi_detection() {
++        let supported = list_supported_kmi();
++        assert_eq!(supported.len(), 8);
++        assert_eq!(supported.first().unwrap(), "android12-5.10");
++        assert_eq!(supported.last().unwrap(), "android17-6.18");
++    }
++
++    #[test]
++    fn external_lookup_uses_only_known_module_names() {
++        assert_eq!(
++            external_module_path("android14-6.1_kernelsu.ko").unwrap(),
++            "/system/etc/aera/root-providers/kernelsu/lkm-aarch64-android14-6.1_kernelsu.ko"
++        );
++        assert!(external_module_path("../android14-6.1_kernelsu.ko").is_none());
++        assert!(external_module_path("android99-9.9_kernelsu.ko").is_none());
++        assert!(external_module_path("ksuinit").is_none());
++    }
++}
