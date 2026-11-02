@@ -1479,6 +1479,35 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
 	chmod 0755 $AERA_RAMDISK/$RAMDISK_SBIN/aapt
   fi
 
+  # Stable-AIDL helper has a platform build variant; copy it only for opt-in devices.
+  if [ "${AERA_SUPPORT_FINGERPRINT:-0}" = "1" ]; then
+      if [ ! -x "$OUT/system/bin/aera-fingerprint" ]; then
+          echo "ERROR: opted-in fingerprint helper was not built" >&2
+          exit 1
+      fi
+      mkdir -p "$AERA_RAMDISK/system/bin"
+      $CP -p "$OUT/system/bin/aera-fingerprint" "$AERA_RAMDISK/system/bin/aera-fingerprint"
+      chmod 0755 "$AERA_RAMDISK/system/bin/aera-fingerprint"
+      # Build the stable interfaces and their imported Keymaster API from AOSP.
+      # Install shared interfaces alongside the device HAL dependencies.
+      aera_fp_libdir=lib
+      case "$TARGET_ARCH" in arm64|x86_64) aera_fp_libdir=lib64 ;; esac
+      mkdir -p "$AERA_RAMDISK/vendor/$aera_fp_libdir"
+      for aera_fp_aidl in android.hardware.biometrics.fingerprint-V3-ndk \
+              android.hardware.biometrics.common-V3-ndk android.hardware.keymaster-V4-ndk; do
+          if [ ! -f "$OUT/system/$aera_fp_libdir/$aera_fp_aidl.so" ]; then
+              echo "ERROR: opted-in fingerprint AIDL library was not built: $aera_fp_aidl" >&2
+              exit 1
+          fi
+          $CP -f "$OUT/system/$aera_fp_libdir/$aera_fp_aidl.so" \
+              "$AERA_RAMDISK/vendor/$aera_fp_libdir/$aera_fp_aidl.so"
+          chmod 0644 "$AERA_RAMDISK/vendor/$aera_fp_libdir/$aera_fp_aidl.so"
+      done
+  else
+      # Hardware-specific HALs, init files and blobs are owned by each device tree.
+      rm -f "$AERA_RAMDISK/system/bin/aera-fingerprint"
+  fi
+
   # Clear obsolete installer addons from incremental ramdisks as well.
   rm -rf $AERA_RAMDISK/AERA/Files/KernelSU/
   if [ "${AERA_ENABLE_ROOT_MANAGER:-0}" = "1" ] && [ "$TARGET_ARCH" = "arm64" ]; then
