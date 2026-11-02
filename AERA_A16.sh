@@ -1479,24 +1479,28 @@ if [ "$AERA_VENDOR_CMD" = "Fox_Before_Recovery_Image" ]; then
 	chmod 0755 $AERA_RAMDISK/$RAMDISK_SBIN/aapt
   fi
 
-  # Stable-AIDL helper has a platform build variant; copy it only for opt-in devices.
+  # Fingerprint clients have platform variants; package only the selected backend.
   if [ "${AERA_SUPPORT_FINGERPRINT:-0}" = "1" ]; then
-      if [ ! -x "$OUT/system/bin/aera-fingerprint" ]; then
+      aera_fp_helper=aera-fingerprint
+      aera_fp_interfaces="android.hardware.biometrics.fingerprint-V3-ndk android.hardware.biometrics.common-V3-ndk android.hardware.keymaster-V4-ndk"
+      if [ "${AERA_FINGERPRINT_BACKEND:-aidl}" = "hidl" ]; then
+          aera_fp_helper=aera-fingerprint-hidl
+          aera_fp_interfaces="android.hardware.biometrics.fingerprint@2.1 android.hardware.biometrics.fingerprint@2.2 android.hardware.biometrics.fingerprint@2.3"
+      fi
+      if [ ! -x "$OUT/system/bin/$aera_fp_helper" ]; then
           echo "ERROR: opted-in fingerprint helper was not built" >&2
           exit 1
       fi
       mkdir -p "$AERA_RAMDISK/system/bin"
-      $CP -p "$OUT/system/bin/aera-fingerprint" "$AERA_RAMDISK/system/bin/aera-fingerprint"
+      $CP -p "$OUT/system/bin/$aera_fp_helper" "$AERA_RAMDISK/system/bin/aera-fingerprint"
       chmod 0755 "$AERA_RAMDISK/system/bin/aera-fingerprint"
-      # Build the stable interfaces and their imported Keymaster API from AOSP.
-      # Install shared interfaces alongside the device HAL dependencies.
+      # Install source-built interfaces alongside the device HAL dependencies.
       aera_fp_libdir=lib
       case "$TARGET_ARCH" in arm64|x86_64) aera_fp_libdir=lib64 ;; esac
       mkdir -p "$AERA_RAMDISK/vendor/$aera_fp_libdir"
-      for aera_fp_aidl in android.hardware.biometrics.fingerprint-V3-ndk \
-              android.hardware.biometrics.common-V3-ndk android.hardware.keymaster-V4-ndk; do
+      for aera_fp_aidl in $aera_fp_interfaces; do
           if [ ! -f "$OUT/system/$aera_fp_libdir/$aera_fp_aidl.so" ]; then
-              echo "ERROR: opted-in fingerprint AIDL library was not built: $aera_fp_aidl" >&2
+              echo "ERROR: opted-in fingerprint interface was not built: $aera_fp_aidl" >&2
               exit 1
           fi
           $CP -f "$OUT/system/$aera_fp_libdir/$aera_fp_aidl.so" \
