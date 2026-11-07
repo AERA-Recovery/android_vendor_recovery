@@ -176,6 +176,12 @@ get_ROM() {
 local S="/tmp_system_rom"
 local PROP="$S/build.prop"
 local V="/vendor"
+# Keep the recovery runtime visible while reading installed-ROM metadata.
+local ram_runtime="0"
+if [ -x /system/bin/aera-runtime-stage ]; then
+   ram_runtime="1"
+   V="$OUR_TMP/vendor_rom_info"
+fi
 local V_PROP="$V/build.prop"
 local found_vendor_prop="0"
 local slot=$(getprop "ro.boot.slot_suffix")
@@ -220,27 +226,40 @@ local slot=$(getprop "ro.boot.slot_suffix")
    umount $S > /dev/null 2>&1
    rmdir $S > /dev/null 2>&1
 
-   # now look for vendor prop
-   local mv1="0"
-   [ ! -d "$V" ] && mkdir -p $V > /dev/null 2>&1
-   if [ -d "$V" ]; then
-      ! is_mounted $V && {
-         $MOUNT_CMD $V > /dev/null 2>&1
-         is_mounted $V && mv1="1"
-      }
-      is_mounted $V && {
-         [ -f $V_PROP ] && {
-           found_vendor_prop=1
-           # make a copy of the vendor build.prop
-           cp $V_PROP "$OUR_TMP/vendor_build_prop" > /dev/null 2>&1
-           V_PROP="$OUR_TMP/vendor_build_prop"
-           [ "$mv1" = "1" ] && umount $V > /dev/null 2>&1
-         }
-      }
-   fi
-
-   # use the vendor prop if found
-   [ "$found_vendor_prop" != "1" ] && V_PROP=""
+    # Read vendor metadata without covering a prepared RAM runtime.
+    local mv1="0"
+    [ ! -d "$V" ] && mkdir -p "$V" > /dev/null 2>&1
+    if [ -d "$V" ]; then
+       if ! is_mounted "$V"; then
+          if [ "$ram_runtime" = "1" ]; then
+             local vendor_source="$VENDOR_BLOCK"
+             local vendor_slot=$(getprop ro.boot.slot_suffix)
+             case "$vendor_slot" in _a|_b) ;; *) vendor_slot="" ;; esac
+             case "$vendor_source" in
+                */dm-*|*_a|*_b) ;;
+                *) [ -n "$vendor_slot" -a -b "$vendor_source$vendor_slot" ] && vendor_source="$vendor_source$vendor_slot" ;;
+             esac
+             $MOUNT_CMD -t ext4 -o ro,noload,nosuid,nodev "$vendor_source" "$V" > /dev/null 2>&1 || \
+                $MOUNT_CMD -t erofs -o ro,nosuid,nodev "$vendor_source" "$V" > /dev/null 2>&1
+             is_mounted "$V" && mount -o private none "$V" > /dev/null 2>&1
+          else
+             $MOUNT_CMD "$V" > /dev/null 2>&1
+          fi
+          is_mounted "$V" && mv1="1"
+       fi
+       if is_mounted "$V" && [ -f "$V_PROP" ]; then
+          found_vendor_prop="1"
+          cp "$V_PROP" "$OUR_TMP/vendor_build_prop" > /dev/null 2>&1
+          V_PROP="$OUR_TMP/vendor_build_prop"
+       fi
+       # RAM mode owns a private metadata mount; release it even if the ROM
+       # has no vendor build.prop. Preserve the legacy cleanup condition.
+       if [ "$mv1" = "1" ] && [ "$ram_runtime" = "1" -o "$found_vendor_prop" = "1" ]; then
+          umount "$V" > /dev/null 2>&1
+       fi
+       [ "$ram_runtime" = "1" ] && rmdir "$V" > /dev/null 2>&1
+    fi
+    [ "$found_vendor_prop" != "1" ] && V_PROP=""
 
    # query the build.prop
    local tmp2=""
